@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+    <div id="login-section" class="admin-card">
+        <h2>Admin Login</h2>
+        <input type="email" id="email" placeholder="Admin Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()" class="btn-primary">Login</button>
+    </div>
+
+    <div id="dashboard-section" style="display:none;">
+        <nav class="navbar">
+            <div class="logo">Admin Dashboard</div>
+            <button onclick="logout()" class="btn-secondary">Logout</button>
+        </nav>
+        
+        <div class="admin-grid">
+            <div class="admin-card">
+                <h3>Add New Player / Update Stats</h3>
+                <input type="text" id="p-name" placeholder="Player Name">
+                <input type="text" id="p-photo" placeholder="Photo URL">
+                <input type="number" id="p-wins" placeholder="Wins">
+                <input type="number" id="p-draws" placeholder="Draws">
+                <button onclick="addPlayer()" class="btn-primary">Add Player</button>
+            </div>
+            
+            <div class="admin-card">
+                <h3>Manage Tournaments</h3>
+                <input type="text" id="t-name" placeholder="Tournament Name">
+                <select id="t-status">
+                    <option value="upcoming">Upcoming</option>
+                    <option value="live">Live</option>
+                    <option value="past">Past</option>
+                </select>
+                <button onclick="addTournament()" class="btn-primary">Create Tournament</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
