@@ -3,256 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Command | Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        /* KEEPING YOUR NEON STYLING */
-        :root {
-            --bg-color: #000000;
-            --card-bg: #0a0a0a;
-            --accent-cyan: #00FFFF;
-            --accent-green: #39FF14;
-            --text-main: #FFFFFF;
-            --text-muted: #A0A0A0;
-            --font-head: 'Orbitron', sans-serif;
-            --font-body: 'Rajdhani', sans-serif;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-body); }
-        h1, h2, h3 { font-family: var(--font-head); text-transform: uppercase; }
-
-        /* BUTTONS & NAV */
-        .neon-btn {
-            background: transparent; color: var(--accent-cyan); border: 2px solid var(--accent-cyan);
-            padding: 10px 20px; font-family: var(--font-head); cursor: pointer;
-            box-shadow: 0 0 10px var(--accent-cyan) inset; transition: 0.3s;
-        }
-        .neon-btn:hover { background: var(--accent-cyan); color: #000; }
-        .neon-btn.green { color: var(--accent-green); border-color: var(--accent-green); box-shadow: 0 0 10px var(--accent-green) inset; }
-        .neon-btn.green:hover { background: var(--accent-green); color: #000; }
-
-        nav { background: #000; border-bottom: 1px solid var(--accent-cyan); padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100;}
-        .nav-links button { background: none; border: none; color: #fff; margin: 0 10px; cursor: pointer; font-family: var(--font-head); }
-        .nav-links button:hover, .nav-links button.active { color: var(--accent-cyan); }
-        
-        .page-section { display: none; padding: 40px 20px; max-width: 1200px; margin: 0 auto; min-height: 80vh; }
-        .page-section.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* CARDS & FORMS */
-        .card { background: var(--card-bg); border: 1px solid #222; padding: 20px; border-radius: 5px; margin-bottom: 20px;}
-        input, select { width: 100%; padding: 10px; margin-bottom: 15px; background: #111; border: 1px solid #333; color: white; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: center; }
-        th { background: var(--accent-cyan); color: #000; }
-
-        .hidden { display: none !important; }
-        .admin-controls { border: 1px dashed var(--accent-green); padding: 20px; margin-top: 20px; }
-    </style>
+    <title>eFootball eSports Community</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- UPDATED NAVBAR -->
-    <nav>
-        <div class="logo" style="color:var(--accent-cyan); font-family:var(--font-head); font-size:1.5rem;">NEXUS</div>
-        <div class="nav-links">
-            <button class="nav-btn active" onclick="switchTab('home')">Home</button>
-            <button class="nav-btn" onclick="switchTab('tournaments'); loadTournaments();">Tournament Info</button>
-            <button class="nav-btn" onclick="switchTab('rankings'); loadPlayers();">Player Rankings</button>
-            <button class="nav-btn" onclick="switchTab('about')">About Us</button>
-            <button class="nav-btn" onclick="switchTab('social')">Social Media</button>
-            <button class="nav-btn" onclick="switchTab('contact')">Contact Us</button>
-            <button class="nav-btn" id="adminNavBtn" onclick="switchTab('admin-login')" style="color:var(--accent-green)">Admin</button>
-        </div>
+    <nav class="navbar">
+        <div class="logo">eFootball eSports</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#tournaments">Tournament Info</a></li>
+            <li><a href="#rankings">Players Rankings</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#social">Social</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+            <li><a href="admin.html" class="btn-login">Login</a></li>
+        </ul>
     </nav>
 
-    <!-- HOME -->
-    <main id="home" class="page-section active">
-        <h1 style="text-shadow: 0 0 15px var(--accent-cyan);">The Command Center</h1>
-        <p style="color: var(--text-muted); margin-top: 10px;">Welcome to the most advanced esports league.</p>
-    </main>
-
-    <!-- TOURNAMENTS (DYNAMIC) -->
-    <main id="tournaments" class="page-section">
-        <h2>Tournament Info</h2>
-        <div id="tourney-list">Loading fast UI...</div>
-    </main>
-
-    <!-- RANKINGS (DYNAMIC) -->
-    <main id="rankings" class="page-section">
-        <h2>Global Player Rankings</h2>
-        <div class="card">
-            <table>
-                <thead>
-                    <tr><th>Rank</th><th>Player</th><th>ELO</th><th>Win Rate</th></tr>
-                </thead>
-                <tbody id="player-table-body">
-                    <!-- Data injected here -->
-                </tbody>
-            </table>
+    <section id="home" class="section">
+        <div class="hero">
+            <h1>Welcome to the Ultimate eFootball Arena</h1>
+            <p>Join the most competitive eFootball eSports community.</p>
+            <button class="btn-primary">Join Us</button>
         </div>
-    </main>
-
-    <!-- ADMIN LOGIN -->
-    <main id="admin-login" class="page-section">
-        <div class="card" style="max-width: 400px; margin: 0 auto;">
-            <h2 style="color: var(--accent-green); margin-bottom: 20px;">Admin Login</h2>
-            <form id="loginForm">
-                <input type="email" id="email" placeholder="Admin Email" required>
-                <input type="password" id="password" placeholder="Password" required>
-                <button type="submit" class="neon-btn green" style="width: 100%;">Authenticate</button>
-            </form>
-        </div>
-    </main>
-
-    <!-- ADMIN DASHBOARD (SECURE) -->
-    <main id="admin-dashboard" class="page-section">
-        <h2 style="color: var(--accent-green); border-bottom: 1px solid var(--accent-green); padding-bottom: 10px;">🛡️ Secure Admin Dashboard</h2>
-        <button class="neon-btn" onclick="logout()" style="margin-top: 10px;">Logout</button>
-
-        <div class="admin-controls">
-            <h3>Add New Player to Rankings</h3>
-            <form id="addPlayerForm" style="display: flex; gap: 10px; margin-top: 15px;">
-                <input type="text" id="pName" placeholder="GamerTag" required>
-                <input type="number" id="pElo" placeholder="Starting ELO (e.g. 1500)" required>
-                <input type="text" id="pWinRate" placeholder="Win Rate (e.g. 50%)" required>
-                <button type="submit" class="neon-btn green">Add Player</button>
-            </form>
-        </div>
-
-        <div class="admin-controls">
-            <h3>Create Tournament</h3>
-            <form id="addTourneyForm" style="display: flex; gap: 10px; margin-top: 15px;">
-                <input type="text" id="tName" placeholder="Tournament Name (e.g. Nexus Carnival)" required>
-                <button type="submit" class="neon-btn">Create</button>
-            </form>
-        </div>
-    </main>
-
-    <!-- OTHER PAGES -->
-    <main id="about" class="page-section"><h2>About Us</h2><p>Nexus is built for top-tier competitive play.</p></main>
-    <main id="social" class="page-section"><h2>Social Media</h2><p>Follow us on Discord & WhatsApp.</p></main>
-    <main id="contact" class="page-section"><h2>Contact Us</h2><p>Support form coming soon.</p></main>
-
-    <!-- JAVASCRIPT: FAST UI & API LOGIC -->
-    <script>
-        const API_URL = 'http://localhost:5000/api';
         
-        // UI Navigation
-        function switchTab(tabId) {
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // Check if admin is logged in when they click the Admin tab
-            if(tabId === 'admin-login' && localStorage.getItem('nexus_admin_token')) {
-                tabId = 'admin-dashboard';
-            }
+        <h2>Live Tournaments</h2>
+        <div id="live-tournaments" class="grid-container"></div>
+        <a href="#tournaments" class="btn-secondary">View All Tournaments</a>
 
-            document.getElementById(tabId).classList.add('active');
-        }
+        <h2>Top 3 Players</h2>
+        <div id="top-3-players" class="grid-container"></div>
+        <a href="#rankings" class="btn-secondary">View Full Leaderboard</a>
 
-        // --- FETCH PLAYERS (Fast UI) ---
-        async function loadPlayers() {
-            try {
-                const res = await fetch(`${API_URL}/players`);
-                const players = await res.json();
-                const tbody = document.getElementById('player-table-body');
-                tbody.innerHTML = '';
-                players.forEach((p, index) => {
-                    tbody.innerHTML += `<tr>
-                        <td style="color: var(--accent-cyan)">${index + 1}</td>
-                        <td>${p.name}</td>
-                        <td>${p.elo}</td>
-                        <td>${p.winRate}</td>
-                    </tr>`;
-                });
-            } catch (err) { console.error("Error loading players"); }
-        }
+        <div class="newsletter">
+            <h3>Subscribe to our Newsletter</h3>
+            <input type="email" id="sub-email" placeholder="Enter your email">
+            <button onclick="subscribe()" class="btn-primary">Subscribe</button>
+        </div>
+    </section>
 
-        // --- FETCH TOURNAMENTS (Fast UI) ---
-        async function loadTournaments() {
-            try {
-                const res = await fetch(`${API_URL}/tournaments`);
-                const tournaments = await res.json();
-                const list = document.getElementById('tourney-list');
-                list.innerHTML = '';
-                tournaments.forEach(t => {
-                    let matchesHtml = t.matches.map(m => `<p>${m.teamA} [${m.scoreA}] vs [${m.scoreB}] ${m.teamB}</p>`).join('');
-                    list.innerHTML += `
-                        <div class="card">
-                            <h3 style="color:var(--accent-green)">${t.name} <span style="font-size:0.8rem; color:var(--text-muted)">(${t.status})</span></h3>
-                            <div style="margin-top:10px;">${matchesHtml || '<p>No matches set yet.</p>'}</div>
-                        </div>`;
-                });
-            } catch (err) { console.error("Error loading tournaments"); }
-        }
+    <section id="tournaments" class="section">
+        <h2>Tournament Hub</h2>
+        <div id="all-tournaments" class="list-container"></div>
+    </section>
 
-        // --- ADMIN LOGIN LOGIC ---
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+    <section id="rankings" class="section">
+        <h2>Top 100 Players Ranking</h2>
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Profile</th>
+                    <th>Name</th>
+                    <th>Points</th>
+                    <th>Trend</th>
+                </tr>
+            </thead>
+            <tbody id="full-rankings"></tbody>
+        </table>
+    </section>
 
-            const res = await fetch(`${API_URL}/admin/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+    <section id="about" class="section">
+        <h2>About Us</h2>
+        <p>We are a passionate eFootball community bringing the best players together to compete at the highest level. More details coming soon!</p>
+    </section>
 
-            const data = await res.json();
-            if(res.ok) {
-                localStorage.setItem('nexus_admin_token', data.token);
-                document.getElementById('adminNavBtn').textContent = "Dashboard";
-                switchTab('admin-dashboard');
-            } else {
-                alert(data.message);
-            }
-        });
+    <section id="social" class="section">
+        <h2>Follow Us</h2>
+        <div class="social-links">
+            <a href="#">Discord</a>
+            <a href="#">YouTube</a>
+            <a href="#">Twitter/X</a>
+        </div>
+    </section>
 
-        function logout() {
-            localStorage.removeItem('nexus_admin_token');
-            document.getElementById('adminNavBtn').textContent = "Admin";
-            switchTab('home');
-        }
+    <section id="contact" class="section">
+        <h2>Contact Us</h2>
+        <p>Email: support@efootballesports.com</p>
+        <p>WhatsApp: +1234567890</p>
+    </section>
 
-        // --- ADMIN DASHBOARD ACTIONS ---
-        // Add Player
-        document.getElementById('addPlayerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem('nexus_admin_token');
-            const newPlayer = {
-                name: document.getElementById('pName').value,
-                elo: document.getElementById('pElo').value,
-                winRate: document.getElementById('pWinRate').value
-            };
-
-            await fetch(`${API_URL}/players`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(newPlayer)
-            });
-            alert('Player Added!');
-            e.target.reset();
-        });
-
-        // Add Tournament
-        document.getElementById('addTourneyForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem('nexus_admin_token');
-            await fetch(`${API_URL}/tournaments`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ name: document.getElementById('tName').value })
-            });
-            alert('Tournament Created!');
-            e.target.reset();
-        });
-
-        // Auto-check auth on load
-        if(localStorage.getItem('nexus_admin_token')) {
-            document.getElementById('adminNavBtn').textContent = "Dashboard";
-        }
-    </script>
+    <script src="main.js"></script>
 </body>
 </html>
