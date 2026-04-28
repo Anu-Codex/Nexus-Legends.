@@ -1,4 +1,4 @@
-const API_URL = 'https://YOUR_BACKEND_URL.onrender.com/api'; // CHANGE THIS TO YOUR RENDER URL
+const API_URL = 'https://nl-server-k7i9.onrender.com/api'; // CHANGE THIS TO YOUR RENDER URL
 
 // Check if already logged in
 if(localStorage.getItem('adminToken')) {
