@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024">
+    <title>Contact Us | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --accent-yellow: #E4FF00;
+            --nexus-blue: #0041FF;
+            --dark-bg: #050505;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding-top: 100px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 65, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(228, 255, 0, 0.05) 0%, transparent 40%);
+        }
+
+        .contact-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 50px;
+            padding: 40px 20px;
+        }
+
+        /* --- Left Side: Social & Info --- */
+        .contact-sidebar h1 {
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            line-height: 0.9;
+        }
+
+        .contact-sidebar p {
+            color: #888;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            background: var(--glass);
+            border: 1px solid #222;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: 0.3s;
+            text-decoration: none;
+            color: white;
+        }
+
+        .info-card:hover {
+            border-color: var(--nexus-blue);
+            background: rgba(0, 65, 255, 0.05);
+            transform: translateX(10px);
+        }
+
+        .info-card i {
+            font-size: 2rem;
+            color: var(--accent-yellow);
+        }
+
+        .info-card div h4 { margin: 0; color: #aaa; font-size: 0.8rem; text-transform: uppercase; }
+        .info-card div p { margin: 0; font-weight: bold; font-size: 1.2rem; color: white; }
+
+        /* --- Right Side: The Form --- */
+        .contact-form-wrapper {
+            background: var(--glass);
+            border: 1px solid #222;
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .contact-form-wrapper::before {
+            content: "";
+            position: absolute;
+            top: -1px; left: 50px; right: 50px; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-yellow), transparent);
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--accent-yellow); font-weight: bold; font-size: 0.9rem; }
+        
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            padding: 15px;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--nexus-blue);
+            box-shadow: 0 0 15px rgba(0, 65, 255, 0.2);
+        }
+
+        .send-btn {
+            width: 100%;
+            background: var(--accent-yellow);
+            color: black;
+            border: none;
+            padding: 18px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+            transition: 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(228, 255, 0, 0.4);
+        }
+
+        /* --- Social Bar --- */
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+            border: 1px solid #222;
+        }
+
+        .social-icon:hover {
+            background: var(--nexus-blue);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="contact-container">
+        
+        <!-- SIDEBAR -->
+        <div class="contact-sidebar">
+            <h1>GET IN <br><span style="color:var(--nexus-blue)">TOUCH</span></h1>
+            <p>Have a dispute, a sponsorship inquiry, or just want to talk eFootball? The Nexus Admins are ready.</p>
+
+            <a href="https://wa.me/yournumber" class="info-card">
+                <i class="fa-brands fa-whatsapp"></i>
+                <div>
+                    <h4>WhatsApp Support</h4>
+                    <p>+91 98765 43210</p>
+                </div>
+            </a>
+
+            <div class="info-card">
+                <i class="fa-solid fa-envelope"></i>
+                <div>
+                    <h4>Email Inquiry</h4>
+                    <p>support@nexuslegends.com</p>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <i class="fa-solid fa-location-dot"></i>
+                <div>
+                    <h4>Arena HQ</h4>
+                    <p>Digital Arena, Global</p>
+                </div>
+            </div>
+
+            <div class="social-links">
+                <a href="#" class="social-icon"><i class="fa-brands fa-discord"></i></a>
+                <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
+                <a href="#" class="social-icon"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+        </div>
+
+        <!-- UPDATE YOUR FORM TAG LIKE THIS -->
+<div class="contact-form-wrapper">
+    <!-- Replace 'YOUR_FORM_ID' with the ID from Formspree -->
+    <form id="contactForm" action="https://formspree.io/f/xrejzzlr" method="POST">
+        
+        <div class="form-group">
+            <label>FULL NAME</label>
+            <!-- IMPORTANT: name="name" added -->
+            <input type="text" name="name" id="userName" placeholder="Enter your name" required>
+        </div>
+
+        <div class="form-group">
+            <label>EMAIL ADDRESS</label>
+            <!-- IMPORTANT: name="email" added -->
+            <input type="email" name="email" id="userEmail" placeholder="email@example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label>SUBJECT</label>
+            <!-- IMPORTANT: name="subject" added -->
+            <input type="text" name="subject" id="subject" placeholder="Tournament Query, Prize Issue, etc." required>
+        </div>
+
+        <div class="form-group">
+            <label>YOUR MESSAGE</label>
+            <!-- IMPORTANT: name="message" added -->
+            <textarea name="message" id="message" rows="6" placeholder="Describe your issue in detail..." required></textarea>
+        </div>
+
+        <!-- This hidden input prevents the user from leaving your site after submitting -->
+        <input type="hidden" name="_next" value="https://nexus-legends-roan.vercel.app/contact.html">
+
+        <button type="submit" class="send-btn" id="submitBtn">
+            <i class="fa-solid fa-paper-plane"></i> TRANSMIT MESSAGE
+        </button>
+    </form>
+
+    <div id="statusMsg" style="margin-top:20px; text-align:center; display:none; color:var(--accent-yellow); font-weight:bold;">
+        <i class="fa-solid fa-circle-check"></i> TRANSMISSION RECEIVED! WE WILL CONTACT YOU SHORTLY.
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("contactForm");
+    
+    async function handleSubmit(event) {
+      event.preventDefault();
+      const status = document.getElementById("statusMsg");
+      const btn = document.getElementById("submitBtn");
+      const data = new FormData(event.target);
+
+      // Start Animation
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ENCRYPTING...';
+      btn.style.opacity = "0.7";
+      btn.style.pointerEvents = "none";
+
+      // Send to Formspree
+      fetch(event.target.action, {
+        method: form.method,
+        body: data,
+        headers: {
+            'Accept': 'application/json'
+        }
+      }).then(response => {
+        if (response.ok) {
+          // Success
+          form.style.display = "none";
+          status.style.display = "block";
+        } else {
+          // Error
+          response.json().then(data => {
+            alert("Transmission Error: " + data.errors.map(error => error.message).join(", "));
+            btn.innerHTML = 'RETRY TRANSMISSION';
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "all";
+          })
+        }
+      }).catch(error => {
+        alert("Oops! There was a problem connecting to the server.");
+        btn.innerHTML = 'RETRY TRANSMISSION';
+        btn.style.opacity = "1";
+        btn.style.pointerEvents = "all";
+      });
+    }
+
+    form.addEventListener("submit", handleSubmit);
+</script>
+
+</body>
+</html>
