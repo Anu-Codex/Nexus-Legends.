@@ -226,45 +226,49 @@
         }
 
         function fillTourForm() {
-            const id = document.getElementById('tourSelect').value;
-            if(!id) { resetTourForm(); return; }
+    const id = document.getElementById('tourSelect').value;
+    if(!id) { resetTourForm(); return; }
 
-            const t = toursData.find(x => x._id === id);
-            document.getElementById('editId').value = t._id;
-            document.getElementById('tTitle').value = t.title;
-            document.getElementById('tTeams').value = t.totalTeams;
-            document.getElementById('tStatus').value = t.status;
-            document.getElementById('tWinner').value = t.winner || "";
-            document.getElementById('tJoin').value = t.joinLink || "";
-            document.getElementById('tPrize').value = t.prize;
-            document.getElementById('tDate').value = t.date;
-            
-            document.getElementById('subBtn').innerText = "Update Tournament";
-            document.getElementById('subBtn').style.background = "var(--green)";
-            document.getElementById('delBtn').style.display = "block";
+    const t = toursData.find(x => x._id === id);
+    document.getElementById('editId').value = t._id;
+    document.getElementById('tTitle').value = t.title;
+    document.getElementById('tTeams').value = t.totalTeams;
+    document.getElementById('tStatus').value = t.status;
+    document.getElementById('tWinner').value = t.winner || "";
+    document.getElementById('tJoin').value = t.joinLink || "";
+    document.getElementById('tFixture').value = t.fixtureLink || ""; // Fixed
+    document.getElementById('tRoster').value = t.rosterLink || "";   // Fixed
+    document.getElementById('tPrize').value = t.prize;
+    document.getElementById('tDate').value = t.date;
+    
+    document.getElementById('subBtn').innerText = "Update Tournament";
+    document.getElementById('subBtn').style.background = "var(--green)";
+    document.getElementById('delBtn').style.display = "block";
             toggleWinField();
-        }
+}
 
-        async function submitTour() {
-            const id = document.getElementById('editId').value;
-            const data = {
-                title: document.getElementById('tTitle').value,
-                totalTeams: document.getElementById('tTeams').value,
-                status: document.getElementById('tStatus').value,
-                winner: document.getElementById('tWinner').value,
-                joinLink: document.getElementById('tJoin').value,
-                prize: document.getElementById('tPrize').value,
-                date: document.getElementById('tDate').value
-            };
+async function submitTour() {
+    const id = document.getElementById('editId').value;
+    const data = {
+        title: document.getElementById('tTitle').value,
+        totalTeams: document.getElementById('tTeams').value,
+        status: document.getElementById('tStatus').value,
+        winner: document.getElementById('tWinner').value,
+        joinLink: document.getElementById('tJoin').value,
+        fixtureLink: document.getElementById('tFixture').value, // Fixed
+        rosterLink: document.getElementById('tRoster').value,   // Fixed
+        prize: document.getElementById('tPrize').value,
+        date: document.getElementById('tDate').value
+    };
 
-            const endpoint = id ? 'update-tournament' : 'manage-tournament';
-            const res = await fetch(`${API}/${endpoint}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(id ? {id, data} : data)
-            });
-            if(res.ok) { notify("Tournament Live!"); loadEverything(); }
-        }
+    const endpoint = id ? 'update-tournament' : 'manage-tournament';
+    const res = await fetch(`${API}/${endpoint}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(id ? {id, data} : data)
+    });
+    if(res.ok) { notify("Tournament Live!"); loadEverything(); }
+}
 
         async function deleteTour() {
             const id = document.getElementById('editId').value;
