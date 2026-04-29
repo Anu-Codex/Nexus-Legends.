@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         body { background: #050505; color: white; padding-top: 100px; }
         .ranking-container { max-width: 900px; margin: 0 auto; padding: 20px; }
@@ -73,28 +74,41 @@
 
     <script>
         async function loadRankings() {
-            const res = await fetch('https://nl-server-k7i9.onrender.com/api/rankings');
-            const players = await res.json();
+    try {
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/rankings');
+        const players = await res.json();
+        
+        const tbody = document.getElementById('ranking-body');
+        tbody.innerHTML = players.map((player, index) => {
+            const currentRank = index + 1; // Their position in the new sorted list
+            const oldRank = player.previousRank; // Their position from the last match
             
-            const tbody = document.getElementById('ranking-body');
-            tbody.innerHTML = players.map((player, index) => {
-                const currentRank = index + 1;
-                // Trend Logic: Compare current index with previousRank stored in DB
-                const trendIcon = player.previousRank > currentRank 
-                    ? '<i class="fa-solid fa-caret-up trend-up"></i>' 
-                    : (player.previousRank < currentRank ? '<i class="fa-solid fa-caret-down trend-down"></i>' : '');
+            let trendIcon = '';
 
-                return `
-                <tr class="player-row">
-                    <td class="rank-num ${currentRank === 1 ? 'top-1' : ''}">#${currentRank}</td>
-                    <td>${player.name} ${trendIcon}</td>
-                    <td>${player.wins}</td>
-                    <td class="pts-cell">${player.points}</td>
-                </tr>
-                `;
-            }).join('');
+            // If they had an old rank and it was higher (larger number) than current rank
+            if (oldRank !== 0) {
+                if (oldRank > currentRank) {
+                    // Example: Was #5, now #3 (Improved)
+                    trendIcon = '<i class="fa-solid fa-caret-up" style="color: #00ff88; margin-left: 10px;"></i>';
+                } else if (oldRank < currentRank) {
+                    // Example: Was #3, now #5 (Dropped)
+                    trendIcon = '<i class="fa-solid fa-caret-down" style="color: #ff4444; margin-left: 10px;"></i>';
+                }
+            }
+
+            return `
+            <tr class="player-row">
+                <td class="rank-num">#${currentRank}</td>
+                <td>${player.name} ${trendIcon}</td>
+                <td>${player.wins}</td>
+                <td class="pts-cell">${player.points}</td>
+            </tr>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error("Error loading rankings:", err);
+    }
         }
-        loadRankings();
     </script>
 </body>
 </html>
