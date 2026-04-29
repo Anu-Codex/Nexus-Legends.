@@ -95,15 +95,23 @@
                     </div>
 
                     <div style="margin-top:20px; padding-top:20px; border-top:1px solid #222;">
-                        <p style="color:var(--red); font-size:0.8rem; margin:0 0 10px;">DANGER / CORRECTIONS</p>
-                        <div style="display:flex; gap:8px; margin-bottom:10px;">
-                            <button onclick="rankAction('adjust-points', {wins:1, points:3})" class="btn-outline" style="color:var(--red);">-1 WIN</button>
-                            <button onclick="rankAction('adjust-points', {wins:0, points:1})" class="btn-outline" style="color:orange;">-1 PT</button>
-                        </div>
-                        <button onclick="deletePlayer()" class="btn-red" style="font-size:0.8rem;">DELETE PLAYER PERMANENTLY</button>
+    <p style="color:var(--red); font-size:0.8rem; margin:0 0 10px; font-weight:bold;">DANGER ZONE / RESET</p>
+    
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
+        <button onclick="rankAction('adjust-points', {wins:1, points:3})" class="btn-outline" style="color:var(--red); border-color:var(--red);">-1 WIN</button>
+        <button onclick="rankAction('adjust-points', {wins:0, points:1})" class="btn-outline" style="color:orange; border-color:orange;">-1 PT</button>
+    </div>
+                        <!-- RESTORED RESET BUTTON -->
+    <button onclick="resetAll()" class="btn-outline" style="color:#fff; border-color:#555; margin-bottom:10px; font-size:0.7rem;">
+        <i class="fa-solid fa-rotate"></i> RESET ALL PLAYERS TO 0
+    </button>
+
+    <button onclick="deletePlayer()" class="btn-red" style="font-size:0.8rem;">
+        <i class="fa-solid fa-trash"></i> DELETE PLAYER PERMANENTLY
+    </button>
                     </div>
                 </div>
-            </div>
+            
             <!-- Inside the Tournament Controller Card in dashboard.html -->
 <div class="card" style="border-left: 4px solid var(--accent);">
     <h3>Tournament Controller</h3>
