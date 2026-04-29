@@ -209,18 +209,39 @@
         }
         // ADD THIS NEW FUNCTION TO YOUR SCRIPT
     async function resetAll() {
-        if(!confirm("EXTREME WARNING: This will set ALL players to 0 points. This cannot be undone!")) return;
-        
-        const pass = prompt("Enter Admin Password to Wipe Data:");
-        if(pass === "nexus2024") {
-            const res = await fetch(`${API}/reset-rankings`, { method: 'POST' });
-            if(res.ok) {
-                notify("DATABASE WIPED: All players reset to 0", "#ff4444");
-                loadEverything(); // Fast refresh the dropdown
-            }
+    // 1. Confirm with user
+    if (!confirm("EXTREME WARNING: This will set ALL players to 0 points. Continue?")) return;
+    
+    // 2. Password Check
+    const pass = prompt("Enter Admin Password to Wipe Data:");
+    if (pass !== "nexus2024") {
+        alert("Incorrect Password!");
+        return;
+    }
+
+    try {
+        notify("Processing Reset...", "orange");
+
+        // 3. The Fetch Call
+        const res = await fetch(`${API}/reset-rankings`, { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (res.ok) {
+            notify("DATABASE WIPED!", "#ff4444");
+            // Give the DB a second to update before refreshing the UI
+            setTimeout(() => {
+                loadEverything(); 
+            }, 1000);
         } else {
-            alert("Incorrect Password!");
+            const errorData = await res.json();
+            alert("Server refused reset: " + errorData.error);
         }
+    } catch (err) {
+        console.error("Reset Function Error:", err);
+        alert("Connection Failed. Is the server running?");
+    }
     }
 
         async function deletePlayer() {
