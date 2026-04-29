@@ -147,7 +147,19 @@
         <button onclick="resetTourForm()" style="background:none; color:#444; border:none; margin-top:10px; font-size:0.7rem;">Clear Form</button>
     </div>
 </div>
-      
+      <div class="card" style="border-left: 4px solid #00ff88;">
+    <h3><i class="fa-solid fa-users-gear"></i> ROSTER & TEAM BUILDER</h3>
+    
+    <select id="rosterTourSelect" onchange="loadRosterList()" style="margin-bottom:10px;"></select>
+
+    <div id="rosterEditor" style="display:none; background: rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+        <input type="text" id="rosTeam" placeholder="Team Name (e.g. Alpha FC)">
+        <input type="text" id="rosPlayer" placeholder="Player Name">
+        <button onclick="addToRoster()" class="btn-yellow" style="background:#00ff88; color:black; margin-top:10px; width:100%;">ADD PLAYER TO TEAM</button>
+        
+        <div id="currentRoster" style="margin-top:20px;"></div>
+    </div>
+      </div>
 
         </div>
     </div>
@@ -326,6 +338,48 @@ async function submitTour() {
         }
 
         window.onload = loadEverything;
+async function loadRosterList() {
+    const id = document.getElementById('rosterTourSelect').value;
+    const listDiv = document.getElementById('currentRoster');
+    if(!id) { document.getElementById('rosterEditor').style.display="none"; return; }
+    document.getElementById('rosterEditor').style.display="block";
+
+    const t = toursData.find(x => x._id === id);
+    listDiv.innerHTML = t.roster.map(team => `
+        <div style="background:#111; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88;">
+            <div style="display:flex; justify-content:space-between;">
+                <b>${team.teamName}</b>
+                <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
+            </div>
+            <div style="font-size:0.8rem; color:#888;">${team.players.join(', ')}</div>
+        </div>
+    `).join('');
+}
+
+async function addToRoster() {
+    const tourId = document.getElementById('rosterTourSelect').value;
+    const teamName = document.getElementById('rosTeam').value;
+    const playerName = document.getElementById('rosPlayer').value;
+    if(!teamName || !playerName) return alert("Fill both fields");
+
+    await fetch(`${API}/update-roster`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, teamName, playerName, action: 'add' })
+    });
+    loadEverything();
+}
+
+async function removeTeam(teamId) {
+    const tourId = document.getElementById('rosterTourSelect').value;
+    await fetch(`${API}/update-roster`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, teamId, action: 'remove-team' })
+    });
+    loadEverything();
+}
+
     </script>
 </body>
 </html>
