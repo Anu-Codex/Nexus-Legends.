@@ -3,86 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eFootball eSports Community</title>
+    <title>Nexus Legends | eFootball Community</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for eSports Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Social Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">eFootball eSports</div>
-        <ul class="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#tournaments">Tournament Info</a></li>
-            <li><a href="#rankings">Players Rankings</a></li>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#social">Social</a></li>
-            <li><a href="#contact">Contact Us</a></li>
-            <li><a href="admin.html" class="btn-login">Login</a></li>
-        </ul>
-    </nav>
 
-    <section id="home" class="section">
-        <div class="hero">
-            <h1>Welcome to the Ultimate eFootball Arena</h1>
-            <p>Join the most competitive eFootball eSports community.</p>
-            <button class="btn-primary">Join Us</button>
+    <!-- Header & Navigation -->
+    <header>
+        <div class="logo">NEXUS <span>LEGENDS</span></div>
+        <div class="dropdown">
+            <button class="dropbtn">MENU <i class="fa-solid fa-bars"></i></button>
+            <div class="dropdown-content">
+                <a href="https://tournament-info.com" target="_blank">Tournament Info</a>
+                <a href="https://rankings.com" target="_blank">Player Rankings</a>
+                <a href="https://about-us.com" target="_blank">About Us</a>
+                <a href="https://rules.com" target="_blank">Rules & Regulations</a>
+                <a href="https://contact.com" target="_blank">Contact Us</a>
+            </div>
         </div>
-        
-        <h2>Live Tournaments</h2>
-        <div id="live-tournaments" class="grid-container"></div>
-        <a href="#tournaments" class="btn-secondary">View All Tournaments</a>
+    </header>
 
-        <h2>Top 3 Players</h2>
-        <div id="top-3-players" class="grid-container"></div>
-        <a href="#rankings" class="btn-secondary">View Full Leaderboard</a>
-
-        <div class="newsletter">
-            <h3>Subscribe to our Newsletter</h3>
-            <input type="email" id="sub-email" placeholder="Enter your email">
-            <button onclick="subscribe()" class="btn-primary">Subscribe</button>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="glitch" data-text="DOMINATE THE PITCH">DOMINATE THE PITCH</h1>
+            <p>Join the elite eFootball eSports community today.</p>
+            <a href="https://join-link.com" target="_blank" class="join-btn">JOIN US</a>
         </div>
     </section>
 
-    <section id="tournaments" class="section">
-        <h2>Tournament Hub</h2>
-        <div id="all-tournaments" class="list-container"></div>
-    </section>
+    <!-- Blank Space (As Requested) -->
+    <div class="spacer"></div>
 
-    <section id="rankings" class="section">
-        <h2>Top 100 Players Ranking</h2>
-        <table class="ranking-table">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Profile</th>
-                    <th>Name</th>
-                    <th>Points</th>
-                    <th>Trend</th>
-                </tr>
-            </thead>
-            <tbody id="full-rankings"></tbody>
-        </table>
-    </section>
-
-    <section id="about" class="section">
-        <h2>About Us</h2>
-        <p>We are a passionate eFootball community bringing the best players together to compete at the highest level. More details coming soon!</p>
-    </section>
-
-    <section id="social" class="section">
-        <h2>Follow Us</h2>
-        <div class="social-links">
-            <a href="#">Discord</a>
-            <a href="#">YouTube</a>
-            <a href="#">Twitter/X</a>
+    <!-- Footer -->
+    <footer>
+        <div class="social-icons">
+            <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook"></i> Facebook</a>
+            <a href="https://twitter.com" target="_blank"><i class="fa-brands fa-x-twitter"></i> Twitter</a>
+            <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i> Instagram</a>
+            <a href="https://discord.com" target="_blank"><i class="fa-brands fa-discord"></i> Discord</a>
         </div>
-    </section>
+        <div class="copyright">
+            &copy; Nexus Legends 2024-26 | All Rights Reserved For <span class="owner">Anubhav Sarkar</span>
+        </div>
+    </footer>
 
-    <section id="contact" class="section">
-        <h2>Contact Us</h2>
-        <p>Email: support@efootballesports.com</p>
-        <p>WhatsApp: +1234567890</p>
-    </section>
-
-    <script src="main.js"></script>
 </body>
 </html>
