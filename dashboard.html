@@ -78,6 +78,31 @@
         }
     }
 </script>
+        <div class="admin-box">
+    <h3>Update Match Result</h3>
+    <select id="playerSelect" style="width:100%; padding:10px; margin-bottom:10px;">
+        <!-- Fetch names from MongoDB here -->
+    </select>
+    
+    <div style="display:flex; gap:10px;">
+        <button onclick="updateMatch('win')" style="background:#00ff88; flex:1; padding:10px;">WIN (+3 PTS)</button>
+        <button onclick="updateMatch('draw')" style="background:gray; flex:1; padding:10px;">DRAW (+1 PT)</button>
+        <button onclick="updateMatch('loss')" style="background:#ff4444; flex:1; padding:10px;">LOSS (0 PTS)</button>
+    </div>
+</div>
+
+<script>
+async function updateMatch(result) {
+    const playerName = document.getElementById('playerSelect').value;
+    
+    await fetch('https://your-render-link.com/api/update-points', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name: playerName, result: result })
+    });
+    alert("Rankings Updated!");
+}
+</script>
         <div class="main-content">
             <a href="index.html" class="logout-btn">LOGOUT</a>
             <h1>Welcome Back, Anubhav</h1>
