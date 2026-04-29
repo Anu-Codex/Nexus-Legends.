@@ -12,6 +12,7 @@
             --live-red: #ff003c;
             --neon-green: #00ff88;
             --accent-blue: #0041FF;
+            --accent-yellow: #E4FF00; /* Added missing variable */
             --bg-dark: #050505;
             --card-bg: rgba(20, 20, 20, 0.8);
         }
@@ -36,6 +37,9 @@
             top: 0;
             z-index: 1000;
         }
+
+        .logo { font-weight: 700; font-size: 1.5rem; letter-spacing: 2px; }
+        .logo span { color: var(--accent-yellow); }
 
         .arena-container {
             padding: 50px 5%;
@@ -131,6 +135,8 @@
             margin-bottom: 20px;
             transition: 0.3s;
             clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
+            border: none;
+            cursor: pointer;
         }
 
         .join-btn:hover {
@@ -168,9 +174,11 @@
             font-weight: bold;
             border: 1px solid #333;
             border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-        .sec-btn:hover { background: #333; }
+        .sec-btn:hover { background: #333; border-color: var(--accent-yellow); }
 
         .winner-display {
             background: rgba(255, 215, 0, 0.1);
@@ -183,56 +191,57 @@
             font-weight: bold;
         }
 
+        /* --- ROSTER MODAL STYLES --- */
+        .roster-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center; z-index: 9999;
+        }
+
+        .roster-modal {
+            background: #0a0a0a; border: 1px solid var(--accent-blue);
+            width: 90%; max-width: 500px; max-height: 80vh;
+            border-radius: 20px; overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 0 30px rgba(0, 65, 255, 0.3);
+        }
+
+        .roster-header {
+            background: var(--accent-blue); padding: 20px;
+            display: flex; justify-content: space-between; align-items: center; color: white;
+        }
+
+        .roster-body { padding: 20px; overflow-y: auto; }
+
+        /* --- ACCORDION STYLES --- */
+        .team-accordion {
+            background: #151515; border: 1px solid #222;
+            margin-bottom: 10px; border-radius: 8px; overflow: hidden;
+        }
+
+        .team-trigger {
+            padding: 15px; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center;
+            font-weight: bold; transition: 0.3s; color: white;
+        }
+
+        .team-trigger:hover { background: #222; color: var(--accent-yellow); }
+
+        .player-list {
+            max-height: 0; overflow: hidden; transition: 0.3s ease-out;
+            background: #000; font-size: 0.9rem;
+        }
+
+        .player-item {
+            padding: 10px 20px; border-bottom: 1px solid #111;
+            color: #bbb; display: flex; align-items: center; gap: 10px;
+        }
+
+        .player-item i { color: var(--accent-blue); font-size: 0.7rem; }
+
         @media (max-width: 600px) {
             .arena-container { padding: 30px 5%; }
             .tour-grid { grid-template-columns: 1fr; }
         }
-        /* --- ROSTER MODAL STYLES --- */
-.roster-overlay {
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
-    display: none; align-items: center; justify-content: center; z-index: 9999;
-}
-
-.roster-modal {
-    background: #0a0a0a; border: 1px solid var(--nexus-blue);
-    width: 90%; max-width: 500px; max-height: 80vh;
-    border-radius: 20px; overflow: hidden; display: flex; flex-direction: column;
-    box-shadow: 0 0 30px rgba(0, 65, 255, 0.3);
-}
-
-.roster-header {
-    background: var(--nexus-blue); padding: 20px;
-    display: flex; justify-content: space-between; align-items: center;
-}
-
-.roster-body { padding: 20px; overflow-y: auto; }
-
-/* --- ACCORDION STYLES --- */
-.team-accordion {
-    background: #151515; border: 1px solid #222;
-    margin-bottom: 10px; border-radius: 8px; overflow: hidden;
-}
-
-.team-trigger {
-    padding: 15px; cursor: pointer; display: flex;
-    justify-content: space-between; align-items: center;
-    font-weight: bold; transition: 0.3s;
-}
-
-.team-trigger:hover { background: #222; color: var(--accent-yellow); }
-
-.player-list {
-    max-height: 0; overflow: hidden; transition: 0.3s ease-out;
-    background: #000; font-size: 0.9rem;
-}
-
-.player-item {
-    padding: 10px 20px; border-bottom: 1px solid #111;
-    color: #bbb; display: flex; align-items: center; gap: 10px;
-}
-
-.player-item i { color: var(--nexus-blue); font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -252,38 +261,37 @@
             <!-- Loading State -->
             <p style="text-align:center; width:100%;">Synchronizing with Arena Servers...</p>
         </div>
-        <div id="rosterOverlay" class="roster-overlay">
-    <div class="roster-modal">
-        <div class="roster-header">
-            <h2 id="modalTitle" style="margin:0; font-size:1.2rem; text-transform:uppercase;">Tournament Roster</h2>
-            <i class="fa-solid fa-xmark" onclick="closeRoster()" style="cursor:pointer; font-size:1.5rem;"></i>
-        </div>
-        <div id="modalBody" class="roster-body">
-            <!-- Teams will be injected here -->
-        </div>
-        <button onclick="openRoster('${t._id}')" class="sec-btn">
-    <i class="fa-solid fa-list-ul"></i> ROSTER
-        </button>
     </div>
+
+    <!-- ROSTER POP-UP MODAL (Cleaned up structure) -->
+    <div id="rosterOverlay" class="roster-overlay">
+        <div class="roster-modal">
+            <div class="roster-header">
+                <h2 id="modalTitle" style="margin:0; font-size:1.2rem; text-transform:uppercase;">Tournament Roster</h2>
+                <i class="fa-solid fa-xmark" onclick="closeRoster()" style="cursor:pointer; font-size:1.5rem;"></i>
+            </div>
+            <div id="modalBody" class="roster-body">
+                <!-- Teams will be injected here -->
+            </div>
         </div>
     </div>
 
     <script>
         const API_URL = 'https://nl-server-k7i9.onrender.com/api/manage-tournament';
+        let allToursData = []; // Store data globally for the roster function
 
         async function loadTournaments() {
             try {
                 const response = await fetch(API_URL);
-                const tours = await response.json();
+                allToursData = await response.json();
                 const container = document.getElementById('tour-display');
 
-                if (!tours || tours.length === 0) {
+                if (!allToursData || allToursData.length === 0) {
                     container.innerHTML = "<p>No active tournaments found.</p>";
                     return;
                 }
 
-                container.innerHTML = tours.map(t => {
-                    // Logic for Status Colors
+                container.innerHTML = allToursData.map(t => {
                     let statusClass = 'badge-upcoming';
                     if(t.status === 'Live') statusClass = 'badge-live';
                     if(t.status === 'Ended') statusClass = 'badge-ended';
@@ -297,7 +305,6 @@
                                 <i class="fa-solid fa-users"></i> ${t.totalTeams || 'TBA'}
                             </div>
 
-                            <!-- Show Winner if Ended, else show Join Button -->
                             ${t.status === 'Ended' ? `
                                 <div class="winner-display">
                                     🏆 WINNER: ${t.winner || 'TBD'}
@@ -323,9 +330,10 @@
                                 <a href="${t.fixtureLink || '#'}" target="_blank" class="sec-btn">
                                     <i class="fa-solid fa-sitemap"></i> BRACKETS
                                 </a>
-                                <a href="${t.rosterLink || '#'}" target="_blank" class="sec-btn">
+                                <!-- FIXED BUTTON: Now calls openRoster() -->
+                                <button onclick="openRoster('${t._id}')" class="sec-btn">
                                     <i class="fa-solid fa-list-ul"></i> ROSTER
-                                </a>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -333,55 +341,59 @@
 
             } catch (error) {
                 document.getElementById('tour-display').innerHTML = "<p>Arena Offline. Try again later.</p>";
+                console.error(error);
             }
         }
 
         window.onload = loadTournaments;
+
         function openRoster(tourId) {
-    const t = allToursData.find(x => x._id === tourId);
-    if(!t.roster || t.roster.length === 0) {
-        alert("Roster is being finalized by Admins.");
-        return;
-    }
+            // Find specific tournament data
+            const t = allToursData.find(x => x._id === tourId);
+            
+            if(!t || !t.roster || t.roster.length === 0) {
+                alert("Roster is being finalized by Admins.");
+                return;
+            }
 
-    document.getElementById('modalTitle').innerText = t.title;
-    const body = document.getElementById('modalBody');
-    
-    body.innerHTML = t.roster.map(team => `
-        <div class="team-accordion">
-            <div class="team-trigger" onclick="toggleTeam(this)">
-                <span><i class="fa-solid fa-shield-halved" style="color:var(--accent-yellow); margin-right:10px;"></i> ${team.teamName}</span>
-                <i class="fa-solid fa-chevron-down"></i>
-            </div>
-            <div class="player-list">
-                ${team.players.map(p => `
-                    <div class="player-item">
-                        <i class="fa-solid fa-user-ninja"></i> ${p}
+            document.getElementById('modalTitle').innerText = t.title + " Roster";
+            const body = document.getElementById('modalBody');
+            
+            body.innerHTML = t.roster.map(team => `
+                <div class="team-accordion">
+                    <div class="team-trigger" onclick="toggleTeam(this)">
+                        <span><i class="fa-solid fa-shield-halved" style="color:var(--accent-yellow); margin-right:10px;"></i> ${team.teamName}</span>
+                        <i class="fa-solid fa-chevron-down"></i>
                     </div>
-                `).join('')}
-            </div>
-        </div>
-    `).join('');
+                    <div class="player-list">
+                        ${team.players.map(p => `
+                            <div class="player-item">
+                                <i class="fa-solid fa-user-ninja"></i> ${p}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
 
-    document.getElementById('rosterOverlay').style.display = 'flex';
-}
+            document.getElementById('rosterOverlay').style.display = 'flex';
+        }
 
-function closeRoster() {
-    document.getElementById('rosterOverlay').style.display = 'none';
-}
+        function closeRoster() {
+            document.getElementById('rosterOverlay').style.display = 'none';
+        }
 
-function toggleTeam(element) {
-    const list = element.nextElementSibling;
-    const icon = element.querySelector('.fa-chevron-down');
-    
-    if (list.style.maxHeight) {
-        list.style.maxHeight = null;
-        icon.style.transform = "rotate(0deg)";
-    } else {
-        list.style.maxHeight = list.scrollHeight + "px";
-        icon.style.transform = "rotate(180deg)";
-    }
-}
+        function toggleTeam(element) {
+            const list = element.nextElementSibling;
+            const icon = element.querySelector('.fa-chevron-down');
+            
+            if (list.style.maxHeight) {
+                list.style.maxHeight = null;
+                icon.style.transform = "rotate(0deg)";
+            } else {
+                list.style.maxHeight = list.scrollHeight + "px";
+                icon.style.transform = "rotate(180deg)";
+            }
+        }
     </script>
 </body>
 </html>
