@@ -156,28 +156,19 @@
 
         <!-- BRACKET MANAGER -->
         <div class="card" style="border-left: 4px solid var(--red);">
-            <h3><i class="fa-solid fa-sitemap"></i> BRACKET BUILDER</h3>
-            <select id="bracketTourSelect" onchange="loadBracketList()">
-                <option value="">-- Select Tournament to Edit Bracket --</option>
-            </select>
+    <h3 style="color:var(--red)"><i class="fa-solid fa-stadium"></i> FIXTURES & RESULTS</h3>
+    <select id="fixTourSelect" onchange="loadFixtureManager()">
+        <option value="">-- Select Tournament --</option>
+    </select>
 
-            <div id="bracketEditor" style="display:none; background: rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <select id="mRound">
-                        <option value="Round of 16">Round of 16</option>
-                        <option value="Quarter-Final">Quarter-Final</option>
-                        <option value="Semi-Final">Semi-Final</option>
-                        <option value="Grand Final">Grand Final</option>
-                    </select>
-                    <div style="display:flex; gap: 5px;">
-                        <input type="text" id="mP1" placeholder="P1" style="flex:1">
-                        <input type="text" id="mP2" placeholder="P2" style="flex:1">
-                    </div>
-                </div>
-                <button onclick="addMatch()" class="btn-blue" style="margin-top:10px; background:var(--red);">ADD MATCH TO BRACKET</button>
-                <div id="currentBracket" style="margin-top:20px;"></div>
-            </div>
+    <div id="fixtureEditor" style="display:none; margin-top:15px;">
+        <div style="display:flex; gap:5px; margin-bottom:15px;">
+            <input type="text" id="newStageName" placeholder="New Stage Name (e.g. Group A / Semi Final)">
+            <button onclick="manageFixture('add-stage')" class="btn-blue" style="width:100px; background:var(--red);">+ STAGE</button>
         </div>
+        <div id="stagesList"></div>
+    </div>
+        </div>        
 
     </main>
 
