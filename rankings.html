@@ -101,28 +101,27 @@ function exportToPDF() {
     doc.save("Nexus_Legends_Rankings.pdf");
 }
 
-// --- NEW SYNCED CONNECTION LOGIC ---
-const API_BASE = 'https://nl-server-k7i9.onrender.com/api';
-
+// --- UPDATED RECOVERY CODE ---
 async function loadRankings() {
     const tbody = document.getElementById('ranking-body');
+    // Using a timestamp (?t=...) prevents the browser from loading an old "error" from its memory
+    const API_URL = 'https://nl-server-k7i9.onrender.com/api/rankings?t=' + Date.now();
     
     try {
-        // We use the exact same fetch style as your dashboard
-        const res = await fetch(`${API_BASE}/rankings`);
+        const res = await fetch(API_URL);
         
-        if (!res.ok) throw new Error("Sync Failed");
+        if (!res.ok) throw new Error("Connection failed");
 
         const players = await res.json();
 
+        // If server is connected but no players are found
         if (!players || players.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="status-msg">Arena Empty. Check Dashboard.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="status-msg">No players found in Arena database.</td></tr>';
             return;
         }
 
-        // Generate Table Content
-        let tableContent = "";
-        players.forEach((player, index) => {
+        // Build Table rows
+        tbody.innerHTML = players.map((player, index) => {
             const currentRank = index + 1;
             const oldRank = player.previousRank || 0;
             let trendIcon = '';
@@ -135,34 +134,32 @@ async function loadRankings() {
                 }
             }
 
-            tableContent += `
+            return `
             <tr class="player-row">
                 <td class="rank-num">#${currentRank}</td>
                 <td>${player.name} ${trendIcon}</td>
                 <td>${player.wins || 0}</td>
                 <td class="pts-cell">${player.points || 0}</td>
             </tr>`;
-        });
-
-        tbody.innerHTML = tableContent;
+        }).join('');
 
     } catch (error) {
-        console.error("Rankings Error:", error);
+        console.error("Connection error:", error);
         tbody.innerHTML = `
             <tr>
                 <td colspan="4" class="status-msg error-msg">
-                    <i class="fa-solid fa-wifi-slash"></i> CONNECTION ERROR<br>
-                    <small style="color:#888;">Retrying in 5 seconds...</small><br>
-                    <button class="retry-btn" onclick="loadRankings()">RETRY NOW</button>
+                    <i class="fa-solid fa-wifi-slash"></i> Arena Connection Failure<br>
+                    <small style="color:#888;">The Arena server is taking too long to respond.</small><br>
+                    <button class="retry-btn" onclick="loadRankings()">RETRY CONNECTION</button>
                 </td>
             </tr>`;
         
-        // Auto-retry every 5 seconds
-        setTimeout(loadRankings, 5000);
+        // Auto-retry every 8 seconds
+        setTimeout(loadRankings, 8000);
     }
 }
 
-// Run immediately
+// Call the function immediately
 loadRankings();
 </script>
 </body>
