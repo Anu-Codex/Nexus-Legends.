@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024">
+    <title>Legal Center | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --accent-yellow: #E4FF00;
+            --nexus-blue: #0041FF;
+            --dark-bg: #050505;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: #222;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding-top: 100px;
+        }
+
+        .legal-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            padding: 20px;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .legal-nav {
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+        }
+
+        .nav-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 15px;
+            color: #888;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            border-left: 3px solid transparent;
+            margin-bottom: 5px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--accent-yellow);
+            background: rgba(228, 255, 0, 0.05);
+            border-left: 3px solid var(--accent-yellow);
+        }
+
+        /* --- Content Sections --- */
+        .legal-content {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 50px;
+        }
+
+        .content-section {
+            display: none; /* Controlled by JS */
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 3rem; color: var(--accent-yellow); margin-top: 0; }
+        h2 { color: var(--nexus-blue); border-bottom: 1px solid #222; padding-bottom: 10px; margin-top: 40px; }
+        
+        .rule-box {
+            background: rgba(255,255,255,0.02);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #333;
+        }
+
+        .rule-box strong { color: var(--accent-yellow); display: block; margin-bottom: 5px; }
+        
+        .important-note {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #ff4444;
+            padding: 20px;
+            border-radius: 10px;
+            color: #ff8888;
+            margin: 20px 0;
+        }
+
+        p { line-height: 1.8; color: #bbb; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; color: #bbb; }
+
+    </style>
+</head>
+<body>
+
+    <div class="legal-container">
+        <!-- Sidebar -->
+        <aside class="legal-nav">
+            <div class="nav-card">
+                <a href="#rules" class="nav-item active" onclick="showSection('rules', this)">Rules & Regs</a>
+                <a href="#terms" class="nav-item" onclick="showSection('terms', this)">Terms of Service</a>
+                <a href="#privacy" class="nav-item" onclick="showSection('privacy', this)">Privacy Policy</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="legal-content">
+            
+            <!-- SECTION 1: RULES -->
+            <section id="rules" class="content-section active">
+                <h1>RULES & <span style="color:white">REGULATIONS</span></h1>
+                <p>To ensure a fair and professional arena for all strikers, the following rules are strictly enforced.</p>
+
+                <div class="important-note">
+                    <i class="fa-solid fa-triangle-exclamation"></i> <strong>ZERO TOLERANCE:</strong> Use of any third-party scripts, network manipulation (lagging), or toxic behavior will result in a permanent ban.
+                </div>
+
+                <h2>1. MATCHPLAY RULES</h2>
+                <div class="rule-box">
+                    <strong>Match Duration:</strong> All tournament matches follow the standard 10-minute duration unless specified otherwise.
+                </div>
+                <div class="rule-box">
+                    <strong>Disconnections:</strong> If a player disconnects before the 70th minute, the match must be restarted. After the 70th minute, the current score stands.
+                </div>
+
+                <h2>2. REPORTING SCORES</h2>
+                <ul>
+                    <li>Both players must take a screenshot of the final score screen.</li>
+                    <li>Results must be posted in the designated WhatsApp/Discord channel within 15 minutes of completion.</li>
+                </ul>
+            </section>
+
+            <!-- SECTION 2: TERMS -->
+            <section id="terms" class="content-section">
+                <h1>TERMS & <span style="color:white">CONDITIONS</span></h1>
+                <p>By entering the Nexus Legends arena, you agree to the following legal terms.</p>
+
+                <h2>1. ELIGIBILITY</h2>
+                <p>Players must be at least 13 years of age. One account per player is allowed. Account sharing during tournaments is strictly prohibited.</p>
+
+                <h2>2. PRIZE DISTRIBUTION</h2>
+                <p>Prize pools are distributed via the method stated in the tournament roster within 7 working days after the grand final. Any attempt to provide false payment details will result in prize forfeiture.</p>
+
+                <h2>3. CONTENT USAGE</h2>
+                <p>Nexus Legends reserves the right to stream, record, and use player names/team logos for promotional purposes across our digital platforms.</p>
+            </section>
+
+            <!-- SECTION 3: PRIVACY -->
+            <section id="privacy" class="content-section">
+                <h1>PRIVACY <span style="color:white">POLICY</span></h1>
+                <p>Your data security is paramount in our arena.</p>
+
+                <h2>1. DATA COLLECTION</h2>
+                <p>We collect minimal data required for tournament organization:
+                    <ul>
+                        <li>In-game Name (IGN)</li>
+                        <li>Contact Number (WhatsApp for coordination)</li>
+                        <li>Tournament Performance Stats</li>
+                    </ul>
+                </p>
+
+                <h2>2. DATA PROTECTION</h2>
+                <p>We do not sell your data to third parties. Your contact information is only visible to Arena Admins for the purpose of match coordination and prize payouts.</p>
+
+                <h2>3. COOKIES</h2>
+                <p>Our website uses local storage to keep you logged into the Admin Dashboard (if applicable) and to save your site preferences.</p>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        function showSection(id, element) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            // Show selected section
+            document.getElementById(id).classList.add('active');
+
+            // Update Nav styling
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            // Scroll to top of content
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>
