@@ -81,8 +81,9 @@
         </table>
     </div>
 
+<!-- KEEP ALL YOUR STYLES AND HTML BODY - REPLACE THE SCRIPT SECTION ONLY -->
 <script>
-// --- PDF EXPORT FUNCTION (UNTOUCHED) ---
+// --- PDF EXPORT (UNTOUCHED) ---
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -92,35 +93,31 @@ function exportToPDF() {
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
     const table = document.querySelector(".leaderboard-table");
     doc.autoTable({
-        html: table,
-        startY: 40,
-        theme: 'grid',
-        headStyles: { fillColor: [0, 65, 255] },
-        styles: { font: 'helvetica', fontSize: 10 }
+        html: table, startY: 40, theme: 'grid',
+        headStyles: { fillColor: [0, 65, 255] }, styles: { font: 'helvetica', fontSize: 10 }
     });
     doc.save("Nexus_Legends_Rankings.pdf");
 }
 
-// --- UPDATED RECOVERY CODE ---
+// --- NEW STABLE CONNECTION LOGIC ---
+const API = "https://nl-server-k7i9.onrender.com/api";
+
 async function loadRankings() {
     const tbody = document.getElementById('ranking-body');
-    // Using a timestamp (?t=...) prevents the browser from loading an old "error" from its memory
-    const API_URL = 'https://nl-server-k7i9.onrender.com/api/rankings?t=' + Date.now();
     
     try {
-        const res = await fetch(API_URL);
+        // Using the same fetch pattern as your working dashboard
+        const response = await fetch(`${API}/rankings`);
         
-        if (!res.ok) throw new Error("Connection failed");
+        if (!response.ok) throw new Error("Offline");
 
-        const players = await res.json();
+        const players = await response.json();
 
-        // If server is connected but no players are found
-        if (!players || players.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="status-msg">No players found in Arena database.</td></tr>';
+        if (players.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="status-msg">No strikers registered in the Arena.</td></tr>';
             return;
         }
 
-        // Build Table rows
         tbody.innerHTML = players.map((player, index) => {
             const currentRank = index + 1;
             const oldRank = player.previousRank || 0;
@@ -149,17 +146,16 @@ async function loadRankings() {
             <tr>
                 <td colspan="4" class="status-msg error-msg">
                     <i class="fa-solid fa-wifi-slash"></i> Arena Connection Failure<br>
-                    <small style="color:#888;">The Arena server is taking too long to respond.</small><br>
-                    <button class="retry-btn" onclick="loadRankings()">RETRY CONNECTION</button>
+                    <small style="color:#888;">Render server is taking too long to respond.</small><br>
+                    <button class="retry-btn" style="background:var(--accent-yellow); color:black; margin-top:10px; padding:5px 15px; border:none; font-weight:bold; cursor:pointer;" onclick="loadRankings()">RETRY NOW</button>
                 </td>
             </tr>`;
-        
-        // Auto-retry every 8 seconds
-        setTimeout(loadRankings, 8000);
+        // Automatic retry every 10 seconds
+        setTimeout(loadRankings, 10000);
     }
 }
 
-// Call the function immediately
+// Start loading
 loadRankings();
 </script>
 </body>
