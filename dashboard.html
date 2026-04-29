@@ -104,41 +104,42 @@
                     </div>
                 </div>
             </div>
-
-            <!-- COLUMN 2: TOURNAMENT MANAGEMENT -->
-            <div class="card" style="border-left: 4px solid var(--accent);">
-                <h3>Tournament Controller</h3>
-                
-                <label style="font-size:0.7rem; color:#888;">Select to Edit or Delete:</label>
-                <select id="tourSelect" onchange="fillTourForm()" style="border-color:var(--accent);">
-                    <option value="">+ CREATE NEW TOURNAMENT</option>
-                </select>
-
-                <div id="tourForm">
-                    <input type="hidden" id="editId">
-                    <input type="text" id="tTitle" placeholder="Tournament Name">
-                    
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <input type="text" id="tTeams" placeholder="Teams Count">
-                        <select id="tStatus" onchange="toggleWinField()">
-                            <option value="Upcoming">Upcoming</option>
-                            <option value="Live">Live</option>
-                            <option value="Ended">Ended</option>
-                        </select>
-                    </div>
-
-                    <input type="text" id="tWinner" placeholder="Winner Name" style="display:none; border: 1px solid gold;">
-                    <input type="text" id="tJoin" placeholder="WhatsApp Link">
-                    <input type="text" id="tPrize" placeholder="Prize Pool">
-                    <input type="date" id="tDate">
-                    
-                    <div style="display:flex; gap:10px; margin-top:10px;">
-                        <button id="subBtn" onclick="submitTour()" class="btn-yellow" style="flex:2;">Deploy to Site</button>
-                        <button id="delBtn" onclick="deleteTour()" class="btn-red" style="flex:1; display:none;">Delete</button>
-                    </div>
-                    <button onclick="resetTourForm()" style="background:none; color:#444; border:none; margin-top:10px; font-size:0.7rem;">Clear Form</button>
-                </div>
-            </div>
+            <!-- Inside the Tournament Controller Card in dashboard.html -->
+<div class="card" style="border-left: 4px solid var(--accent);">
+    <h3>Tournament Controller</h3>
+    
+    <label style="font-size:0.7rem; color:#888;">Select to Edit or Delete:</label>
+    <select id="tourSelect" onchange="fillTourForm()" style="border-color:var(--accent);">
+        <option value="">+ CREATE NEW TOURNAMENT</option>
+    </select>
+    <div id="tourForm">
+        <input type="hidden" id="editId">
+        <input type="text" id="tTitle" placeholder="Tournament Name">
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <input type="text" id="tTeams" placeholder="Teams Count">
+            <select id="tStatus" onchange="toggleWinField()">
+                <option value="Upcoming">Upcoming</option>
+                <option value="Live">Live</option>
+                <option value="Ended">Ended</option>
+            </select>
+        </div>
+        <!-- NEW LINK INPUTS ADDED HERE -->
+        <input type="text" id="tWinner" placeholder="Winner Name" style="display:none; border: 1px solid gold;">
+        <input type="text" id="tJoin" placeholder="WhatsApp Join Link">
+        <input type="text" id="tFixture" placeholder="Brackets/Fixture Link (URL)">
+        <input type="text" id="tRoster" placeholder="Roster/Teams Link (URL)">
+        <input type="text" id="tPrize" placeholder="Prize Pool">
+        <input type="date" id="tDate">
+        
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button id="subBtn" onclick="submitTour()" class="btn-yellow" style="flex:2;">Deploy to Site</button>
+            <button id="delBtn" onclick="deleteTour()" class="btn-red" style="flex:1; display:none;">Delete</button>
+        </div>
+        <button onclick="resetTourForm()" style="background:none; color:#444; border:none; margin-top:10px; font-size:0.7rem;">Clear Form</button>
+    </div>
+</div>
+      
 
         </div>
     </div>
