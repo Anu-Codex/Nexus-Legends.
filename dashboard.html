@@ -153,7 +153,31 @@
                 </div>
             </div>
         </div>
+        <!-- BRACKET MANAGER CARD -->
+<div class="card" style="border-left: 4px solid var(--red);">
+    <h3><i class="fa-solid fa-sitemap"></i> BRACKET BUILDER</h3>
+    <select id="bracketTourSelect" onchange="loadBracketList()"></select>
+
+    <div id="bracketEditor" style="display:none;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <select id="mRound">
+                <option value="Round of 16">Round of 16</option>
+                <option value="Quarter-Final">Quarter-Final</option>
+                <option value="Semi-Final">Semi-Final</option>
+                <option value="Grand Final">Grand Final</option>
+            </select>
+            <input type="text" id="mP1" placeholder="Player 1">
+            <input type="text" id="mP2" placeholder="Player 2">
+        </div>
+        <button onclick="addMatch()" class="btn-blue" style="margin-top:10px; background:var(--red);">ADD MATCH TO BRACKET</button>
+        
+        <div id="currentBracket" style="margin-top:20px;"></div>
     </div>
+</div>
+
+
+    </div>
+    
 
     <script>
         const API = "https://nl-server-k7i9.onrender.com/api";
@@ -357,6 +381,65 @@
         }
 
         window.onload = loadEverything;
+        async function loadBracketList() {
+    const id = document.getElementById('bracketTourSelect').value;
+    const listDiv = document.getElementById('currentBracket');
+    if(!id) { document.getElementById('bracketEditor').style.display="none"; return; }
+    document.getElementById('bracketEditor').style.display="block";
+
+    const t = toursData.find(x => x._id === id);
+    if(!t.matches || t.matches.length === 0) { listDiv.innerHTML = "No matches created."; return; }
+
+    listDiv.innerHTML = t.matches.map(m => `
+        <div style="background:#000; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #333;">
+            <div style="font-size:0.7rem; color:var(--red); font-weight:bold;">${m.round}</div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                <input type="text" value="${m.s1}" id="s1_${m._id}" style="width:40px; text-align:center; padding:5px;">
+                <span style="flex:1;">${m.p1} vs ${m.p2}</span>
+                <input type="text" value="${m.s2}" id="s2_${m._id}" style="width:40px; text-align:center; padding:5px;">
+                <button onclick="updateScore('${m._id}')" style="width:40px; padding:5px; background:var(--green);"><i class="fa-solid fa-check"></i></button>
+                <button onclick="deleteMatch('${m._id}')" style="width:40px; padding:5px; background:var(--red);"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function addMatch() {
+    const tourId = document.getElementById('bracketTourSelect').value;
+    const matchData = {
+        round: document.getElementById('mRound').value,
+        p1: document.getElementById('mP1').value,
+        p2: document.getElementById('mP2').value
+    };
+    await fetch(`${API}/update-bracket`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, matchData, action: 'add' })
+    });
+    loadEverything();
+}
+
+async function updateScore(matchId) {
+    const tourId = document.getElementById('bracketTourSelect').value;
+    const s1 = document.getElementById(`s1_${matchId}`).value;
+    const s2 = document.getElementById(`s2_${matchId}`).value;
+    await fetch(`${API}/update-bracket`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, matchId, action: 'update-score', matchData: {s1, s2} })
+    });
+    notify("Score Updated!");
+}
+
+async function deleteMatch(matchId) {
+    const tourId = document.getElementById('bracketTourSelect').value;
+    await fetch(`${API}/update-bracket`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, matchId, action: 'delete' })
+    });
+    loadEverything();
+}
     </script>
 </body>
 </html>
