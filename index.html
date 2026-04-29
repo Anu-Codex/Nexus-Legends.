@@ -36,6 +36,23 @@
             <a href="https://join-link.com" target="_blank" class="join-btn">JOIN US</a>
         </div>
     </section>
+    <!-- RECENT TOURNAMENTS SECTION -->
+<section class="recent-events">
+    <h2 style="text-align:center; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px;">
+        ARENA <span style="color:var(--accent-yellow)">HIGHLIGHTS</span>
+    </h2>
+
+    <div id="recent-tours-container" class="home-tour-grid">
+        <!-- Tournaments will load here automatically -->
+        <p style="text-align:center; color:#888;">Loading Arena Data...</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="tournaments.html" class="view-all-btn">
+            SEE FULL TOURNAMENT LIST <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</section>
 
     <!-- Blank Space (As Requested) -->
     <div class="spacer"></div>
@@ -54,4 +71,53 @@
     </footer>
 
 </body>
+    <script>
+        async function loadHomeTournaments() {
+    const container = document.getElementById('recent-tours-container');
+    const API_URL = 'https://nl-server-k7i9.onrender.com/api/manage-tournament';
+
+    try {
+        const res = await fetch(API_URL);
+        const allTours = await res.json();
+
+        // 1. Filter for only Live or Upcoming
+        // 2. Sort by newest (assuming higher ID or just the order from DB)
+        // 3. Take only the first 2
+        const recentTours = allTours
+            .filter(t => t.status === 'Live' || t.status === 'Upcoming')
+            .slice(0, 2);
+
+        if (recentTours.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#555;">No active tournaments. Stay tuned for the next season!</p>';
+            return;
+        }
+
+        container.innerHTML = recentTours.map(t => {
+            const statusClass = t.status === 'Live' ? 'bg-live' : 'bg-upcoming';
+            return `
+                <div class="home-tour-card">
+                    <div class="home-status-badge ${statusClass}">${t.status}</div>
+                    <h3 style="margin: 0 0 10px 0; color:white;">${t.title}</h3>
+                    <p style="color:#888; font-size:0.9rem; margin: 5px 0;">
+                        <i class="fa-solid fa-calendar"></i> Date: ${t.date || 'TBA'}
+                    </p>
+                    <p style="color:var(--accent-yellow); font-size:0.9rem; font-weight:bold;">
+                        <i class="fa-solid fa-trophy"></i> Prize: ${t.prize || 'Trophy'}
+                    </p>
+                    <div style="margin-top:15px;">
+                         <a href="tournaments.html" style="color:white; font-size:0.8rem; text-decoration:none; border-bottom:1px solid #444;">View Details</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (err) {
+        console.error("Home Tournament Load Error:", err);
+        container.innerHTML = '<p style="color:red;">Arena connection paused.</p>';
+    }
+}
+
+// Run on page load
+window.addEventListener('DOMContentLoaded', loadHomeTournaments);
+    </script>
 </html>
