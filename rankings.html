@@ -55,60 +55,65 @@
 <body>
 
     <div class="ranking-container">
-        <h1 style="text-align:center; font-size: 3rem; margin-bottom: 40px;">TOP <span style="color:var(--accent-yellow)">STRIKERS</span></h1>
-        
-        <table class="leaderboard-table">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Player Name</th>
-                    <th>Wins</th>
-                    <th>Total Pts</th>
-                </tr>
-            </thead>
-            <tbody id="ranking-body">
-                <!-- Data will load here -->
-            </tbody>
-        </table>
-    </div>
+    <h1 style="text-align:center;">TOP <span style="color:var(--accent-yellow)">STRIKERS</span></h1>
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Player Name</th>
+                <th>Wins</th>
+                <th>Total Pts</th>
+            </tr>
+        </thead>
+        <tbody id="ranking-body">
+            <tr><td colspan="4" style="text-align:center;">Loading Arena Data...</td></tr>
+        </tbody>
+    </table>
+</div>
 
-    <script>
-        async function loadRankings() {
-    try {
-        const res = await fetch('https://nl-server-k7i9.onrender.com/api/rankings');
-        const players = await res.json();
-        
+<script>
+    async function loadRankings() {
         const tbody = document.getElementById('ranking-body');
-        tbody.innerHTML = players.map((player, index) => {
-            const currentRank = index + 1; // Their position in the new sorted list
-            const oldRank = player.previousRank; // Their position from the last match
-            
-            let trendIcon = '';
+        try {
+            // REPLACE THIS URL WITH YOUR ACTUAL RENDER URL
+            const res = await fetch('https://your-render-app-name.onrender.com/api/rankings');
+            const players = await res.json();
 
-            // If they had an old rank and it was higher (larger number) than current rank
-            if (oldRank !== 0) {
-                if (oldRank > currentRank) {
-                    // Example: Was #5, now #3 (Improved)
-                    trendIcon = '<i class="fa-solid fa-caret-up" style="color: #00ff88; margin-left: 10px;"></i>';
-                } else if (oldRank < currentRank) {
-                    // Example: Was #3, now #5 (Dropped)
-                    trendIcon = '<i class="fa-solid fa-caret-down" style="color: #ff4444; margin-left: 10px;"></i>';
-                }
+            if (players.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No Players Found. Check Database.</td></tr>';
+                return;
             }
 
-            return `
-            <tr class="player-row">
-                <td class="rank-num">#${currentRank}</td>
-                <td>${player.name} ${trendIcon}</td>
-                <td>${player.wins}</td>
-                <td class="pts-cell">${player.points}</td>
-            </tr>
-            `;
-        }).join('');
-    } catch (err) {
-        console.error("Error loading rankings:", err);
-    }
+            tbody.innerHTML = players.map((player, index) => {
+                const currentRank = index + 1;
+                const oldRank = player.previousRank || 0;
+                let trendIcon = '';
+
+                // Trend logic
+                if (oldRank !== 0) {
+                    if (oldRank > currentRank) {
+                        trendIcon = '<i class="fa-solid fa-caret-up" style="color:#00ff88; margin-left:8px;"></i>';
+                    } else if (oldRank < currentRank) {
+                        trendIcon = '<i class="fa-solid fa-caret-down" style="color:#ff4444; margin-left:8px;"></i>';
+                    }
+                }
+
+                return `
+                <tr class="player-row">
+                    <td class="rank-num">#${currentRank}</td>
+                    <td>${player.name} ${trendIcon}</td>
+                    <td>${player.wins}</td>
+                    <td style="color:#E4FF00;">${player.points}</td>
+                </tr>`;
+            }).join('');
+
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Server Connection Failed.</td></tr>';
+            console.error("Rankings error:", error);
         }
+    }
+    loadRankings();
+</script>
     </script>
 </body>
 </html>
