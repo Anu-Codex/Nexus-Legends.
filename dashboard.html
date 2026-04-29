@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Legends | Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-wrapper { display: flex; height: 100vh; }
+        .sidebar {
+            width: 250px;
+            background: #111;
+            border-right: 2px solid var(--accent-blue);
+            padding: 20px;
+        }
+        .main-content { flex: 1; padding: 40px; }
+        .stat-card {
+            background: #1a1a1a;
+            padding: 20px;
+            border-left: 5px solid var(--accent-yellow);
+            display: inline-block;
+            margin-right: 20px;
+            min-width: 200px;
+        }
+        .stat-card h3 { color: var(--accent-yellow); }
+        .logout-btn {
+            background: #ff4444;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            float: right;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-wrapper">
+        <div class="sidebar">
+            <h2 style="color:var(--accent-yellow)">NEXUS ADMIN</h2>
+            <hr style="border:1px solid #222; margin: 20px 0;">
+            <p>📊 Overview</p><br>
+            <p>🏆 Tournaments</p><br>
+            <p>👥 Players List</p><br>
+            <p>⚙️ Settings</p>
+        </div>
+        
+        <div class="main-content">
+            <a href="index.html" class="logout-btn">LOGOUT</a>
+            <h1>Welcome Back, Anubhav</h1>
+            <p style="color:var(--gray-text)">Manage your eFootball community from here.</p>
+            
+            <div style="margin-top: 40px;">
+                <div class="stat-card">
+                    <h3>1,240</h3>
+                    <p>Total Players</p>
+                </div>
+                <div class="stat-card">
+                    <h3>12</h3>
+                    <p>Active Tournaments</p>
+                </div>
+                <div class="stat-card">
+                    <h3>$500</h3>
+                    <p>Prize Pool Total</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
