@@ -348,41 +348,39 @@ async function uploadTournament() {
 async function removePlayer() {
     const playerName = document.getElementById('playerSelect').value;
 
-    if (!playerName || playerName.includes("Loading") || playerName.includes("No players")) {
-        alert("Please select a valid player!");
+    if (!playerName || playerName.includes("Loading")) {
+        alert("Select a player first.");
         return;
     }
 
-    const confirmation = confirm(`DELETE ${playerName} FOREVER? This cannot be undone.`);
-
-    if (confirmation) {
+    if (confirm(`Delete ${playerName} permanently?`)) {
         try {
-            // IMPORTANT: encodeURIComponent handles spaces in names
-            const encodedName = encodeURIComponent(playerName);
+            // STEP A: Encode name for URLs with spaces
+            const nameParam = encodeURIComponent(playerName);
             
-            // USE YOUR ACTUAL RENDER URL HERE
-            const baseUrl = "https://nl-server-k7i9.onrender.com"; 
-            
-            console.log(`Attempting to delete: ${baseUrl}/api/delete-player/${encodedName}`);
+            // STEP B: Update this link to your EXACT Render URL
+            const targetUrl = `https://nl-server-k7i9.onrender.com/api/delete-player/${nameParam}`;
 
-            const response = await fetch(`${baseUrl}/api/delete-player/${encodedName}`, {
+            console.log("Sending DELETE to:", targetUrl);
+
+            const response = await fetch(targetUrl, {
                 method: 'DELETE',
+                mode: 'cors', // Force CORS mode
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
 
-            const data = await response.json();
-
             if (response.ok) {
-                alert("Player deleted successfully!");
-                loadPlayerNames(); // Refresh the list
+                alert("Player Deleted!");
+                location.reload(); // Refresh to update list
             } else {
-                alert("Server said: " + data.error);
+                const errData = await response.json();
+                alert("Server Error: " + errData.error);
             }
         } catch (error) {
-            console.error("Connection Error:", error);
-            alert("Could not connect to server. Check your Internet or Render URL.");
+            console.error("Fetch Error Detail:", error);
+            alert("Connection Failed. Check Console (F12) for details.");
         }
     }
 }
