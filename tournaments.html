@@ -239,5 +239,41 @@
 
         fetchTournaments();
     </script>
+
+        <!-- Inside the .tour-grid in tournaments.html -->
+<script>
+async function loadTournaments() {
+    const res = await fetch('https://nl-server-k7i9.onrender.com/api/tournaments');
+    const tours = await res.json();
+    const container = document.getElementById('tournament-display');
+    
+    container.innerHTML = tours.map(t => `
+        <div class="tour-card" style="border-top: 5px solid ${t.status === 'Live' ? '#ff003c' : (t.status === 'Ended' ? 'gray' : '#0041FF')}">
+            <div class="status-badge ${t.status === 'Live' ? 'status-live' : ''}" style="background:${t.status === 'Live' ? '#ff003c' : (t.status === 'Ended' ? 'gray' : '#00ff88')}">
+                ${t.status}
+            </div>
+            
+            <h2>${t.title}</h2>
+            <p style="color:var(--accent-yellow); font-weight:bold;">${t.totalTeams}</p>
+            
+            ${t.status === 'Ended' ? `<div style="background:rgba(255,215,0,0.1); padding:10px; border:1px solid gold; margin:10px 0;">🏆 WINNER: ${t.winner}</div>` : ''}
+            
+            ${t.status === 'Live' ? `<div style="color:#ff003c; font-weight:bold; margin:10px 0;"><i class="fa-solid fa-satellite-dish"></i> ${t.liveResult}</div>` : ''}
+
+            <div class="tour-info-row">
+                <div class="info-item"><span>Prize</span><strong>${t.prize}</strong></div>
+                <div class="info-item"><span>Date</span><strong>${t.date}</strong></div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                <a href="${t.fixtureLink}" target="_blank" class="enter-btn" style="font-size:0.8rem;">BRACKETS</a>
+                <a href="${t.rosterLink}" target="_blank" class="enter-btn" style="background:#333; font-size:0.8rem;">ROSTER</a>
+            </div>
+        </div>
+    `).join('');
+}
+loadTournaments();
+</script>
+    
 </body>
 </html>
