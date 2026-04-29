@@ -429,6 +429,39 @@
                 icon.style.transform = "rotate(180deg)";
             }
         }
+        function openBracket(tourId) {
+    const t = allToursData.find(x => x._id === tourId);
+    if(!t.matches || t.matches.length === 0) {
+        alert("Bracket is not yet generated."); return;
+    }
+
+    const body = document.getElementById('bracketBody');
+    document.getElementById('bracketTitle').innerText = t.title;
+
+    // Group matches by round
+    const rounds = {};
+    t.matches.forEach(m => {
+        if(!rounds[m.round]) rounds[m.round] = [];
+        rounds[m.round].push(m);
+    });
+
+    body.innerHTML = Object.keys(rounds).map(roundName => `
+        <div class="m-round-title">${roundName}</div>
+        ${rounds[roundName].map(m => `
+            <div class="match-card">
+                <div style="text-align:right; font-weight:bold;">${m.p1}</div>
+                <div style="text-align:center; background:var(--live-red); color:white; padding:5px; border-radius:4px; margin:0 10px; font-weight:800;">
+                    ${m.s1} : ${m.s2}
+                </div>
+                <div style="text-align:left; font-weight:bold;">${m.p2}</div>
+            </div>
+        `).join('')}
+    `).join('');
+
+    document.getElementById('bracketOverlay').style.display = 'flex';
+}
+
+function closeBracket() { document.getElementById('bracketOverlay').style.display = 'none'; }
     </script>
 </body>
 </html>
