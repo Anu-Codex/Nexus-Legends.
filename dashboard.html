@@ -1,407 +1,311 @@
-7<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1024">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Legends | Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script> <!-- Add your FontAwesome link -->
     <style>
-        .dashboard-wrapper { display: flex; height: 100vh; }
-        .sidebar {
-            width: 250px;
-            background: #111;
-            border-right: 2px solid var(--accent-blue);
-            padding: 20px;
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: #141414;
+            --accent-yellow: #f8d448;
+            --accent-blue: #0041FF;
+            --danger: #ff4444;
+            --success: #00ff88;
         }
-        .main-content { flex: 1; padding: 40px; }
-        .stat-card {
-            background: #1a1a1a;
-            padding: 20px;
-            border-left: 5px solid var(--accent-yellow);
-            display: inline-block;
-            margin-right: 20px;
-            min-width: 200px;
-        }
-        .stat-card h3 { color: var(--accent-yellow); }
-        .logout-btn {
-            background: #ff4444;
+
+        body {
+            background-color: var(--bg-dark);
             color: white;
-            padding: 10px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #111;
+            border-right: 1px solid #333;
+            position: fixed;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .sidebar h2 { color: var(--accent-yellow); text-transform: uppercase; letter-spacing: 2px; }
+        .nav-links { list-style: none; padding: 0; margin-top: 40px; }
+        .nav-links li { padding: 15px 0; border-bottom: 1px solid #222; color: #888; cursor: pointer; transition: 0.3s; }
+        .nav-links li:hover { color: var(--accent-yellow); }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+            width: 100%;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            padding: 8px 20px;
             text-decoration: none;
-            float: right;
-            border-radius: 5px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-left: 4px solid var(--accent-yellow);
+            border-radius: 4px;
+        }
+
+        .stat-card h3 { font-size: 2rem; margin: 0; color: var(--accent-yellow); }
+        .stat-card p { margin: 5px 0 0; color: #888; }
+
+        /* Admin Forms Grid */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .admin-card {
+            background: var(--card-bg);
+            border: 1px solid #222;
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        .admin-card h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-blue { background: var(--accent-blue); color: white; }
+        .btn-yellow { background: var(--accent-yellow); color: black; }
+        .btn-danger { background: var(--danger); color: white; }
+
+        .danger-zone { border: 1px solid var(--danger); }
+
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { margin-left: 0; padding: 20px; }
+            .admin-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-wrapper">
-        <div class="sidebar">
-            <h2 style="color:var(--accent-yellow)">NEXUS ADMIN</h2>
-            <hr style="border:1px solid #222; margin: 20px 0;">
-            <p>📊 Overview</p><br>
-            <p>🏆 Tournaments</p><br>
-            <p>👥 Players List</p><br>
-            <p>⚙️ Settings</p>
-        </div>
-        <!-- Inside Main Content of dashboard.html -->
-<div class="admin-form" style="background:#111; padding:20px; border:1px solid var(--accent-yellow); margin-top:20px;">
-    <h3>Configure Tournament</h3>
-    <input type="text" id="tTitle" placeholder="Tournament Title" style="width:100%; margin:10px 0; padding:10px;">
-    <input type="text" id="tStatus" placeholder="Status (e.g. Registration Open)" style="width:100%; margin:10px 0; padding:10px;">
-    <input type="text" id="tPrize" placeholder="Prize Pool" style="width:100%; margin:10px 0; padding:10px;">
-    <input type="date" id="tDate" style="width:100%; margin:10px 0; padding:10px;">
-    <input type="text" id="tLink" placeholder="External Link (WhatsApp/Discord)" style="width:100%; margin:10px 0; padding:10px;">
-    <button onclick="saveTournament()" style="background:var(--accent-yellow); padding:10px 20px; border:none; cursor:pointer; font-weight:bold;">UPLOAD TO SITE</button>
-</div>
-
-<script>
-    async function saveTournament() {
-        const data = {
-            title: document.getElementById('tTitle').value,
-            status: document.getElementById('tStatus').value,
-            prize: document.getElementById('tPrize').value,
-            date: document.getElementById('tDate').value,
-            link: document.getElementById('tLink').value
-        };
-
-        const response = await fetch('https://nl-server-k7i9.onrender.com/api/tournaments', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        if(response.ok) {
-            alert("Tournament Live on Website!");
-            location.reload();
-        }
-    }
-    // Function to load names into the dropdown
-async function loadPlayerNames() {
-    const dropdown = document.getElementById('playerSelect');
-    
-    // 1. Check if dropdown exists in HTML
-    if (!dropdown) {
-        console.error("Could not find the 'playerSelect' element in HTML");
-        return;
-    }
-
-    try {
-        console.log("Fetching player list...");
-        // Replace with your ACTUAL Render URL
-        const res = await fetch('https://nl-server-k7i9.onrender.com/api/player-list');
-        
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        
-        const players = await res.json();
-        console.log("Players received:", players);
-
-        if (players.length === 0) {
-            dropdown.innerHTML = '<option>No players found in database</option>';
-            return;
-        }
-
-        // 2. Fill the dropdown
-        dropdown.innerHTML = players.map(p => 
-            `<option value="${p.name}">${p.name}</option>`
-        ).join('');
-
-        console.log("Dropdown successfully populated!");
-
-    } catch (err) {
-        console.error("Dashboard Load Error:", err);
-        dropdown.innerHTML = '<option>Error loading players</option>';
-    }
-}
-
-// 3. Ensure this runs as soon as the page opens
-document.addEventListener('DOMContentLoaded', loadPlayerNames);
-
-// Function to update points
-async function updateMatch(result) {
-    const playerName = document.getElementById('playerSelect').value;
-    if (!playerName || playerName.includes("Error") || playerName.includes("No players")) {
-        alert("Please select a valid player first!");
-        return;
-    }
-
-    try {
-        const response = await fetch('https://nl-server-k7i9.onrender.com/api/update-points', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ name: playerName, result: result })
-        });
-
-        if (response.ok) {
-            alert(`SUCCESS: Added ${result} to ${playerName}`);
-        } else {
-            alert("Failed to update points. Check server logs.");
-        }
-    } catch (error) {
-        console.error("Update Error:", error);
-        alert("Network error. Could not connect to server.");
-    }
-}
-</script>
-        <div class="admin-box" style="border: 1px solid var(--accent-blue); padding: 20px; margin-bottom: 30px;">
-    <h3 style="color:var(--accent-blue);">REGISTER NEW PLAYER</h3>
-    <input type="text" id="newPlayerName" placeholder="Enter Full Name" style="width:100%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #444;">
-    <button onclick="addNewPlayer()" style="background:var(--accent-blue); color:white; width:100%; padding:10px; font-weight:bold; cursor:pointer; border:none;">
-        ADD TO RANKINGS
-    </button>
-        </div>
-        <div class="admin-box">
-    <h3>Update Match Result</h3>
-    <select id="playerSelect" style="width:100%; padding:10px; margin-bottom:10px;">
-        <!-- Fetch names from MongoDB here -->
-    </select>
-    
-    <div style="display:flex; gap:10px;">
-        <button onclick="updateMatch('win')" style="background:#00ff88; flex:1; padding:10px;">WIN (+3 PTS)</button>
-        <button onclick="updateMatch('draw')" style="background:gray; flex:1; padding:10px;">DRAW (+1 PT)</button>
-        <button onclick="updateMatch('loss')" style="background:#ff4444; flex:1; padding:10px;">LOSS (0 PTS)</button>
-    </div>
-</div>
-
-<script>
-    async function addNewPlayer() {
-    const nameInput = document.getElementById('newPlayerName');
-    const name = nameInput.value.trim();
-
-    if (!name) {
-        alert("Please enter a player name!");
-        return;
-    }
-
-    try {
-        const response = await fetch('https://nl-server-k7i9.onrender.com/api/add-player', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            alert(`SUCCESS: ${name} added to Nexus Legends!`);
-            nameInput.value = ""; // Clear input
-            loadPlayerNames(); // Refresh the dropdown list automatically
-        } else {
-            alert("Error: " + data.error);
-        }
-    } catch (error) {
-        console.error("Add Player Error:", error);
-        alert("Network error. Could not connect to server.");
-    }
-    }
-    
-async function updateMatch(result) {
-    const playerName = document.getElementById('playerSelect').value;
-    
-    await fetch('https://nl-server-k7i9.onrender.com/api/update-points', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ name: playerName, result: result })
-    });
-    alert("Rankings Updated!");
-}
-</script>
-        <!-- Adjustment & Reset Section -->
-<div class="admin-box" style="margin-top:30px; border: 1px solid #ff4444; padding: 20px;">
-    <h3 style="color:#ff4444;">DANGER ZONE (Adjust/Reset)</h3>
-    
-    <div style="margin-bottom: 15px;">
-        <label>Subtract from Selected Player:</label>
-        <div style="display:flex; gap:10px; margin-top:5px;">
-            <button onclick="adjustStats(1, 3)" style="background:#ff4444; flex:1;">-1 WIN / -3 PTS</button>
-            <button onclick="adjustStats(0, 1)" style="background:#cc8800; flex:1;">-1 PT (Draw)</button>
-        </div>
+    <div class="sidebar">
+        <h2>Nexus Admin</h2>
+        <ul class="nav-links">
+            <li>📊 Dashboard Overview</li>
+            <li>🏆 Tournament Manager</li>
+            <li>👥 Player Database</li>
+            <li>⚙️ Global Settings</li>
+        </ul>
     </div>
 
-    <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-
-    <button onclick="resetAll()" style="background:none; border:2px solid #ff4444; color:#ff4444; width:100%; padding:10px; font-weight:bold; cursor:pointer;">
-        RESET ALL PLAYER POINTS TO 0
-    </button>
-    <button onclick="removePlayer()" style="background:#ff0000; color:white; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:10px; width:100%;">
-    <i class="fa-solid fa-trash-can"></i> DELETE SELECTED PLAYER PERMANENTLY
-    </button>
-</div>
-
-<script>
-// Function to subtract points
-async function adjustStats(w, p) {
-    const playerName = document.getElementById('playerSelect').value;
-    if(!confirm(`Are you sure you want to subtract stats from ${playerName}?`)) return;
-
-    const response = await fetch('https://nl-server-k7i9.onrender.com/api/adjust-points', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ name: playerName, wins: w, points: p })
-    });
-    if(response.ok) alert("Stats adjusted successfully!");
-}
-
-// Function to Reset Everything
-async function resetAll() {
-    if(!confirm("EXTREME WARNING: This will set ALL players to 0 points. Continue?")) return;
-    const pass = prompt("Enter Admin Password to Confirm Reset:");
-    
-    if(pass === "nexus2024") { // Simple safety check
-        const response = await fetch('https://nl-server-k7i9.onrender.com/api/reset-rankings', { method: 'POST' });
-        if(response.ok) alert("All data has been wiped!");
-    } else {
-        alert("Incorrect password!");
-    }
-}
-</script>
-        <div class="admin-box" style="border: 1px solid var(--accent-yellow); padding: 20px; margin-top:20px;">
-    <h3 style="color:var(--accent-yellow);">TOURNAMENT MANAGEMENT</h3>
-    
-    <input type="text" id="tourTitle" placeholder="Tournament Name" class="dash-input">
-    <input type="text" id="tourTeams" placeholder="Total Players/Teams (e.g. 32 Teams)" class="dash-input">
-    
-    <select id="tourStatus" class="dash-input" onchange="toggleWinnerField()">
-        <option value="Upcoming">Upcoming</option>
-        <option value="Live">Live</option>
-        <option value="Ended">Ended</option>
-    </select>
-
-    <div id="winnerDiv" style="display:none;">
-        <input type="text" id="tourWinner" placeholder="Winner Name" class="dash-input" style="border: 1px solid gold;">
-    </div>
-
-    <input type="text" id="tourFixture" placeholder="Fixture/Bracket Link (URL)" class="dash-input">
-    <input type="text" id="tourRoster" placeholder="Roster/Teams Link (URL)" class="dash-input">
-    <input type="text" id="tourLive" placeholder="Live Result (e.g. Finals: Team A 2-0 Team B)" class="dash-input">
-    <input type="text" id="tourPrize" placeholder="Prize Pool" class="dash-input">
-    <input type="date" id="tourDate" class="dash-input">
-
-    <button onclick="uploadTournament()" style="background:var(--accent-yellow); color:black; width:100%; padding:12px; font-weight:bold; cursor:pointer; border:none; margin-top:10px;">
-        DEPLOY TO SITE
-    </button>
-            <!-- Inside the tournament management div -->
-<input type="text" id="tourJoin" placeholder="Join/Registration Link (WhatsApp/Discord/Form)" class="dash-input" style="border-left: 4px solid #00ff88;">
-
-<!-- Update your uploadTournament function to include the joinLink -->
-<script>
-async function uploadTournament() {
-    const data = {
-        title: document.getElementById('tourTitle').value,
-        totalTeams: document.getElementById('tourTeams').value,
-        status: document.getElementById('tourStatus').value,
-        winner: document.getElementById('tourWinner').value,
-        fixtureLink: document.getElementById('tourFixture').value,
-        rosterLink: document.getElementById('tourRoster').value,
-        joinLink: document.getElementById('tourJoin').value, // <--- ADDED THIS
-        liveResult: document.getElementById('tourLive').value,
-        prize: document.getElementById('tourPrize').value,
-        date: document.getElementById('tourDate').value
-    };
-
-    const res = await fetch('https://nl-server-k7i9.onrender.com/api/manage-tournament', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-
-    if(res.ok) {
-        alert("Tournament is now LIVE with a Join Button!");
-        location.reload();
-    }
-}
-</script>
-</div>
-
-<style>
-    .dash-input { width:100%; padding:10px; margin-bottom:10px; background:#1a1a1a; color:white; border:1px solid #333; }
-</style>
-
-<script>
-function toggleWinnerField() {
-    const status = document.getElementById('tourStatus').value;
-    document.getElementById('winnerDiv').style.display = (status === 'Ended') ? 'block' : 'none';
-}
-
-async function uploadTournament() {
-    const data = {
-        title: document.getElementById('tourTitle').value,
-        totalTeams: document.getElementById('tourTeams').value,
-        status: document.getElementById('tourStatus').value,
-        winner: document.getElementById('tourWinner').value,
-        fixtureLink: document.getElementById('tourFixture').value,
-        rosterLink: document.getElementById('tourRoster').value,
-        liveResult: document.getElementById('tourLive').value,
-        prize: document.getElementById('tourPrize').value,
-        date: document.getElementById('tourDate').value
-    };
-
-    const res = await fetch('https://nl-server-k7i9.onrender.com/api/manage-tournament', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-
-    if(res.ok) alert("Tournament Data Live!");
-}
-async function removePlayer() {
-    const playerName = document.getElementById('playerSelect').value;
-
-    if (!playerName || playerName.includes("Loading") || playerName.includes("No players")) {
-        alert("Please select a player first.");
-        return;
-    }
-
-    if (confirm(`Are you sure you want to delete ${playerName}?`)) {
-        try {
-            // !!! REPLACE THIS URL WITH YOUR ACTUAL RENDER URL !!!
-            const apiUrl = "https://nl-server-k7i9.onrender.com/api/delete-player-safe";
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name: playerName }) // Sending name in a safe package
-            });
-
-            if (response.ok) {
-                alert("SUCCESS: Player deleted.");
-                location.reload(); // Refresh the page to update the list
-            } else {
-                const errorData = await response.json();
-                alert("SERVER ERROR: " + errorData.error);
-            }
-        } catch (error) {
-            // If this alert pops up, the URL above is 100% wrong or misspelled
-            alert("CONNECTION FAILED: Check your Render URL in the code.");
-        }
-    }
-}
-
-</script>
-        <div class="main-content">
+    <div class="main-content">
+        <div class="header-bar">
+            <div>
+                <h1>Welcome, Anubhav</h1>
+                <p style="color:#666">Control Center for Nexus Legends eFootball</p>
+            </div>
             <a href="index.html" class="logout-btn">LOGOUT</a>
-            <h1>Welcome Back, Anubhav</h1>
-            <p style="color:var(--gray-text)">Manage your eFootball community from here.</p>
+        </div>
+
+        <!-- STATS SECTION -->
+        <div class="stats-grid">
+            <div class="stat-card"><h3>1,240</h3><p>Total Players</p></div>
+            <div class="stat-card"><h3>12</h3><p>Active Tournaments</p></div>
+            <div class="stat-card"><h3>$500</h3><p>Prize Pool</p></div>
+        </div>
+
+        <div class="admin-grid">
             
-            <div style="margin-top: 40px;">
-                <div class="stat-card">
-                    <h3>1,240</h3>
-                    <p>Total Players</p>
-                </div>
-                <div class="stat-card">
-                    <h3>12</h3>
-                    <p>Active Tournaments</p>
-                </div>
-                <div class="stat-card">
-                    <h3>$500</h3>
-                    <p>Prize Pool Total</p>
+            <!-- REGISTER PLAYER -->
+            <div class="admin-card">
+                <h3 style="color: var(--accent-blue);">Register New Player</h3>
+                <input type="text" id="newPlayerName" placeholder="Full Name (e.g. John Doe)">
+                <button onclick="addNewPlayer()" class="btn-blue">Add to Database</button>
+            </div>
+
+            <!-- UPDATE MATCH RESULTS -->
+            <div class="admin-card">
+                <h3 style="color: var(--success);">Update Match Results</h3>
+                <label>Select Player:</label>
+                <select id="playerSelect">
+                    <option>Loading players...</option>
+                </select>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                    <button onclick="updateMatch('win')" style="background:var(--success); color:black;">WIN (+3)</button>
+                    <button onclick="updateMatch('draw')" style="background:gray; color:white;">DRAW (+1)</button>
+                    <button onclick="updateMatch('loss')" style="background:var(--danger); color:white;">LOSS (0)</button>
                 </div>
             </div>
+
+            <!-- TOURNAMENT MANAGEMENT -->
+            <div class="admin-card">
+                <h3 style="color: var(--accent-yellow);">Manage Tournaments</h3>
+                <input type="text" id="tourTitle" placeholder="Tournament Name">
+                <input type="text" id="tourTeams" placeholder="Total Teams (e.g. 32 Teams)">
+                <select id="tourStatus" onchange="toggleWinnerField()">
+                    <option value="Upcoming">Upcoming</option>
+                    <option value="Live">Live</option>
+                    <option value="Ended">Ended</option>
+                </select>
+                <div id="winnerDiv" style="display:none;">
+                    <input type="text" id="tourWinner" placeholder="Winner Name" style="border: 1px solid gold;">
+                </div>
+                <input type="text" id="tourJoin" placeholder="Join Link (WhatsApp/Discord)">
+                <input type="text" id="tourFixture" placeholder="Fixture/Bracket URL">
+                <input type="text" id="tourPrize" placeholder="Prize Pool (e.g. ₹500)">
+                <input type="date" id="tourDate">
+                <button onclick="uploadTournament()" class="btn-yellow">Deploy Tournament</button>
+            </div>
+
+            <!-- DANGER ZONE -->
+            <div class="admin-card danger-zone">
+                <h3 style="color: var(--danger);">Danger Zone</h3>
+                <p style="font-size:0.8rem; color:#888;">Selected Player adjustment & deletion</p>
+                
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button onclick="adjustStats(1, 3)" style="background:#333; color:var(--danger); border:1px solid var(--danger);"> -1 Win / -3 Pts</button>
+                    <button onclick="removePlayer()" class="btn-danger">Delete Player</button>
+                </div>
+                
+                <button onclick="resetAll()" style="background:none; border:1px solid #444; color:#666;">Global Reset (Points to 0)</button>
+            </div>
+
         </div>
     </div>
 
+    <script>
+        const API_BASE = "https://nl-server-k7i9.onrender.com/api";
+
+        // LOAD PLAYERS INTO DROPDOWN
+        async function loadPlayerNames() {
+            const dropdown = document.getElementById('playerSelect');
+            try {
+                const res = await fetch(`${API_BASE}/player-list`);
+                const players = await res.json();
+                dropdown.innerHTML = players.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+            } catch (err) {
+                dropdown.innerHTML = '<option>Error loading players</option>';
+            }
+        }
+
+        // ADD PLAYER
+        async function addNewPlayer() {
+            const name = document.getElementById('newPlayerName').value.trim();
+            if(!name) return alert("Enter name");
+            const res = await fetch(`${API_BASE}/add-player`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name })
+            });
+            if(res.ok) { alert("Player Added!"); location.reload(); }
+        }
+
+        // UPDATE MATCH
+        async function updateMatch(result) {
+            const name = document.getElementById('playerSelect').value;
+            const res = await fetch(`${API_BASE}/update-points`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, result })
+            });
+            if(res.ok) alert("Rankings Updated!");
+        }
+
+        // DELETE PLAYER (SAFE POST METHOD)
+        async function removePlayer() {
+            const name = document.getElementById('playerSelect').value;
+            if(!confirm(`Delete ${name} permanently?`)) return;
+            const res = await fetch(`${API_BASE}/delete-player-safe`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name })
+            });
+            if(res.ok) { alert("Deleted!"); location.reload(); }
+        }
+
+        // TOURNAMENT UPLOAD
+        function toggleWinnerField() {
+            const status = document.getElementById('tourStatus').value;
+            document.getElementById('winnerDiv').style.display = (status === 'Ended') ? 'block' : 'none';
+        }
+
+        async function uploadTournament() {
+            const data = {
+                title: document.getElementById('tourTitle').value,
+                totalTeams: document.getElementById('tourTeams').value,
+                status: document.getElementById('tourStatus').value,
+                winner: document.getElementById('tourWinner').value,
+                fixtureLink: document.getElementById('tourFixture').value,
+                joinLink: document.getElementById('tourJoin').value,
+                prize: document.getElementById('tourPrize').value,
+                date: document.getElementById('tourDate').value
+            };
+            const res = await fetch(`${API_BASE}/manage-tournament`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            if(res.ok) alert("Tournament Live!");
+        }
+
+        // INITIALIZE
+        document.addEventListener('DOMContentLoaded', loadPlayerNames);
+    </script>
 </body>
 </html>
