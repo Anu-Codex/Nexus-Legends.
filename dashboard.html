@@ -90,7 +90,7 @@ async function loadPlayerNames() {
     try {
         console.log("Fetching player list...");
         // Replace with your ACTUAL Render URL
-        const res = await fetch('https://your-render-app-link.onrender.com/api/player-list');
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/player-list');
         
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         
@@ -127,7 +127,7 @@ async function updateMatch(result) {
     }
 
     try {
-        const response = await fetch('https://your-render-app-link.onrender.com/api/update-points', {
+        const response = await fetch('https://nl-server-k7i9.onrender.com/api/update-points', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ name: playerName, result: result })
