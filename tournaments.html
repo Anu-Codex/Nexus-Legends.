@@ -299,19 +299,15 @@
             
         </div>
     </div>
-    <div id="bracketOverlay" class="bracket-overlay">
-    <div class="bracket-modal">
+    <div id="fixtureOverlay" class="roster-overlay">
+    <div class="roster-modal" style="border-color:var(--live-red);">
         <div class="roster-header" style="background:var(--live-red);">
-            <h2 id="bracketTitle" style="margin:0;">TOURNAMENT BRACKET</h2>
-            <i class="fa-solid fa-xmark" onclick="closeBracket()" style="cursor:pointer; font-size:1.5rem;"></i>
+            <h2 id="fixtureTitle" style="margin:0;">TOURNAMENT FIXTURES</h2>
+            <i class="fa-solid fa-xmark" onclick="closeFixture()" style="cursor:pointer; font-size:1.5rem;"></i>
         </div>
-        <div id="bracketBody" class="roster-body">
-            <!-- Matches will load here -->
-        </div>
+        <div id="fixtureBody" class="roster-body"></div>
     </div>
-        <button onclick="openBracket('${t._id}')" class="sec-btn">
-    <i class="fa-solid fa-sitemap"></i> BRACKETS
-        </button>
+</div>
     </div>
 
     <script>
