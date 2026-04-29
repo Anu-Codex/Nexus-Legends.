@@ -317,3 +317,66 @@ footer {
 /* Badge Colors */
 .bg-live { background: #ff4444; color: white; box-shadow: 0 0 10px rgba(255, 68, 68, 0.4); }
 .bg-upcoming { background: var(--nexus-blue); color: white; }
+
+.home-rankings {
+    padding: 60px 20px;
+    background: linear-gradient(to bottom, #050505, #0a0a0a);
+}
+
+.mini-leaderboard {
+    max-width: 600px;
+    margin: 30px auto 0;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid #222;
+}
+
+.rank-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 80px;
+    padding: 15px 20px;
+    background: rgba(0, 65, 255, 0.1);
+    color: var(--accent-yellow);
+    font-weight: bold;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.home-player-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 80px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #111;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.home-player-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.home-player-row:last-child { border-bottom: none; }
+
+.rank-pill {
+    width: 30px;
+    height: 30px;
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #888;
+}
+
+/* Highlight for Rank #1 */
+.home-player-row:first-child .rank-pill {
+    background: var(--accent-yellow);
+    color: black;
+    box-shadow: 0 0 10px rgba(228, 255, 0, 0.3);
+}
+
+.p-name { font-weight: 700; color: #eee; }
+.p-pts { color: var(--accent-yellow); font-weight: bold; text-align: right; }
