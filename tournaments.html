@@ -248,29 +248,36 @@ async function loadTournaments() {
     const container = document.getElementById('tournament-display');
     
     container.innerHTML = tours.map(t => `
-        <div class="tour-card" style="border-top: 5px solid ${t.status === 'Live' ? '#ff003c' : (t.status === 'Ended' ? 'gray' : '#0041FF')}">
-            <div class="status-badge ${t.status === 'Live' ? 'status-live' : ''}" style="background:${t.status === 'Live' ? '#ff003c' : (t.status === 'Ended' ? 'gray' : '#00ff88')}">
-                ${t.status}
-            </div>
-            
-            <h2>${t.title}</h2>
-            <p style="color:var(--accent-yellow); font-weight:bold;">${t.totalTeams}</p>
-            
-            ${t.status === 'Ended' ? `<div style="background:rgba(255,215,0,0.1); padding:10px; border:1px solid gold; margin:10px 0;">🏆 WINNER: ${t.winner}</div>` : ''}
-            
-            ${t.status === 'Live' ? `<div style="color:#ff003c; font-weight:bold; margin:10px 0;"><i class="fa-solid fa-satellite-dish"></i> ${t.liveResult}</div>` : ''}
-
-            <div class="tour-info-row">
-                <div class="info-item"><span>Prize</span><strong>${t.prize}</strong></div>
-                <div class="info-item"><span>Date</span><strong>${t.date}</strong></div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-                <a href="${t.fixtureLink}" target="_blank" class="enter-btn" style="font-size:0.8rem;">BRACKETS</a>
-                <a href="${t.rosterLink}" target="_blank" class="enter-btn" style="background:#333; font-size:0.8rem;">ROSTER</a>
-            </div>
+    <div class="tour-card" style="border-top: 5px solid ${t.status === 'Live' ? '#ff003c' : (t.status === 'Ended' ? 'gray' : '#0041FF')}">
+        <div class="status-badge ${t.status === 'Live' ? 'status-live' : ''}" style="background:${t.status === 'Live' ? '#ff003c' : (t.status === 'Ended' ? 'gray' : '#00ff88')}">
+            ${t.status}
         </div>
-    `).join('');
+        
+        <h2>${t.title}</h2>
+        <p style="color:var(--accent-yellow); font-weight:bold; margin-bottom:10px;">${t.totalTeams}</p>
+        
+        <!-- Only show JOIN button if tournament is NOT ended -->
+        ${t.status !== 'Ended' ? `
+            <a href="${t.joinLink}" target="_blank" class="join-action-btn">
+                <i class="fa-solid fa-right-to-bracket"></i> JOIN NOW
+            </a>
+        ` : ''}
+
+        ${t.status === 'Ended' ? `<div class="winner-box">🏆 WINNER: ${t.winner}</div>` : ''}
+        
+        ${t.status === 'Live' ? `<div class="live-ticker"><i class="fa-solid fa-circle-dot"></i> ${t.liveResult}</div>` : ''}
+
+        <div class="tour-info-row">
+            <div class="info-item"><span>Prize</span><strong>${t.prize}</strong></div>
+            <div class="info-item"><span>Date</span><strong>${t.date}</strong></div>
+        </div>
+
+        <div class="tour-footer-btns">
+            <a href="${t.fixtureLink}" target="_blank" class="secondary-btn">BRACKETS</a>
+            <a href="${t.rosterLink}" target="_blank" class="secondary-btn">ROSTER</a>
+        </div>
+    </div>
+`).join('');
 }
 loadTournaments();
 </script>
