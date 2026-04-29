@@ -253,3 +253,67 @@ footer {
     font-size: 0.8rem;
     border: 1px solid #333;
 }
+:root {
+    --accent-yellow: #E4FF00;
+    --nexus-blue: #0041FF;
+}
+
+.recent-events {
+    padding: 60px 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.home-tour-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+/* Compact Home Card Style */
+.home-tour-card {
+    background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
+    border: 1px solid #333;
+    padding: 20px;
+    border-radius: 12px;
+    position: relative;
+    transition: 0.3s;
+}
+
+.home-tour-card:hover {
+    border-color: var(--nexus-blue);
+    transform: translateY(-5px);
+}
+
+.home-status-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.view-all-btn {
+    display: inline-block;
+    background: transparent;
+    color: var(--accent-yellow);
+    border: 2px solid var(--accent-yellow);
+    padding: 12px 30px;
+    font-weight: bold;
+    text-decoration: none;
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+    transition: 0.3s;
+}
+
+.view-all-btn:hover {
+    background: var(--accent-yellow);
+    color: black;
+}
+
+/* Badge Colors */
+.bg-live { background: #ff4444; color: white; box-shadow: 0 0 10px rgba(255, 68, 68, 0.4); }
+.bg-upcoming { background: var(--nexus-blue); color: white; }
