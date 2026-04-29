@@ -334,6 +334,51 @@
         }
 
         window.onload = loadTournaments;
+        function openRoster(tourId) {
+    const t = allToursData.find(x => x._id === tourId);
+    if(!t.roster || t.roster.length === 0) {
+        alert("Roster is being finalized by Admins.");
+        return;
+    }
+
+    document.getElementById('modalTitle').innerText = t.title;
+    const body = document.getElementById('modalBody');
+    
+    body.innerHTML = t.roster.map(team => `
+        <div class="team-accordion">
+            <div class="team-trigger" onclick="toggleTeam(this)">
+                <span><i class="fa-solid fa-shield-halved" style="color:var(--accent-yellow); margin-right:10px;"></i> ${team.teamName}</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="player-list">
+                ${team.players.map(p => `
+                    <div class="player-item">
+                        <i class="fa-solid fa-user-ninja"></i> ${p}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('rosterOverlay').style.display = 'flex';
+}
+
+function closeRoster() {
+    document.getElementById('rosterOverlay').style.display = 'none';
+}
+
+function toggleTeam(element) {
+    const list = element.nextElementSibling;
+    const icon = element.querySelector('.fa-chevron-down');
+    
+    if (list.style.maxHeight) {
+        list.style.maxHeight = null;
+        icon.style.transform = "rotate(0deg)";
+    } else {
+        list.style.maxHeight = list.scrollHeight + "px";
+        icon.style.transform = "rotate(180deg)";
+    }
+}
     </script>
 </body>
 </html>
