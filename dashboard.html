@@ -348,39 +348,34 @@ async function uploadTournament() {
 async function removePlayer() {
     const playerName = document.getElementById('playerSelect').value;
 
-    if (!playerName || playerName.includes("Loading")) {
-        alert("Select a player first.");
+    if (!playerName || playerName.includes("Loading") || playerName.includes("No players")) {
+        alert("Please select a player first.");
         return;
     }
 
-    if (confirm(`Delete ${playerName} permanently?`)) {
+    if (confirm(`Are you sure you want to delete ${playerName}?`)) {
         try {
-            // STEP A: Encode name for URLs with spaces
-            const nameParam = encodeURIComponent(playerName);
-            
-            // STEP B: Update this link to your EXACT Render URL
-            const targetUrl = `https://nl-server-k7i9.onrender.com/api/delete-player/${nameParam}`;
+            // !!! REPLACE THIS URL WITH YOUR ACTUAL RENDER URL !!!
+            const apiUrl = "https://nl-server-k7i9.onrender.com/api/delete-player-safe";
 
-            console.log("Sending DELETE to:", targetUrl);
-
-            const response = await fetch(targetUrl, {
-                method: 'DELETE',
-                mode: 'cors', // Force CORS mode
+            const response = await fetch(apiUrl, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({ name: playerName }) // Sending name in a safe package
             });
 
             if (response.ok) {
-                alert("Player Deleted!");
-                location.reload(); // Refresh to update list
+                alert("SUCCESS: Player deleted.");
+                location.reload(); // Refresh the page to update the list
             } else {
-                const errData = await response.json();
-                alert("Server Error: " + errData.error);
+                const errorData = await response.json();
+                alert("SERVER ERROR: " + errorData.error);
             }
         } catch (error) {
-            console.error("Fetch Error Detail:", error);
-            alert("Connection Failed. Check Console (F12) for details.");
+            // If this alert pops up, the URL above is 100% wrong or misspelled
+            alert("CONNECTION FAILED: Check your Render URL in the code.");
         }
     }
 }
