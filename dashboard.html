@@ -45,7 +45,39 @@
             <p>👥 Players List</p><br>
             <p>⚙️ Settings</p>
         </div>
-        
+        <!-- Inside Main Content of dashboard.html -->
+<div class="admin-form" style="background:#111; padding:20px; border:1px solid var(--accent-yellow); margin-top:20px;">
+    <h3>Configure Tournament</h3>
+    <input type="text" id="tTitle" placeholder="Tournament Title" style="width:100%; margin:10px 0; padding:10px;">
+    <input type="text" id="tStatus" placeholder="Status (e.g. Registration Open)" style="width:100%; margin:10px 0; padding:10px;">
+    <input type="text" id="tPrize" placeholder="Prize Pool" style="width:100%; margin:10px 0; padding:10px;">
+    <input type="date" id="tDate" style="width:100%; margin:10px 0; padding:10px;">
+    <input type="text" id="tLink" placeholder="External Link (WhatsApp/Discord)" style="width:100%; margin:10px 0; padding:10px;">
+    <button onclick="saveTournament()" style="background:var(--accent-yellow); padding:10px 20px; border:none; cursor:pointer; font-weight:bold;">UPLOAD TO SITE</button>
+</div>
+
+<script>
+    async function saveTournament() {
+        const data = {
+            title: document.getElementById('tTitle').value,
+            status: document.getElementById('tStatus').value,
+            prize: document.getElementById('tPrize').value,
+            date: document.getElementById('tDate').value,
+            link: document.getElementById('tLink').value
+        };
+
+        const response = await fetch('https://your-render-app-link.onrender.com/api/tournaments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if(response.ok) {
+            alert("Tournament Live on Website!");
+            location.reload();
+        }
+    }
+</script>
         <div class="main-content">
             <a href="index.html" class="logout-btn">LOGOUT</a>
             <h1>Welcome Back, Anubhav</h1>
