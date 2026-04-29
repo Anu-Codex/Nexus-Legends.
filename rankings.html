@@ -45,7 +45,6 @@
         .rank-num { font-style: italic; color: #888; }
         .pts-cell { color: #E4FF00; font-size: 1.4rem; }
 
-        /* Loading and Error Styles */
         .status-msg { text-align: center; padding: 20px; font-weight: bold; }
         .error-msg { color: #ff4444; }
         .retry-btn { 
@@ -102,22 +101,22 @@ function exportToPDF() {
     doc.save("Nexus_Legends_Rankings.pdf");
 }
 
-// --- UPDATED SERVER CONNECTION CODE ---
+// --- UPDATED CONNECTION LOGIC ---
 const API_URL = 'https://nl-server-k7i9.onrender.com/api/rankings';
 
 async function loadRankings() {
     const tbody = document.getElementById('ranking-body');
     
     try {
-        // Fetching with cache: "no-store" to prevent browser from showing old error states
-        const res = await fetch(API_URL, { cache: "no-store" });
+        const res = await fetch(API_URL);
         
-        if (!res.ok) throw new Error("Server Response Error");
+        if (!res.ok) throw new Error("Connection failed");
 
         const players = await res.json();
 
+        // If the server returns empty, show this
         if (!players || players.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="status-msg">Arena is currently empty.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="status-msg">Arena is empty. Add players in Dashboard.</td></tr>';
             return;
         }
 
@@ -127,7 +126,7 @@ async function loadRankings() {
             const oldRank = player.previousRank || 0;
             let trendIcon = '';
 
-            // Trend logic (Stayed identical)
+            // Trend logic
             if (oldRank !== 0) {
                 if (oldRank > currentRank) {
                     trendIcon = '<i class="fa-solid fa-caret-up" style="color:#00ff88; margin-left:8px;"></i>';
@@ -146,24 +145,24 @@ async function loadRankings() {
         }).join('');
 
     } catch (error) {
-        console.error("Connection Error:", error);
+        console.error("Fetch error:", error);
         
-        // Show Retry UI if server is still asleep
+        // This only shows if the server is literally offline or sleeping
         tbody.innerHTML = `
             <tr>
                 <td colspan="4" class="status-msg error-msg">
-                    <i class="fa-solid fa-server"></i> Server is waking up...<br>
-                    <small style="color:#888; font-weight:normal;">Render Free Tier takes ~40s to start. Auto-retrying...</small><br>
-                    <button class="retry-btn" onclick="loadRankings()">Try Now</button>
+                    <i class="fa-solid fa-server"></i> Arena Offline<br>
+                    <small style="color:#888; font-weight:normal;">Waking up server... Please wait 30 seconds.</small><br>
+                    <button class="retry-btn" onclick="loadRankings()">RETRY CONNECTION</button>
                 </td>
             </tr>`;
         
-        // Auto-retry after 5 seconds
-        setTimeout(loadRankings, 5000);
+        // Auto-retry every 10 seconds until it works
+        setTimeout(loadRankings, 10000);
     }
 }
 
-// Start loading immediately
+// Initial trigger
 loadRankings();
 </script>
 </body>
