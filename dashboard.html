@@ -348,33 +348,41 @@ async function uploadTournament() {
 async function removePlayer() {
     const playerName = document.getElementById('playerSelect').value;
 
-    // Safety check
-    if (!playerName || playerName.includes("Loading")) {
-        alert("Please select a player first!");
+    if (!playerName || playerName.includes("Loading") || playerName.includes("No players")) {
+        alert("Please select a valid player!");
         return;
     }
 
-    // Confirmation Popup
-    const confirmation = confirm(`CRITICAL WARNING: Are you sure you want to delete "${playerName}"? This will erase all their wins, points, and ranking history forever.`);
+    const confirmation = confirm(`DELETE ${playerName} FOREVER? This cannot be undone.`);
 
     if (confirmation) {
         try {
-            const response = await fetch(`https://nl-server-k7i9.onrender.com/api/delete-player/${playerName}`, {
+            // IMPORTANT: encodeURIComponent handles spaces in names
+            const encodedName = encodeURIComponent(playerName);
+            
+            // USE YOUR ACTUAL RENDER URL HERE
+            const baseUrl = "https://your-render-app-name.onrender.com"; 
+            
+            console.log(`Attempting to delete: ${baseUrl}/api/delete-player/${encodedName}`);
+
+            const response = await fetch(`${baseUrl}/api/delete-player/${encodedName}`, {
                 method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                alert(`SUCCESS: ${playerName} has been removed from the community.`);
-                // Refresh the dropdown and the rankings page view
-                loadPlayerNames(); 
+                alert("Player deleted successfully!");
+                loadPlayerNames(); // Refresh the list
             } else {
-                alert("Error: " + data.error);
+                alert("Server said: " + data.error);
             }
         } catch (error) {
-            console.error("Delete Error:", error);
-            alert("Network error. Could not connect to server.");
+            console.error("Connection Error:", error);
+            alert("Could not connect to server. Check your Internet or Render URL.");
         }
     }
 }
