@@ -171,177 +171,7 @@
         </div>        
 
     </main>
-
-    <script>
-        const API = "https://nl-server-k7i9.onrender.com/api";
-        let toursData = [];
-
-        function notify(msg, color = "#00ff88") {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.style.background = color;
-            t.style.transform = "translateY(0)";
-            setTimeout(() => { t.style.transform = "translateY(100px)"; }, 3000);
-        }
-
-        async function loadEverything() {
-            try {
-                const [pRes, tRes] = await Promise.all([
-                    fetch(`${API}/player-list`).then(r => r.json()),
-                    fetch(`${API}/manage-tournament`).then(r => r.json())
-                ]);
-
-                // Update Players
-                document.getElementById('playerSelect').innerHTML = pRes.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
-                
-                // Sync Tournaments across ALL 3 Dropdowns
-                toursData = tRes;
-                const tourOptions = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
-
-                document.getElementById('tourSelect').innerHTML = '<option value="">+ CREATE NEW TOURNAMENT</option>' + tourOptions;
-                document.getElementById('rosterTourSelect').innerHTML = '<option value="">-- Select Tournament to Edit Roster --</option>' + tourOptions;
-                document.getElementById('bracketTourSelect').innerHTML = '<option value="">-- Select Tournament to Edit Bracket --</option>' + tourOptions;
-
-            } catch (e) { 
-                notify("Sync Failed", "#ff4444"); 
-                console.error(e);
-            }
-        }
-
-        // --- PLAYER FUNCTIONS ---
-        async function addPlayer() {
-            const name = document.getElementById('newPlayerName').value;
-            if(!name) return alert("Enter Name");
-            const res = await fetch(`${API}/add-player`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name })
-            });
-            if(res.ok) { notify("Player Registered!"); document.getElementById('newPlayerName').value = ""; loadEverything(); }
-        }
-
-        async function rankAction(endpoint, data) {
-            const name = document.getElementById('playerSelect').value;
-            const res = await fetch(`${API}/${endpoint}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, ...data })
-            });
-            if(res.ok) notify("Stats Synchronized!");
-        }
-
-        async function resetAll() {
-            if (!confirm("Wipe all points?")) return;
-            const pass = prompt("Enter Admin Password:");
-            if (pass !== "nexus2024") { alert("Wrong Password"); return; }
-            const res = await fetch(`${API}/reset-rankings`, { method: 'POST' });
-            if (res.ok) { notify("Wiped!", "#ff4444"); loadEverything(); }
-        }
-
-        async function deletePlayer() {
-            const name = document.getElementById('playerSelect').value;
-            if(!confirm(`Delete ${name}?`)) return;
-            const res = await fetch(`${API}/delete-player-safe`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name })
-            });
-            if(res.ok) { notify("Deleted", "#ff4444"); loadEverything(); }
-        }
-
-        // --- TOURNAMENT FUNCTIONS ---
-        function toggleWinField() {
-            document.getElementById('tWinner').style.display = (document.getElementById('tStatus').value === 'Ended') ? 'block' : 'none';
-        }
-
-        function resetTourForm() {
-            document.getElementById('editId').value = "";
-            document.querySelectorAll('#tourForm input').forEach(i => i.value = "");
-            document.getElementById('subBtn').innerText = "Deploy to Site";
-            document.getElementById('delBtn').style.display = "none";
-            toggleWinField();
-        }
-
-        function fillTourForm() {
-            const id = document.getElementById('tourSelect').value;
-            if(!id) { resetTourForm(); return; }
-            const t = toursData.find(x => x._id === id);
-            document.getElementById('editId').value = t._id;
-            document.getElementById('tTitle').value = t.title;
-            document.getElementById('tTeams').value = t.totalTeams;
-            document.getElementById('tStatus').value = t.status;
-            document.getElementById('tWinner').value = t.winner || "";
-            document.getElementById('tJoin').value = t.joinLink || "";
-            document.getElementById('tFixture').value = t.fixtureLink || "";
-            document.getElementById('tRoster').value = t.rosterLink || "";
-            document.getElementById('tPrize').value = t.prize;
-            document.getElementById('tDate').value = t.date;
-            document.getElementById('subBtn').innerText = "Update Tournament";
-            document.getElementById('delBtn').style.display = "block";
-            toggleWinField();
-        }
-
-        async function submitTour() {
-            const id = document.getElementById('editId').value;
-            const data = {
-                title: document.getElementById('tTitle').value,
-                totalTeams: document.getElementById('tTeams').value,
-                status: document.getElementById('tStatus').value,
-                winner: document.getElementById('tWinner').value,
-                joinLink: document.getElementById('tJoin').value,
-                fixtureLink: document.getElementById('tFixture').value,
-                rosterLink: document.getElementById('tRoster').value,
-                prize: document.getElementById('tPrize').value,
-                date: document.getElementById('tDate').value
-            };
-            const endpoint = id ? 'update-tournament' : 'manage-tournament';
-            const res = await fetch(`${API}/${endpoint}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(id ? {id, data} : data)
-            });
-            if(res.ok) { notify("Tournament Live!"); loadEverything(); }
-        }
-
-        async function deleteTour() {
-            const id = document.getElementById('editId').value;
-            if(!confirm("Delete?")) return;
-            const res = await fetch(`${API}/delete-tournament`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id })
-            });
-            if(res.ok) { notify("Deleted", "#ff4444"); resetTourForm(); loadEverything(); }
-        }
-
-        // --- ROSTER FUNCTIONS ---
-        async function loadRosterList() {
-            const id = document.getElementById('rosterTourSelect').value;
-            const listDiv = document.getElementById('currentRoster');
-            if(!id) { document.getElementById('rosterEditor').style.display="none"; return; }
-            document.getElementById('rosterEditor').style.display="block";
-            const t = toursData.find(x => x._id === id);
-            if(!t.roster) { listDiv.innerHTML = "Empty Roster"; return; }
-            listDiv.innerHTML = t.roster.map(team => `
-                <div style="background:#000; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88; display:flex; justify-content:space-between;">
-                    <div><b>${team.teamName}</b><br><small>${team.players.join(', ')}</small></div>
-                    <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
-                </div>
-            `).join('');
-        }
-
-        async function addToRoster() {
-            const tourId = document.getElementById('rosterTourSelect').value;
-            const teamName = document.getElementById('rosTeam').value;
-            const playerName = document.getElementById('rosPlayer').value;
-            if(!teamName || !playerName) return alert("Fill both fields");
-            await fetch(`${API}/update-roster`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ tourId, teamName, playerName, action: 'add' })
-            });
-            loadEverything().then(loadRosterList);
-        }
-        //<!-- REPLACING THE SCRIPT SECTION ONLY - REST REMAINS AS PER YOUR DESIGN -->
+    <!-- KEEP ALL YOUR STYLES AND CARDS - REPLACE THE SCRIPT SECTION ONLY -->
 <script>
     const API = "https://nl-server-k7i9.onrender.com/api";
     let toursData = [];
@@ -360,10 +190,10 @@
                 fetch(`${API}/manage-tournament`).then(r => r.json())
             ]);
 
-            // Sync Players
+            // 1. Sync Players
             document.getElementById('playerSelect').innerHTML = pRes.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
             
-            // Sync ALL 3 Tournament Dropdowns
+            // 2. Sync Tournaments Across ALL Dropdowns
             toursData = tRes;
             const tourOptions = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
 
@@ -372,24 +202,169 @@
             document.getElementById('fixTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + tourOptions;
 
         } catch (e) { 
-            notify("Sync Failed", "#ff4444"); 
-            console.error(e);
+            notify("Connection Lost", "#ff4444"); 
+            console.error("Critical Sync Error:", e);
         }
     }
 
-    // --- NEW FIXTURE FUNCTIONS ---
+    // --- PLAYER FUNCTIONS ---
+    async function addPlayer() {
+        const name = document.getElementById('newPlayerName').value;
+        if(!name) return alert("Enter Name");
+        const res = await fetch(`${API}/add-player`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name })
+        });
+        if(res.ok) { notify("Player Registered!"); document.getElementById('newPlayerName').value = ""; loadEverything(); }
+    }
+
+    async function rankAction(endpoint, data) {
+        const name = document.getElementById('playerSelect').value;
+        const res = await fetch(`${API}/${endpoint}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name, ...data })
+        });
+        if(res.ok) notify("Stats Synchronized!");
+    }
+
+    async function resetAll() {
+        if (!confirm("Wipe all data?")) return;
+        const pass = prompt("Admin Password:");
+        if (pass !== "nexus2024") return alert("Denied");
+        const res = await fetch(`${API}/reset-rankings`, { method: 'POST' });
+        if (res.ok) { notify("Wiped", "#ff4444"); loadEverything(); }
+    }
+
+    async function deletePlayer() {
+        const name = document.getElementById('playerSelect').value;
+        if(!confirm(`Delete ${name}?`)) return;
+        const res = await fetch(`${API}/delete-player-safe`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name })
+        });
+        if(res.ok) { notify("Deleted", "#ff4444"); loadEverything(); }
+    }
+
+    // --- TOURNAMENT FUNCTIONS ---
+    function toggleWinField() {
+        document.getElementById('tWinner').style.display = (document.getElementById('tStatus').value === 'Ended') ? 'block' : 'none';
+    }
+
+    function resetTourForm() {
+        document.getElementById('editId').value = "";
+        document.querySelectorAll('#tourForm input').forEach(i => i.value = "");
+        document.getElementById('subBtn').innerText = "Deploy to Site";
+        document.getElementById('delBtn').style.display = "none";
+        toggleWinField();
+    }
+
+    function fillTourForm() {
+        const id = document.getElementById('tourSelect').value;
+        if(!id) { resetTourForm(); return; }
+        const t = toursData.find(x => x._id === id);
+        document.getElementById('editId').value = t._id;
+        document.getElementById('tTitle').value = t.title;
+        document.getElementById('tTeams').value = t.totalTeams;
+        document.getElementById('tStatus').value = t.status;
+        document.getElementById('tWinner').value = t.winner || "";
+        document.getElementById('tJoin').value = t.joinLink || "";
+        document.getElementById('tFixture').value = t.fixtureLink || "";
+        document.getElementById('tRoster').value = t.rosterLink || "";
+        document.getElementById('tPrize').value = t.prize;
+        document.getElementById('tDate').value = t.date;
+        document.getElementById('subBtn').innerText = "Update Tournament";
+        document.getElementById('delBtn').style.display = "block";
+        toggleWinField();
+    }
+
+    async function submitTour() {
+        const id = document.getElementById('editId').value;
+        const data = {
+            title: document.getElementById('tTitle').value,
+            totalTeams: document.getElementById('tTeams').value,
+            status: document.getElementById('tStatus').value,
+            winner: document.getElementById('tWinner').value,
+            joinLink: document.getElementById('tJoin').value,
+            fixtureLink: document.getElementById('tFixture').value,
+            rosterLink: document.getElementById('tRoster').value,
+            prize: document.getElementById('tPrize').value,
+            date: document.getElementById('tDate').value
+        };
+        const endpoint = id ? 'update-tournament' : 'manage-tournament';
+        const res = await fetch(`${API}/${endpoint}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(id ? {id, data} : data)
+        });
+        if(res.ok) { notify("Tournament Live!"); loadEverything(); }
+    }
+
+    async function deleteTour() {
+        const id = document.getElementById('editId').value;
+        if(!confirm("Delete?")) return;
+        const res = await fetch(`${API}/delete-tournament`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id })
+        });
+        if(res.ok) { notify("Tournament Removed", "#ff4444"); resetTourForm(); loadEverything(); }
+    }
+
+    // --- ROSTER FUNCTIONS ---
+    async function loadRosterList() {
+        const id = document.getElementById('rosterTourSelect').value;
+        const listDiv = document.getElementById('currentRoster');
+        if(!id) { document.getElementById('rosterEditor').style.display="none"; return; }
+        document.getElementById('rosterEditor').style.display="block";
+        const t = toursData.find(x => x._id === id);
+        if(!t.roster) { listDiv.innerHTML = "Empty Roster"; return; }
+        listDiv.innerHTML = t.roster.map(team => `
+            <div style="background:#000; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88; display:flex; justify-content:space-between;">
+                <div><b>${team.teamName}</b><br><small>${team.players.join(', ')}</small></div>
+                <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
+            </div>
+        `).join('');
+    }
+
+    async function addToRoster() {
+        const tourId = document.getElementById('rosterTourSelect').value;
+        const teamName = document.getElementById('rosTeam').value;
+        const playerName = document.getElementById('rosPlayer').value;
+        if(!teamName || !playerName) return alert("Fill both fields");
+        const res = await fetch(`${API}/update-roster`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ tourId, teamName, playerName, action: 'add' })
+        });
+        if(res.ok) loadEverything().then(loadRosterList);
+    }
+
+    async function removeTeam(teamId) {
+        const tourId = document.getElementById('rosterTourSelect').value;
+        const res = await fetch(`${API}/update-roster`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ tourId, teamId, action: 'remove-team' })
+        });
+        if(res.ok) loadEverything().then(loadRosterList);
+    }
+
+    // --- FIXTURE FUNCTIONS ---
     async function loadFixtureManager() {
         const id = document.getElementById('fixTourSelect').value;
         const listDiv = document.getElementById('stagesList');
-        if(!id) { document.getElementById('fixtureEditor').style.display = "none"; return; }
-        document.getElementById('fixtureEditor').style.display = "block";
+        if(!id) { document.getElementById('fixtureEditor').style.display="none"; return; }
+        document.getElementById('fixtureEditor').style.display="block";
 
         const t = toursData.find(x => x._id === id);
         if(!t.fixtures || t.fixtures.length === 0) { listDiv.innerHTML = "<p style='color:#555; text-align:center;'>No stages created.</p>"; return; }
 
         listDiv.innerHTML = t.fixtures.map(stage => `
             <div style="background:#000; border:1px solid #333; padding:15px; border-radius:10px; margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; color:var(--red); font-weight:bold; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; color:var(--red); font-weight:bold; margin-bottom:10px; font-size:0.9rem;">
                     <span>${stage.stageName}</span>
                     <i class="fa-solid fa-trash" onclick="manageFixture('delete-stage', {stageId:'${stage._id}'})" style="cursor:pointer;"></i>
                 </div>
@@ -422,12 +397,7 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ tourId, stageName, action, ...extraData })
         });
-        if(res.ok) { 
-            await loadEverything();
-            loadFixtureManager();
-            notify("Stage Updated");
-            document.getElementById('newStageName').value = "";
-        }
+        if(res.ok) { loadEverything().then(loadFixtureManager); notify("Updated"); document.getElementById('newStageName').value=""; }
     }
 
     async function addMatchToStage(stageId) {
@@ -440,7 +410,7 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ tourId, stageId, action: 'add-match', matchData: { p1, p2 } })
         });
-        if(res.ok) { await loadEverything(); loadFixtureManager(); }
+        if(res.ok) loadEverything().then(loadFixtureManager);
     }
 
     async function updateMatchScore(stageId, matchId) {
@@ -454,10 +424,11 @@
         });
         if(res.ok) notify("Result Uploaded!");
     }
+
     window.onload = loadEverything;
 </script>
 
-        
-    </script>
+    
+                        
 </body>
 </html>
