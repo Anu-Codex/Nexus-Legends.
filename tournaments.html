@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1024">
     <title>Tournament Arena | Nexus Legends</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
@@ -180,7 +180,7 @@
 
 <script>
     async function loadTournaments() {
-        const res = await fetch('https://your-render-app-link.onrender.com/api/tournaments');
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/tournaments');
         const tours = await res.json();
         
         const container = document.getElementById('tournament-list');
@@ -199,7 +199,7 @@
 
     <script>
         // API URL (Replace with your actual Render URL later)
-        const API_URL = 'https://your-render-app-link.onrender.com/api/tournaments';
+        const API_URL = 'https://nl-server-k7i9.onrender.com/api/tournaments';
 
         async function fetchTournaments() {
             try {
