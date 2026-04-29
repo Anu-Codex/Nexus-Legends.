@@ -428,39 +428,34 @@
                 icon.style.transform = "rotate(180deg)";
             }
         }
-        function openBracket(tourId) {
+        function openFixture(tourId) {
     const t = allToursData.find(x => x._id === tourId);
-    if(!t.matches || t.matches.length === 0) {
-        alert("Bracket is not yet generated."); return;
-    }
+    if(!t.fixtures || t.fixtures.length === 0) { alert("Fixtures coming soon!"); return; }
 
-    const body = document.getElementById('bracketBody');
-    document.getElementById('bracketTitle').innerText = t.title;
+    document.getElementById('fixtureTitle').innerText = t.title + " Fixtures";
+    const body = document.getElementById('fixtureBody');
 
-    // Group matches by round
-    const rounds = {};
-    t.matches.forEach(m => {
-        if(!rounds[m.round]) rounds[m.round] = [];
-        rounds[m.round].push(m);
-    });
-
-    body.innerHTML = Object.keys(rounds).map(roundName => `
-        <div class="m-round-title">${roundName}</div>
-        ${rounds[roundName].map(m => `
-            <div class="match-card">
-                <div style="text-align:right; font-weight:bold;">${m.p1}</div>
-                <div style="text-align:center; background:var(--live-red); color:white; padding:5px; border-radius:4px; margin:0 10px; font-weight:800;">
-                    ${m.s1} : ${m.s2}
-                </div>
-                <div style="text-align:left; font-weight:bold;">${m.p2}</div>
+    body.innerHTML = t.fixtures.map(stage => `
+        <div style="margin-bottom:25px;">
+            <div style="color:var(--live-red); font-weight:800; text-transform:uppercase; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:12px; font-size:0.9rem;">
+                ${stage.stageName}
             </div>
-        `).join('')}
+            ${stage.matches.map(m => `
+                <div style="display:grid; grid-template-columns: 1fr 60px 1fr; align-items:center; background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; margin-bottom:6px; border:1px solid #111;">
+                    <div style="text-align:right; font-weight:700; font-size:0.85rem;">${m.p1}</div>
+                    <div style="text-align:center; background:var(--live-red); color:white; font-weight:900; margin:0 10px; padding:3px 0; border-radius:4px; font-size:0.9rem;">
+                        ${m.s1} - ${m.s2}
+                    </div>
+                    <div style="text-align:left; font-weight:700; font-size:0.85rem;">${m.p2}</div>
+                </div>
+            `).join('')}
+        </div>
     `).join('');
 
-    document.getElementById('bracketOverlay').style.display = 'flex';
+    document.getElementById('fixtureOverlay').style.display = 'flex';
 }
 
-function closeBracket() { document.getElementById('bracketOverlay').style.display = 'none'; }
+function closeFixture() { document.getElementById('fixtureOverlay').style.display = 'none'; }
     </script>
 </body>
 </html>
