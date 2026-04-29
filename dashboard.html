@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Power Admin | v3</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
             --accent: #f8d448; --blue: #0041FF; --red: #ff4444; --green: #00ff88;
@@ -49,7 +50,6 @@
         .btn-red { background: var(--red); color: white; }
         .btn-outline { background: transparent; border: 1px solid #444; color: #888; }
 
-        /* Toast Popup */
         #toast {
             position: fixed; bottom: 20px; right: 20px; padding: 15px 25px;
             background: var(--green); color: black; border-radius: 8px;
@@ -76,7 +76,6 @@
     <div class="main">
         <div class="grid">
             
-            <!-- COLUMN 1: PLAYER MANAGEMENT -->
             <div>
                 <div class="card" style="border-left: 4px solid var(--blue);">
                     <h3 style="color:var(--blue)">Add New Player</h3>
@@ -95,72 +94,64 @@
                     </div>
 
                     <div style="margin-top:20px; padding-top:20px; border-top:1px solid #222;">
-    <p style="color:var(--red); font-size:0.8rem; margin:0 0 10px; font-weight:bold;">DANGER ZONE / RESET</p>
-    
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
-        <button onclick="rankAction('adjust-points', {wins:1, points:3})" class="btn-outline" style="color:var(--red); border-color:var(--red);">-1 WIN</button>
-        <button onclick="rankAction('adjust-points', {wins:0, points:1})" class="btn-outline" style="color:orange; border-color:orange;">-1 PT</button>
-    </div>
-                        <!-- RESTORED RESET BUTTON -->
-    <button onclick="resetAll()" class="btn-outline" style="color:#fff; border-color:#555; margin-bottom:10px; font-size:0.7rem;">
-        <i class="fa-solid fa-rotate"></i> RESET ALL PLAYERS TO 0
-    </button>
-
-    <button onclick="deletePlayer()" class="btn-red" style="font-size:0.8rem;">
-        <i class="fa-solid fa-trash"></i> DELETE PLAYER PERMANENTLY
-    </button>
+                        <p style="color:var(--red); font-size:0.8rem; margin:0 0 10px; font-weight:bold;">DANGER ZONE / RESET</p>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
+                            <button onclick="rankAction('adjust-points', {wins:1, points:3})" class="btn-outline" style="color:var(--red); border-color:var(--red);">-1 WIN</button>
+                            <button onclick="rankAction('adjust-points', {wins:0, points:1})" class="btn-outline" style="color:orange; border-color:orange;">-1 PT</button>
+                        </div>
+                        <button onclick="resetAll()" class="btn-outline" style="color:#fff; border-color:#555; margin-bottom:10px; font-size:0.7rem;">
+                            <i class="fa-solid fa-rotate"></i> RESET ALL PLAYERS TO 0
+                        </button>
+                        <button onclick="deletePlayer()" class="btn-red" style="font-size:0.8rem;">
+                            <i class="fa-solid fa-trash"></i> DELETE PLAYER PERMANENTLY
+                        </button>
                     </div>
                 </div>
-            
-            <!-- Inside the Tournament Controller Card in dashboard.html -->
-<div class="card" style="border-left: 4px solid var(--accent);">
-    <h3>Tournament Controller</h3>
-    
-    <label style="font-size:0.7rem; color:#888;">Select to Edit or Delete:</label>
-    <select id="tourSelect" onchange="fillTourForm()" style="border-color:var(--accent);">
-        <option value="">+ CREATE NEW TOURNAMENT</option>
-    </select>
-    <div id="tourForm">
-        <input type="hidden" id="editId">
-        <input type="text" id="tTitle" placeholder="Tournament Name">
-        
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input type="text" id="tTeams" placeholder="Teams Count">
-            <select id="tStatus" onchange="toggleWinField()">
-                <option value="Upcoming">Upcoming</option>
-                <option value="Live">Live</option>
-                <option value="Ended">Ended</option>
-            </select>
-        </div>
-        <!-- NEW LINK INPUTS ADDED HERE -->
-        <input type="text" id="tWinner" placeholder="Winner Name" style="display:none; border: 1px solid gold;">
-        <input type="text" id="tJoin" placeholder="WhatsApp Join Link">
-        <input type="text" id="tFixture" placeholder="Brackets/Fixture Link (URL)">
-        <input type="text" id="tRoster" placeholder="Roster/Teams Link (URL)">
-        <input type="text" id="tPrize" placeholder="Prize Pool">
-        <input type="date" id="tDate">
-        
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <button id="subBtn" onclick="submitTour()" class="btn-yellow" style="flex:2;">Deploy to Site</button>
-            <button id="delBtn" onclick="deleteTour()" class="btn-red" style="flex:1; display:none;">Delete</button>
-        </div>
-        <button onclick="resetTourForm()" style="background:none; color:#444; border:none; margin-top:10px; font-size:0.7rem;">Clear Form</button>
-    </div>
-</div>
-      <div class="card" style="border-left: 4px solid #00ff88;">
-    <h3><i class="fa-solid fa-users-gear"></i> ROSTER & TEAM BUILDER</h3>
-    
-    <select id="rosterTourSelect" onchange="loadRosterList()" style="margin-bottom:10px;"></select>
 
-    <div id="rosterEditor" style="display:none; background: rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
-        <input type="text" id="rosTeam" placeholder="Team Name (e.g. Alpha FC)">
-        <input type="text" id="rosPlayer" placeholder="Player Name">
-        <button onclick="addToRoster()" class="btn-yellow" style="background:#00ff88; color:black; margin-top:10px; width:100%;">ADD PLAYER TO TEAM</button>
-        
-        <div id="currentRoster" style="margin-top:20px;"></div>
-    </div>
-      </div>
+                <div class="card" style="border-left: 4px solid var(--accent);">
+                    <h3>Tournament Controller</h3>
+                    <label style="font-size:0.7rem; color:#888;">Select to Edit or Delete:</label>
+                    <select id="tourSelect" onchange="fillTourForm()" style="border-color:var(--accent);">
+                        <option value="">+ CREATE NEW TOURNAMENT</option>
+                    </select>
+                    <div id="tourForm">
+                        <input type="hidden" id="editId">
+                        <input type="text" id="tTitle" placeholder="Tournament Name">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <input type="text" id="tTeams" placeholder="Teams Count">
+                            <select id="tStatus" onchange="toggleWinField()">
+                                <option value="Upcoming">Upcoming</option>
+                                <option value="Live">Live</option>
+                                <option value="Ended">Ended</option>
+                            </select>
+                        </div>
+                        <input type="text" id="tWinner" placeholder="Winner Name" style="display:none; border: 1px solid gold;">
+                        <input type="text" id="tJoin" placeholder="WhatsApp Join Link">
+                        <input type="text" id="tFixture" placeholder="Brackets/Fixture Link (URL)">
+                        <input type="text" id="tRoster" placeholder="Roster/Teams Link (URL)">
+                        <input type="text" id="tPrize" placeholder="Prize Pool">
+                        <input type="date" id="tDate">
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button id="subBtn" onclick="submitTour()" class="btn-yellow" style="flex:2;">Deploy to Site</button>
+                            <button id="delBtn" onclick="deleteTour()" class="btn-red" style="flex:1; display:none;">Delete</button>
+                        </div>
+                        <button onclick="resetTourForm()" style="background:none; color:#444; border:none; margin-top:10px; font-size:0.7rem;">Clear Form</button>
+                    </div>
+                </div>
 
+                <div class="card" style="border-left: 4px solid #00ff88;">
+                    <h3><i class="fa-solid fa-users-gear"></i> ROSTER & TEAM BUILDER</h3>
+                    <select id="rosterTourSelect" onchange="loadRosterList()" style="margin-bottom:10px;">
+                        <option value="">-- Select Tournament to Edit Roster --</option>
+                    </select>
+                    <div id="rosterEditor" style="display:none; background: rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                        <input type="text" id="rosTeam" placeholder="Team Name (e.g. Alpha FC)">
+                        <input type="text" id="rosPlayer" placeholder="Player Name">
+                        <button onclick="addToRoster()" class="btn-yellow" style="background:#00ff88; color:black; margin-top:10px; width:100%;">ADD PLAYER TO TEAM</button>
+                        <div id="currentRoster" style="margin-top:20px;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -168,7 +159,6 @@
         const API = "https://nl-server-k7i9.onrender.com/api";
         let toursData = [];
 
-        // --- UI UTILS ---
         function notify(msg, color = "#00ff88") {
             const t = document.getElementById('toast');
             t.innerText = msg; t.style.background = color;
@@ -176,7 +166,6 @@
             setTimeout(() => { t.style.transform = "translateY(100px)"; }, 3000);
         }
 
-        // --- DATA LOADING ---
         async function loadEverything() {
             try {
                 const [pRes, tRes] = await Promise.all([
@@ -184,17 +173,26 @@
                     fetch(`${API}/manage-tournament`).then(r => r.json())
                 ]);
 
-                // Fill Player Dropdown
+                // Fill Player Scoring Dropdown
                 document.getElementById('playerSelect').innerHTML = pRes.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
                 
-                // Fill Tournament Dropdown
+                // Save Tournament Data
                 toursData = tRes;
+
+                // Fill Tournament Controller Dropdown
                 document.getElementById('tourSelect').innerHTML = '<option value="">+ CREATE NEW TOURNAMENT</option>' + 
                     tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
-            } catch (e) { notify("Sync Failed", "#ff4444"); }
+
+                // Fill Roster Dropdown
+                document.getElementById('rosterTourSelect').innerHTML = '<option value="">-- Select Tournament to Edit Roster --</option>' + 
+                    tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
+
+            } catch (e) { 
+                notify("Sync Failed", "#ff4444"); 
+                console.error(e);
+            }
         }
 
-        // --- PLAYER ACTIONS ---
         async function addPlayer() {
             const name = document.getElementById('newPlayerName').value;
             if(!name) return alert("Enter Name");
@@ -219,42 +217,21 @@
             });
             if(res.ok) notify("Stats Synchronized!");
         }
-        // ADD THIS NEW FUNCTION TO YOUR SCRIPT
-    async function resetAll() {
-    // 1. Confirm with user
-    if (!confirm("EXTREME WARNING: This will set ALL players to 0 points. Continue?")) return;
-    
-    // 2. Password Check
-    const pass = prompt("Enter Admin Password to Wipe Data:");
-    if (pass !== "nexus2024") {
-        alert("Incorrect Password!");
-        return;
-    }
 
-    try {
-        notify("Processing Reset...", "orange");
+        async function resetAll() {
+            if (!confirm("EXTREME WARNING: This will set ALL players to 0 points. Continue?")) return;
+            const pass = prompt("Enter Admin Password to Wipe Data:");
+            if (pass !== "nexus2024") { alert("Incorrect Password!"); return; }
 
-        // 3. The Fetch Call
-        const res = await fetch(`${API}/reset-rankings`, { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (res.ok) {
-            notify("DATABASE WIPED!", "#ff4444");
-            // Give the DB a second to update before refreshing the UI
-            setTimeout(() => {
-                loadEverything(); 
-            }, 1000);
-        } else {
-            const errorData = await res.json();
-            alert("Server refused reset: " + errorData.error);
+            try {
+                notify("Processing Reset...", "orange");
+                const res = await fetch(`${API}/reset-rankings`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (res.ok) { notify("DATABASE WIPED!", "#ff4444"); setTimeout(loadEverything, 1000); }
+            } catch (err) { alert("Connection Failed."); }
         }
-    } catch (err) {
-        console.error("Reset Function Error:", err);
-        alert("Connection Failed. Is the server running?");
-    }
-    }
 
         async function deletePlayer() {
             const name = document.getElementById('playerSelect').value;
@@ -267,7 +244,6 @@
             if(res.ok) { notify("Player Erased", "#ff4444"); loadEverything(); }
         }
 
-        // --- TOURNAMENT ACTIONS ---
         function toggleWinField() {
             document.getElementById('tWinner').style.display = (document.getElementById('tStatus').value === 'Ended') ? 'block' : 'none';
         }
@@ -282,49 +258,46 @@
         }
 
         function fillTourForm() {
-    const id = document.getElementById('tourSelect').value;
-    if(!id) { resetTourForm(); return; }
-
-    const t = toursData.find(x => x._id === id);
-    document.getElementById('editId').value = t._id;
-    document.getElementById('tTitle').value = t.title;
-    document.getElementById('tTeams').value = t.totalTeams;
-    document.getElementById('tStatus').value = t.status;
-    document.getElementById('tWinner').value = t.winner || "";
-    document.getElementById('tJoin').value = t.joinLink || "";
-    document.getElementById('tFixture').value = t.fixtureLink || ""; // Fixed
-    document.getElementById('tRoster').value = t.rosterLink || "";   // Fixed
-    document.getElementById('tPrize').value = t.prize;
-    document.getElementById('tDate').value = t.date;
-    
-    document.getElementById('subBtn').innerText = "Update Tournament";
-    document.getElementById('subBtn').style.background = "var(--green)";
-    document.getElementById('delBtn').style.display = "block";
+            const id = document.getElementById('tourSelect').value;
+            if(!id) { resetTourForm(); return; }
+            const t = toursData.find(x => x._id === id);
+            document.getElementById('editId').value = t._id;
+            document.getElementById('tTitle').value = t.title;
+            document.getElementById('tTeams').value = t.totalTeams;
+            document.getElementById('tStatus').value = t.status;
+            document.getElementById('tWinner').value = t.winner || "";
+            document.getElementById('tJoin').value = t.joinLink || "";
+            document.getElementById('tFixture').value = t.fixtureLink || "";
+            document.getElementById('tRoster').value = t.rosterLink || "";
+            document.getElementById('tPrize').value = t.prize;
+            document.getElementById('tDate').value = t.date;
+            document.getElementById('subBtn').innerText = "Update Tournament";
+            document.getElementById('subBtn').style.background = "var(--green)";
+            document.getElementById('delBtn').style.display = "block";
             toggleWinField();
-}
+        }
 
-async function submitTour() {
-    const id = document.getElementById('editId').value;
-    const data = {
-        title: document.getElementById('tTitle').value,
-        totalTeams: document.getElementById('tTeams').value,
-        status: document.getElementById('tStatus').value,
-        winner: document.getElementById('tWinner').value,
-        joinLink: document.getElementById('tJoin').value,
-        fixtureLink: document.getElementById('tFixture').value, // Fixed
-        rosterLink: document.getElementById('tRoster').value,   // Fixed
-        prize: document.getElementById('tPrize').value,
-        date: document.getElementById('tDate').value
-    };
-
-    const endpoint = id ? 'update-tournament' : 'manage-tournament';
-    const res = await fetch(`${API}/${endpoint}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(id ? {id, data} : data)
-    });
-    if(res.ok) { notify("Tournament Live!"); loadEverything(); }
-}
+        async function submitTour() {
+            const id = document.getElementById('editId').value;
+            const data = {
+                title: document.getElementById('tTitle').value,
+                totalTeams: document.getElementById('tTeams').value,
+                status: document.getElementById('tStatus').value,
+                winner: document.getElementById('tWinner').value,
+                joinLink: document.getElementById('tJoin').value,
+                fixtureLink: document.getElementById('tFixture').value,
+                rosterLink: document.getElementById('tRoster').value,
+                prize: document.getElementById('tPrize').value,
+                date: document.getElementById('tDate').value
+            };
+            const endpoint = id ? 'update-tournament' : 'manage-tournament';
+            const res = await fetch(`${API}/${endpoint}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(id ? {id, data} : data)
+            });
+            if(res.ok) { notify("Tournament Live!"); loadEverything(); }
+        }
 
         async function deleteTour() {
             const id = document.getElementById('editId').value;
@@ -337,72 +310,53 @@ async function submitTour() {
             if(res.ok) { notify("Tournament Removed", "#ff4444"); resetTourForm(); loadEverything(); }
         }
 
+        async function loadRosterList() {
+            const id = document.getElementById('rosterTourSelect').value;
+            const listDiv = document.getElementById('currentRoster');
+            if(!id) { document.getElementById('rosterEditor').style.display="none"; return; }
+            document.getElementById('rosterEditor').style.display="block";
+
+            const t = toursData.find(x => x._id === id);
+            if(!t.roster) { listDiv.innerHTML = "No Teams Found"; return; }
+
+            listDiv.innerHTML = t.roster.map(team => `
+                <div style="background:#111; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>${team.teamName}</b>
+                        <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
+                    </div>
+                    <div style="font-size:0.8rem; color:#888;">${team.players.join(', ')}</div>
+                </div>
+            `).join('');
+        }
+
+        async function addToRoster() {
+            const tourId = document.getElementById('rosterTourSelect').value;
+            const teamName = document.getElementById('rosTeam').value;
+            const playerName = document.getElementById('rosPlayer').value;
+            if(!teamName || !playerName) return alert("Fill both fields");
+
+            await fetch(`${API}/update-roster`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ tourId, teamName, playerName, action: 'add' })
+            });
+            loadEverything();
+            setTimeout(loadRosterList, 500);
+        }
+
+        async function removeTeam(teamId) {
+            const tourId = document.getElementById('rosterTourSelect').value;
+            await fetch(`${API}/update-roster`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ tourId, teamId, action: 'remove-team' })
+            });
+            loadEverything();
+            setTimeout(loadRosterList, 500);
+        }
+
         window.onload = loadEverything;
-async function loadRosterList() {
-    const id = document.getElementById('rosterTourSelect').value;
-    const listDiv = document.getElementById('currentRoster');
-    if(!id) { document.getElementById('rosterEditor').style.display="none"; return; }
-    document.getElementById('rosterEditor').style.display="block";
-
-    const t = toursData.find(x => x._id === id);
-    listDiv.innerHTML = t.roster.map(team => `
-        <div style="background:#111; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88;">
-            <div style="display:flex; justify-content:space-between;">
-                <b>${team.teamName}</b>
-                <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
-            </div>
-            <div style="font-size:0.8rem; color:#888;">${team.players.join(', ')}</div>
-        </div>
-    `).join('');
-}
-
-async function addToRoster() {
-    const tourId = document.getElementById('rosterTourSelect').value;
-    const teamName = document.getElementById('rosTeam').value;
-    const playerName = document.getElementById('rosPlayer').value;
-    if(!teamName || !playerName) return alert("Fill both fields");
-
-    await fetch(`${API}/update-roster`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ tourId, teamName, playerName, action: 'add' })
-    });
-    loadEverything();
-}
-
-async function removeTeam(teamId) {
-    const tourId = document.getElementById('rosterTourSelect').value;
-    await fetch(`${API}/update-roster`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ tourId, teamId, action: 'remove-team' })
-    });
-    loadEverything();
-}
-        // This ensures the Roster Dropdown has all your tournaments
-function updateRosterDropdowns() {
-    const rosterSelect = document.getElementById('rosterTourSelect');
-    
-    // Clear existing options but keep the first one
-    rosterSelect.innerHTML = '<option value="">-- Select Tournament to Edit Roster --</option>';
-    
-    // Add all tournaments from your toursData
-    toursData.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t._id;
-        opt.textContent = t.title;
-        rosterSelect.appendChild(opt);
-    });
-}
-
-// Call this inside your main loadEverything() function
-async function loadEverything() {
-    // ... your existing code to fetch players and tournaments ...
-    
-    // Then update the roster dropdown
-    updateRosterDropdowns();
-}
-
     </script>
 </body>
 </html>
