@@ -278,6 +278,37 @@ async function resetAll() {
     <button onclick="uploadTournament()" style="background:var(--accent-yellow); color:black; width:100%; padding:12px; font-weight:bold; cursor:pointer; border:none; margin-top:10px;">
         DEPLOY TO SITE
     </button>
+            <!-- Inside the tournament management div -->
+<input type="text" id="tourJoin" placeholder="Join/Registration Link (WhatsApp/Discord/Form)" class="dash-input" style="border-left: 4px solid #00ff88;">
+
+<!-- Update your uploadTournament function to include the joinLink -->
+<script>
+async function uploadTournament() {
+    const data = {
+        title: document.getElementById('tourTitle').value,
+        totalTeams: document.getElementById('tourTeams').value,
+        status: document.getElementById('tourStatus').value,
+        winner: document.getElementById('tourWinner').value,
+        fixtureLink: document.getElementById('tourFixture').value,
+        rosterLink: document.getElementById('tourRoster').value,
+        joinLink: document.getElementById('tourJoin').value, // <--- ADDED THIS
+        liveResult: document.getElementById('tourLive').value,
+        prize: document.getElementById('tourPrize').value,
+        date: document.getElementById('tourDate').value
+    };
+
+    const res = await fetch('https://nl-server-k7i9.onrender.com/api/manage-tournament', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok) {
+        alert("Tournament is now LIVE with a Join Button!");
+        location.reload();
+    }
+}
+</script>
 </div>
 
 <style>
