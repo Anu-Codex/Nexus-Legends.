@@ -207,6 +207,21 @@
             });
             if(res.ok) notify("Stats Synchronized!");
         }
+        // ADD THIS NEW FUNCTION TO YOUR SCRIPT
+    async function resetAll() {
+        if(!confirm("EXTREME WARNING: This will set ALL players to 0 points. This cannot be undone!")) return;
+        
+        const pass = prompt("Enter Admin Password to Wipe Data:");
+        if(pass === "nexus2024") {
+            const res = await fetch(`${API}/reset-rankings`, { method: 'POST' });
+            if(res.ok) {
+                notify("DATABASE WIPED: All players reset to 0", "#ff4444");
+                loadEverything(); // Fast refresh the dropdown
+            }
+        } else {
+            alert("Incorrect Password!");
+        }
+    }
 
         async function deletePlayer() {
             const name = document.getElementById('playerSelect').value;
