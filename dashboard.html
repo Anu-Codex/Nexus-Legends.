@@ -418,6 +418,78 @@
         }
 
         window.onload = loadEverything;
+        async function loadFixtureManager() {
+    const id = document.getElementById('fixTourSelect').value;
+    const listDiv = document.getElementById('stagesList');
+    if(!id) { document.getElementById('fixtureEditor').style.display="none"; return; }
+    document.getElementById('fixtureEditor').style.display="block";
+
+    const t = toursData.find(x => x._id === id);
+    if(!t.fixtures || t.fixtures.length === 0) { listDiv.innerHTML = "<p style='color:#555; text-align:center;'>No stages created.</p>"; return; }
+
+    listDiv.innerHTML = t.fixtures.map(stage => `
+        <div style="background:#000; border:1px solid #333; padding:15px; border-radius:10px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; color:var(--red); font-weight:bold; margin-bottom:10px; font-size:0.9rem;">
+                <span>${stage.stageName}</span>
+                <i class="fa-solid fa-trash" onclick="manageFixture('delete-stage', {stageId:'${stage._id}'})" style="cursor:pointer;"></i>
+            </div>
+            
+            <div id="matches_${stage._id}">
+                ${stage.matches.map(m => `
+                    <div style="display:grid; grid-template-columns: 1fr 40px 10px 40px 1fr 40px; gap:5px; margin-bottom:8px; align-items:center;">
+                        <span style="font-size:0.8rem; text-align:right;">${m.p1}</span>
+                        <input type="text" value="${m.s1}" id="s1_${m._id}" style="padding:4px; text-align:center; margin:0;">
+                        <span>-</span>
+                        <input type="text" value="${m.s2}" id="s2_${m._id}" style="padding:4px; text-align:center; margin:0;">
+                        <span style="font-size:0.8rem;">${m.p2}</span>
+                        <button onclick="updateMatchScore('${stage._id}', '${m._id}')" style="background:var(--green); color:black; padding:5px; width:auto;"><i class="fa-solid fa-save"></i></button>
+                    </div>
+                `).join('')}
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:5px; margin-top:10px; border-top:1px solid #222; padding-top:10px;">
+                <input type="text" id="p1_${stage._id}" placeholder="Team 1" style="margin:0;">
+                <input type="text" id="p2_${stage._id}" placeholder="Team 2" style="margin:0;">
+                <button onclick="addMatchToStage('${stage._id}')" style="background:#444; width:40px; margin:0;">+</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function manageFixture(action, extraData = {}) {
+    const tourId = document.getElementById('fixTourSelect').value;
+    const stageName = document.getElementById('newStageName').value;
+    const res = await fetch(`${API}/update-fixtures`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, stageName, action, ...extraData })
+    });
+    if(res.ok) { loadEverything().then(loadFixtureManager); notify("Updated"); }
+}
+
+async function addMatchToStage(stageId) {
+    const tourId = document.getElementById('fixTourSelect').value;
+    const p1 = document.getElementById(`p1_${stageId}`).value;
+    const p2 = document.getElementById(`p2_${stageId}`).value;
+    const res = await fetch(`${API}/update-fixtures`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, stageId, action: 'add-match', matchData: { p1, p2 } })
+    });
+    if(res.ok) loadEverything().then(loadFixtureManager);
+}
+
+async function updateMatchScore(stageId, matchId) {
+    const tourId = document.getElementById('fixTourSelect').value;
+    const s1 = document.getElementById(`s1_${matchId}`).value;
+    const s2 = document.getElementById(`s2_${matchId}`).value;
+    const res = await fetch(`${API}/update-fixtures`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, stageId, matchId, action: 'update-score', matchData: { s1, s2 } })
+    });
+    if(res.ok) notify("Result Uploaded!");
+}
     </script>
 </body>
 </html>
