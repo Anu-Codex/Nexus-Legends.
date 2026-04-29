@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         body { background: #050505; color: white; padding-top: 100px; }
         .ranking-container { max-width: 900px; margin: 0 auto; padding: 20px; }
@@ -70,7 +71,37 @@
         </tbody>
     </table>
 </div>
+<div style="text-align: right; margin-bottom: 20px;">
+    <button onclick="exportToPDF()" style="background:var(--accent-yellow); color:black; padding:10px 20px; font-weight:bold; border:none; cursor:pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);">
+        <i class="fa-solid fa-file-pdf"></i> EXPORT RANKINGS PDF
+    </button>
+</div>
 
+<script>
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Add Title
+    doc.setFontSize(18);
+    doc.text("NEXUS LEGENDS - EFOOTBALL RANKINGS", 14, 20);
+    doc.setFontSize(11);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+
+    // Get data from the table
+    const table = document.querySelector(".leaderboard-table");
+    
+    doc.autoTable({
+        html: table,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { fillColor: [0, 65, 255] }, // Nexus Blue
+        styles: { font: 'helvetica', fontSize: 10 }
+    });
+
+    doc.save("Nexus_Legends_Rankings.pdf");
+}
+</script>
 <script>
     async function loadRankings() {
         const tbody = document.getElementById('ranking-body');
