@@ -53,6 +53,30 @@
         </a>
     </div>
 </section>
+    <!-- TOP 5 RANKINGS SECTION -->
+<section class="home-rankings">
+    <h2 style="text-align:center; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px;">
+        TOP <span style="color:var(--accent-yellow)">STRIKERS</span>
+    </h2>
+
+    <div class="mini-leaderboard">
+        <div class="rank-header">
+            <span>RANK</span>
+            <span>PLAYER</span>
+            <span>PTS</span>
+        </div>
+        <div id="home-rankings-container">
+            <!-- Top 5 Players will load here -->
+            <p style="text-align:center; padding:20px; color:#555;">Loading Arena Standings...</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="rankings.html" class="view-all-btn">
+            VIEW GLOBAL RANKINGS <i class="fa-solid fa-ranking-star"></i>
+        </a>
+    </div>
+</section>
 
     <!-- Blank Space (As Requested) -->
     <div class="spacer"></div>
@@ -119,5 +143,51 @@
 
 // Run on page load
 window.addEventListener('DOMContentLoaded', loadHomeTournaments);
+        async function loadHomeRankings() {
+    const container = document.getElementById('home-rankings-container');
+    const API_URL = 'https://nl-server-k7i9.onrender.com/api/rankings';
+
+    try {
+        const res = await fetch(API_URL);
+        const players = await res.json();
+
+        if (!players || players.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:20px;">No Rankings Available.</p>';
+            return;
+        }
+
+        // Take only top 5
+        const topFive = players.slice(0, 5);
+
+        container.innerHTML = topFive.map((player, index) => {
+            const currentRank = index + 1;
+            const oldRank = player.previousRank || 0;
+            let trendIcon = '';
+
+            if (oldRank !== 0) {
+                if (oldRank > currentRank) {
+                    trendIcon = '<i class="fa-solid fa-caret-up" style="color:#00ff88; margin-left:5px; font-size:0.7rem;"></i>';
+                } else if (oldRank < currentRank) {
+                    trendIcon = '<i class="fa-solid fa-caret-down" style="color:#ff4444; margin-left:5px; font-size:0.7rem;"></i>';
+                }
+            }
+
+            return `
+                <div class="home-player-row">
+                    <div class="rank-pill">${currentRank}</div>
+                    <div class="p-name">${player.name} ${trendIcon}</div>
+                    <div class="p-pts">${player.points} <span style="font-size:0.6rem; color:#555;">PTS</span></div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (err) {
+        console.error("Home Rankings Error:", err);
+        container.innerHTML = '<p style="text-align:center; padding:20px; color:red;">Connection error.</p>';
+    }
+}
+
+// Run when page loads
+window.addEventListener('DOMContentLoaded', loadHomeRankings);
     </script>
 </html>
