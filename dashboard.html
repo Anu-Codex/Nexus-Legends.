@@ -379,6 +379,29 @@ async function removeTeam(teamId) {
     });
     loadEverything();
 }
+        // This ensures the Roster Dropdown has all your tournaments
+function updateRosterDropdowns() {
+    const rosterSelect = document.getElementById('rosterTourSelect');
+    
+    // Clear existing options but keep the first one
+    rosterSelect.innerHTML = '<option value="">-- Select Tournament to Edit Roster --</option>';
+    
+    // Add all tournaments from your toursData
+    toursData.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t._id;
+        opt.textContent = t.title;
+        rosterSelect.appendChild(opt);
+    });
+}
+
+// Call this inside your main loadEverything() function
+async function loadEverything() {
+    // ... your existing code to fetch players and tournaments ...
+    
+    // Then update the roster dropdown
+    updateRosterDropdowns();
+}
 
     </script>
 </body>
