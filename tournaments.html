@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1024">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tournament Arena | Nexus Legends</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
@@ -10,277 +10,273 @@
     <style>
         :root {
             --live-red: #ff003c;
-            --open-green: #00ff88;
+            --neon-green: #00ff88;
+            --accent-blue: #0041FF;
+            --bg-dark: #050505;
+            --card-bg: rgba(20, 20, 20, 0.8);
         }
 
         body {
-            background: radial-gradient(circle at top, #001a4d 0%, #050505 100%);
-            min-height: 100vh;
+            background: radial-gradient(circle at top, #001a4d 0%, var(--bg-dark) 100%);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navbar Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .arena-container {
-            padding: 120px 10% 50px;
-            max-width: 1400px;
+            padding: 50px 5%;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         .arena-header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 50px;
         }
 
         .arena-header h1 {
-            font-size: 4rem;
+            font-size: clamp(2.5rem, 8vw, 4rem);
             color: var(--accent-yellow);
             text-transform: uppercase;
             letter-spacing: 5px;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(228, 255, 0, 0.4);
-        }
-
-        .arena-header p {
-            color: var(--gray-text);
-            font-size: 1.2rem;
-            letter-spacing: 2px;
+            margin: 0;
         }
 
         /* Tournament Grid */
         .tour-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 25px;
         }
 
-        /* Modern Tournament Card */
+        /* Tournament Card Style */
         .tour-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: 4px solid var(--accent-blue);
-            backdrop-filter: blur(10px);
+            background: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 15px;
             padding: 25px;
-            border-radius: 10px;
             position: relative;
-            transition: 0.4s;
+            transition: 0.3s;
             overflow: hidden;
+            backdrop-filter: blur(10px);
         }
 
         .tour-card:hover {
-            transform: translateY(-10px);
-            border-top-color: var(--accent-yellow);
-            box-shadow: 0 10px 30px rgba(0, 65, 255, 0.2);
+            border-color: var(--accent-yellow);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
+        /* Status Badges */
         .status-badge {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 5px 15px;
-            font-size: 0.8rem;
+            top: 20px;
+            right: 20px;
+            padding: 4px 12px;
             font-weight: 700;
-            border-radius: 20px;
+            border-radius: 4px;
+            font-size: 0.8rem;
             text-transform: uppercase;
         }
+        .badge-upcoming { background: var(--accent-blue); color: white; }
+        .badge-live { background: var(--live-red); color: white; animation: blink 1s infinite; }
+        .badge-ended { background: #444; color: #ccc; }
 
-        .status-open { background: var(--open-green); color: #000; box-shadow: 0 0 10px var(--open-green); }
-        .status-live { background: var(--live-red); color: #fff; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
+        @keyframes blink { 50% { opacity: 0.6; } }
 
-        .tour-card h2 {
+        .tour-title {
             font-size: 1.8rem;
-            margin: 20px 0 10px;
-            color: #fff;
-        }
-
-        .tour-info-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 15px 0;
-            padding: 10px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .info-item span {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--gray-text);
+            margin: 10px 0;
+            color: white;
             text-transform: uppercase;
         }
 
-        .info-item strong {
-            font-size: 1.1rem;
-            color: var(--accent-yellow);
+        .tour-meta {
+            color: var(--neon-green);
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .enter-btn {
-            display: block;
+        /* Main Join Action */
+        .join-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
-            padding: 12px;
-            text-align: center;
-            background: var(--accent-blue);
-            color: white;
+            background: var(--neon-green);
+            color: black;
             text-decoration: none;
-            font-weight: 700;
-            margin-top: 20px;
+            padding: 15px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 20px;
             transition: 0.3s;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
         }
 
-        .enter-btn:hover {
-            background: var(--accent-yellow);
-            color: #000;
+        .join-btn:hover {
+            filter: brightness(1.2);
+            transform: scale(1.02);
+        }
+
+        /* Info Grid inside card */
+        .info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+        }
+
+        .info-box span { color: #888; font-size: 0.8rem; text-transform: uppercase; display: block; }
+        .info-box strong { color: var(--accent-yellow); font-size: 1rem; }
+
+        /* Secondary Buttons */
+        .footer-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .sec-btn {
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            padding: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid #333;
+            border-radius: 4px;
+        }
+
+        .sec-btn:hover { background: #333; }
+
+        .winner-display {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid gold;
+            color: gold;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .arena-container { padding: 30px 5%; }
+            .tour-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Reuse Navigation -->
     <header>
         <div class="logo">NEXUS <span>LEGENDS</span></div>
-        <a href="index.html" style="color:white; text-decoration: none; font-weight: bold;"><i class="fa-solid fa-arrow-left"></i> BACK HOME</a>
+        <a href="index.html" style="color:white; text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> HOME</a>
     </header>
 
     <div class="arena-container">
         <div class="arena-header">
-            <h1>Tournament Arena</h1>
-            <p>Climb the rankings. Claim your glory.</p>
+            <h1>TOURNAMENT ARENA</h1>
+            <p style="color: #888; letter-spacing: 2px;">JOIN THE ELITE | CLAIM YOUR GLORY</p>
         </div>
 
-        <div class="tour-grid" id="tournament-display">
-            <!-- Example Card (Will be replaced by MongoDB data) -->
-            <div class="tour-card">
-                <div class="status-badge status-open">Registration Open</div>
-                <h2>EFOOTBALL PRO SEASON 1</h2>
-                <div class="tour-info-row">
-                    <div class="info-item">
-                        <span>Prize Pool</span>
-                        <strong>₹5,000</strong>
-                    </div>
-                    <div class="info-item">
-                        <span>Format</span>
-                        <strong>1vs1 Knockout</strong>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span>Kick-off Date</span>
-                    <strong>OCT 25, 2024</strong>
-                </div>
-                <a href="#" class="enter-btn">ENTER ARENA</a>
-            </div>
-            <!-- End Example Card -->
+        <div class="tour-grid" id="tour-display">
+            <!-- Loading State -->
+            <p style="text-align:center; width:100%;">Synchronizing with Arena Servers...</p>
         </div>
     </div>
-    <div id="tournament-list" class="tour-container">
-    <!-- Data will be loaded here via JS -->
-</div>
-
-<script>
-    async function loadTournaments() {
-        const res = await fetch('https://nl-server-k7i9.onrender.com/api/tournaments');
-        const tours = await res.json();
-        
-        const container = document.getElementById('tournament-list');
-        container.innerHTML = tours.map(t => `
-            <div class="tour-card" style="border: 2px solid var(--accent-blue); padding:20px; margin-bottom:20px; background:#111;">
-                <h2 style="color:var(--accent-yellow)">${t.title}</h2>
-                <p>Status: ${t.status}</p>
-                <p>Prize: ${t.prize}</p>
-                <p>Starts: ${t.date}</p>
-                <a href="${t.link}" target="_blank" style="color:var(--accent-blue); font-weight:bold;">VIEW DETAILS / JOIN</a>
-            </div>
-        `).join('');
-    }
-    loadTournaments();
-</script>
 
     <script>
-        // API URL (Replace with your actual Render URL later)
-        const API_URL = 'https://nl-server-k7i9.onrender.com/api/tournaments';
+        const API_URL = 'https://nl-server-k7i9.onrender.com/api/manage-tournament';
 
-        async function fetchTournaments() {
+        async function loadTournaments() {
             try {
                 const response = await fetch(API_URL);
-                const tournaments = await response.json();
-                const display = document.getElementById('tournament-display');
-                
-                if(tournaments.length > 0) {
-                    display.innerHTML = tournaments.map(t => `
-                        <div class="tour-card">
-                            <div class="status-badge ${t.status.toLowerCase().includes('live') ? 'status-live' : 'status-open'}">
-                                ${t.status}
-                            </div>
-                            <h2>${t.title}</h2>
-                            <div class="tour-info-row">
-                                <div class="info-item">
-                                    <span>Prize Pool</span>
-                                    <strong>${t.prize}</strong>
-                                </div>
-                                <div class="info-item">
-                                    <span>Platform</span>
-                                    <strong>Mobile/Console</strong>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <span>Kick-off Date</span>
-                                <strong>${t.date}</strong>
-                            </div>
-                            <a href="${t.link}" target="_blank" class="enter-btn">ENTER ARENA</a>
-                        </div>
-                    `).join('');
+                const tours = await response.json();
+                const container = document.getElementById('tour-display');
+
+                if (!tours || tours.length === 0) {
+                    container.innerHTML = "<p>No active tournaments found.</p>";
+                    return;
                 }
+
+                container.innerHTML = tours.map(t => {
+                    // Logic for Status Colors
+                    let statusClass = 'badge-upcoming';
+                    if(t.status === 'Live') statusClass = 'badge-live';
+                    if(t.status === 'Ended') statusClass = 'badge-ended';
+
+                    return `
+                        <div class="tour-card">
+                            <div class="status-badge ${statusClass}">${t.status}</div>
+                            
+                            <h2 class="tour-title">${t.title || 'Unnamed Event'}</h2>
+                            <div class="tour-meta">
+                                <i class="fa-solid fa-users"></i> ${t.totalTeams || 'TBA'}
+                            </div>
+
+                            <!-- Show Winner if Ended, else show Join Button -->
+                            ${t.status === 'Ended' ? `
+                                <div class="winner-display">
+                                    🏆 WINNER: ${t.winner || 'TBD'}
+                                </div>
+                            ` : `
+                                <a href="${t.joinLink || '#'}" target="_blank" class="join-btn">
+                                    <i class="fa-solid fa-right-to-bracket"></i> JOIN NOW
+                                </a>
+                            `}
+
+                            <div class="info-row">
+                                <div class="info-box">
+                                    <span>Prize Pool</span>
+                                    <strong>${t.prize || 'Trophy'}</strong>
+                                </div>
+                                <div class="info-box">
+                                    <span>Event Date</span>
+                                    <strong>${t.date || 'TBA'}</strong>
+                                </div>
+                            </div>
+
+                            <div class="footer-btns">
+                                <a href="${t.fixtureLink || '#'}" target="_blank" class="sec-btn">
+                                    <i class="fa-solid fa-sitemap"></i> BRACKETS
+                                </a>
+                                <a href="${t.rosterLink || '#'}" target="_blank" class="sec-btn">
+                                    <i class="fa-solid fa-list-ul"></i> ROSTER
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
             } catch (error) {
-                console.log("Waiting for backend connection...");
+                document.getElementById('tour-display').innerHTML = "<p>Arena Offline. Try again later.</p>";
             }
         }
 
-        fetchTournaments();
+        window.onload = loadTournaments;
     </script>
-
-        <!-- Inside the .tour-grid in tournaments.html -->
-<script>
-async function loadTournaments() {
-    const res = await fetch('https://nl-server-k7i9.onrender.com/api/tournaments');
-    const tours = await res.json();
-    const container = document.getElementById('tournament-display');
-    
-    container.innerHTML = tours.map(t => `
-    <div class="tour-card" style="border-top: 5px solid ${t.status === 'Live' ? '#ff003c' : (t.status === 'Ended' ? 'gray' : '#0041FF')}">
-        <div class="status-badge ${t.status === 'Live' ? 'status-live' : ''}" style="background:${t.status === 'Live' ? '#ff003c' : (t.status === 'Ended' ? 'gray' : '#00ff88')}">
-            ${t.status}
-        </div>
-        
-        <h2>${t.title}</h2>
-        <p style="color:var(--accent-yellow); font-weight:bold; margin-bottom:10px;">${t.totalTeams}</p>
-        
-        <!-- Only show JOIN button if tournament is NOT ended -->
-        ${t.status !== 'Ended' ? `
-            <a href="${t.joinLink}" target="_blank" class="join-action-btn">
-                <i class="fa-solid fa-right-to-bracket"></i> JOIN NOW
-            </a>
-        ` : ''}
-
-        ${t.status === 'Ended' ? `<div class="winner-box">🏆 WINNER: ${t.winner}</div>` : ''}
-        
-        ${t.status === 'Live' ? `<div class="live-ticker"><i class="fa-solid fa-circle-dot"></i> ${t.liveResult}</div>` : ''}
-
-        <div class="tour-info-row">
-            <div class="info-item"><span>Prize</span><strong>${t.prize}</strong></div>
-            <div class="info-item"><span>Date</span><strong>${t.date}</strong></div>
-        </div>
-
-        <div class="tour-footer-btns">
-            <a href="${t.fixtureLink}" target="_blank" class="secondary-btn">BRACKETS</a>
-            <a href="${t.rosterLink}" target="_blank" class="secondary-btn">ROSTER</a>
-        </div>
-    </div>
-`).join('');
-}
-loadTournaments();
-</script>
-    
 </body>
 </html>
