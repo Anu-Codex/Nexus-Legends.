@@ -253,6 +253,65 @@ async function resetAll() {
     }
 }
 </script>
+        <div class="admin-box" style="border: 1px solid var(--accent-yellow); padding: 20px; margin-top:20px;">
+    <h3 style="color:var(--accent-yellow);">TOURNAMENT MANAGEMENT</h3>
+    
+    <input type="text" id="tourTitle" placeholder="Tournament Name" class="dash-input">
+    <input type="text" id="tourTeams" placeholder="Total Players/Teams (e.g. 32 Teams)" class="dash-input">
+    
+    <select id="tourStatus" class="dash-input" onchange="toggleWinnerField()">
+        <option value="Upcoming">Upcoming</option>
+        <option value="Live">Live</option>
+        <option value="Ended">Ended</option>
+    </select>
+
+    <div id="winnerDiv" style="display:none;">
+        <input type="text" id="tourWinner" placeholder="Winner Name" class="dash-input" style="border: 1px solid gold;">
+    </div>
+
+    <input type="text" id="tourFixture" placeholder="Fixture/Bracket Link (URL)" class="dash-input">
+    <input type="text" id="tourRoster" placeholder="Roster/Teams Link (URL)" class="dash-input">
+    <input type="text" id="tourLive" placeholder="Live Result (e.g. Finals: Team A 2-0 Team B)" class="dash-input">
+    <input type="text" id="tourPrize" placeholder="Prize Pool" class="dash-input">
+    <input type="date" id="tourDate" class="dash-input">
+
+    <button onclick="uploadTournament()" style="background:var(--accent-yellow); color:black; width:100%; padding:12px; font-weight:bold; cursor:pointer; border:none; margin-top:10px;">
+        DEPLOY TO SITE
+    </button>
+</div>
+
+<style>
+    .dash-input { width:100%; padding:10px; margin-bottom:10px; background:#1a1a1a; color:white; border:1px solid #333; }
+</style>
+
+<script>
+function toggleWinnerField() {
+    const status = document.getElementById('tourStatus').value;
+    document.getElementById('winnerDiv').style.display = (status === 'Ended') ? 'block' : 'none';
+}
+
+async function uploadTournament() {
+    const data = {
+        title: document.getElementById('tourTitle').value,
+        totalTeams: document.getElementById('tourTeams').value,
+        status: document.getElementById('tourStatus').value,
+        winner: document.getElementById('tourWinner').value,
+        fixtureLink: document.getElementById('tourFixture').value,
+        rosterLink: document.getElementById('tourRoster').value,
+        liveResult: document.getElementById('tourLive').value,
+        prize: document.getElementById('tourPrize').value,
+        date: document.getElementById('tourDate').value
+    };
+
+    const res = await fetch('https://nl-server-k7i9.onrender.com/api/manage-tournament', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok) alert("Tournament Data Live!");
+}
+</script>
         <div class="main-content">
             <a href="index.html" class="logout-btn">LOGOUT</a>
             <h1>Welcome Back, Anubhav</h1>
