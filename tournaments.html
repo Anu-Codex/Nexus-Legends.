@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Arena | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --live-red: #ff003c;
+            --open-green: #00ff88;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #001a4d 0%, #050505 100%);
+            min-height: 100vh;
+        }
+
+        .arena-container {
+            padding: 120px 10% 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .arena-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .arena-header h1 {
+            font-size: 4rem;
+            color: var(--accent-yellow);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(228, 255, 0, 0.4);
+        }
+
+        .arena-header p {
+            color: var(--gray-text);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        /* Tournament Grid */
+        .tour-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        /* Modern Tournament Card */
+        .tour-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent-blue);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 10px;
+            position: relative;
+            transition: 0.4s;
+            overflow: hidden;
+        }
+
+        .tour-card:hover {
+            transform: translateY(-10px);
+            border-top-color: var(--accent-yellow);
+            box-shadow: 0 10px 30px rgba(0, 65, 255, 0.2);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .status-open { background: var(--open-green); color: #000; box-shadow: 0 0 10px var(--open-green); }
+        .status-live { background: var(--live-red); color: #fff; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .tour-card h2 {
+            font-size: 1.8rem;
+            margin: 20px 0 10px;
+            color: #fff;
+        }
+
+        .tour-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-item span {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--gray-text);
+            text-transform: uppercase;
+        }
+
+        .info-item strong {
+            font-size: 1.1rem;
+            color: var(--accent-yellow);
+        }
+
+        .enter-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            background: var(--accent-blue);
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 20px;
+            transition: 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+        }
+
+        .enter-btn:hover {
+            background: var(--accent-yellow);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Reuse Navigation -->
+    <header>
+        <div class="logo">NEXUS <span>LEGENDS</span></div>
+        <a href="index.html" style="color:white; text-decoration: none; font-weight: bold;"><i class="fa-solid fa-arrow-left"></i> BACK HOME</a>
+    </header>
+
+    <div class="arena-container">
+        <div class="arena-header">
+            <h1>Tournament Arena</h1>
+            <p>Climb the rankings. Claim your glory.</p>
+        </div>
+
+        <div class="tour-grid" id="tournament-display">
+            <!-- Example Card (Will be replaced by MongoDB data) -->
+            <div class="tour-card">
+                <div class="status-badge status-open">Registration Open</div>
+                <h2>EFOOTBALL PRO SEASON 1</h2>
+                <div class="tour-info-row">
+                    <div class="info-item">
+                        <span>Prize Pool</span>
+                        <strong>₹5,000</strong>
+                    </div>
+                    <div class="info-item">
+                        <span>Format</span>
+                        <strong>1vs1 Knockout</strong>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span>Kick-off Date</span>
+                    <strong>OCT 25, 2024</strong>
+                </div>
+                <a href="#" class="enter-btn">ENTER ARENA</a>
+            </div>
+            <!-- End Example Card -->
+        </div>
+    </div>
+
+    <script>
+        // API URL (Replace with your actual Render URL later)
+        const API_URL = 'https://your-render-app-link.onrender.com/api/tournaments';
+
+        async function fetchTournaments() {
+            try {
+                const response = await fetch(API_URL);
+                const tournaments = await response.json();
+                const display = document.getElementById('tournament-display');
+                
+                if(tournaments.length > 0) {
+                    display.innerHTML = tournaments.map(t => `
+                        <div class="tour-card">
+                            <div class="status-badge ${t.status.toLowerCase().includes('live') ? 'status-live' : 'status-open'}">
+                                ${t.status}
+                            </div>
+                            <h2>${t.title}</h2>
+                            <div class="tour-info-row">
+                                <div class="info-item">
+                                    <span>Prize Pool</span>
+                                    <strong>${t.prize}</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span>Platform</span>
+                                    <strong>Mobile/Console</strong>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span>Kick-off Date</span>
+                                <strong>${t.date}</strong>
+                            </div>
+                            <a href="${t.link}" target="_blank" class="enter-btn">ENTER ARENA</a>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.log("Waiting for backend connection...");
+            }
+        }
+
+        fetchTournaments();
+    </script>
+</body>
+</html>
