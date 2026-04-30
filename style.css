@@ -13,6 +13,14 @@
     box-sizing: border-box;
     font-family: 'Rajdhani', sans-serif;
 }
+:root {
+    --nexus-cyan: #00d2ff;
+}
+
+/* Ensure the view-all-btn hover works for the store version */
+.view-all-btn:hover {
+    box-shadow: 0 0 15px var(--nexus-cyan);
+}
 
 body {
     background-color: var(--bg-color);
