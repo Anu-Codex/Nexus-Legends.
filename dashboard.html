@@ -84,14 +84,25 @@
         </div>
 
         <div class="card" style="border-left: 4px solid var(--green);">
-            <h3>Player Scoring</h3>
-            <select id="playerSelect"><option>Loading Arena...</option></select>
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
-                <button onclick="rankAction('update-points', {result:'win'})" style="background:var(--green); color:black;">WIN</button>
-                <button onclick="rankAction('update-points', {result:'draw'})" style="background:#555;">DRAW</button>
-                <button onclick="rankAction('update-points', {result:'loss'})" style="background:#222;">LOSS</button>
-            </div>
+    <h3>Player Scoring</h3>
+    <select id="playerSelect"><option>Loading Arena...</option></select>
+    
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
+        <button onclick="rankAction('update-points', {result:'win'})" style="background:var(--green); color:black;">WIN</button>
+        <button onclick="rankAction('update-points', {result:'draw'})" style="background:#555;">DRAW</button>
+        <button onclick="rankAction('update-points', {result:'loss'})" style="background:#222;">LOSS</button>
+    </div>
+            <!-- NEW: Performance Update Field -->
+    <div style="margin-top:15px; display:flex; gap:5px;">
+        <input type="text" id="trophyInput" placeholder="Performance (e.g. 🏆 Winner, Semi Finalist)" style="margin:0;">
+        <button onclick="updateTrophies()" class="btn-blue" style="width:80px; background:var(--accent); color:black;">SAVE</button>
+    </div>
+
+    <div style="margin-top:20px; padding-top:20px; border-top:1px solid #222;">
+        <!-- Danger Zone remains untouched -->
+        ...
+    </div>
+        </div>
 
             <div style="margin-top:20px; padding-top:20px; border-top:1px solid #222;">
                 <p style="color:var(--red); font-size:0.8rem; margin:0 0 10px; font-weight:bold;">DANGER ZONE / RESET</p>
@@ -530,6 +541,20 @@ async function deleteStoreItem(id) {
             </div>
         `).join('');
     } catch(e) { div.innerHTML = "Error loading list."; }
+    }
+    async function updateTrophies() {
+    const name = document.getElementById('playerSelect').value;
+    const trophies = document.getElementById('trophyInput').value;
+    if(!name) return;
+    const res = await fetch(`${API}/update-trophies`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, trophies })
+    });
+    if(res.ok) {
+        notify("Performance Recorded!", "var(--accent)");
+        document.getElementById('trophyInput').value = "";
+    }
     }
 </script>
 
