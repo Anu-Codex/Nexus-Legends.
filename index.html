@@ -15,6 +15,23 @@
     <!-- Header & Navigation -->
     <header>
         <div class="logo">NEXUS <span>LEGENDS</span></div>
+        <!-- Megaphone Icon -->
+        <div class="ann-icon" onclick="showAnn()">
+            <i class="fa-solid fa-bullhorn"></i>
+        </div>
+        <div class="menu-btn"><i class="fa-solid fa-bars"></i></div>
+    </div>
+</header>
+
+<!-- Announcement Popup -->
+<div id="annOverlay" class="ann-overlay" onclick="closeAnn()">
+    <div class="ann-modal" onclick="event.stopPropagation()">
+        <i class="fa-solid fa-message" style="color:#ff00ff; font-size:2rem; margin-bottom:15px;"></i>
+        <h2 style="margin:0 0 15px; text-transform:uppercase; letter-spacing:2px;">Announcement</h2>
+<div id="annContent" style="font-size:1.1rem; line-height:1.5; color:#eee; white-space: pre-wrap;">Loading...</div>
+        <button onclick="closeAnn()" style="margin-top:20px; background:#ff00ff; color:white; border:none; padding:10px 30px; border-radius:5px; font-weight:bold; cursor:pointer;">CLOSE</button>
+    </div>
+</div>
         <div class="dropdown">
             <button class="dropbtn">MENU <i class="fa-solid fa-bars"></i></button>
             <div class="dropdown-content">
@@ -189,5 +206,26 @@ window.addEventListener('DOMContentLoaded', loadHomeTournaments);
 
 // Run when page loads
 window.addEventListener('DOMContentLoaded', loadHomeRankings);
+        let currentBroadcast = "";
+
+async function fetchAnnouncement() {
+    try {
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/announcement');
+        const data = await res.json();
+        currentBroadcast = data.message;
+    } catch(e) { console.error("Ann Error"); }
+}
+
+function showAnn() {
+    document.getElementById('annContent').innerText = currentBroadcast;
+    document.getElementById('annOverlay').style.display = 'flex';
+}
+
+function closeAnn() {
+    document.getElementById('annOverlay').style.display = 'none';
+}
+
+// Call on load
+fetchAnnouncement();
     </script>
 </html>
