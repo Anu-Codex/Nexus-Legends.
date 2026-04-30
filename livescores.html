@@ -3,45 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Arena | Nexus Legends</title>
+    <title>Arena Results | Nexus Legends</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; }
-        header { padding: 20px 5%; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; }
+        body { background: radial-gradient(circle at top, #001a4d 0%, #050505 100%); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; }
+        .results-wrap { padding: 80px 5% 40px; max-width: 1000px; margin: 0 auto; }
         
-        .score-container { padding: 40px 5%; max-width: 1000px; margin: 0 auto; }
-        
-        /* Widget Styling Fixes */
-        #ls-widget-full { 
-            background: #111 !important; 
-            border-radius: 15px !important; 
-            overflow: hidden;
-            border: 1px solid #333;
+        .section-header { 
+            color: var(--accent-yellow); text-transform: uppercase; letter-spacing: 2px;
+            border-bottom: 1px solid #222; padding-bottom: 10px; margin: 40px 0 20px;
+            display: flex; align-items: center; gap: 10px; font-size: 1.5rem;
         }
+
+        .match-card {
+            background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 12px;
+            padding: 20px; margin-bottom: 15px; transition: 0.3s; backdrop-filter: blur(10px);
+        }
+        .match-card:hover { border-color: var(--accent-yellow); transform: translateX(5px); }
+
+        .tag { font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .tag-live { background: #ff003c; color: white; animation: blink 1s infinite; }
+        .tag-up { background: var(--accent-blue); color: white; }
+        .tag-pass { background: #444; color: #aaa; }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <header style="display:flex; justify-content:space-between; align-items:center;">
+    <header style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.9); padding:15px 5%; position:fixed; top:0; width:100%; z-index:1000;">
         <div class="logo">NEXUS <span>ARENA</span></div>
-        <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;">
-            <i class="fa-solid fa-arrow-left"></i> BACK HOME
-        </a>
+        <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-house"></i> HOME</a>
     </header>
 
-    <div class="score-container">
-        <h1 style="text-align:center; color:#E4FF00; margin-bottom:40px;">GLOBAL FIXTURES</h1>
-        
-        <!-- Full Professional Fixture Widget -->
-        <div id="ls-widget-full" data-w="nw_w_8281" class="livescore-widget"></div>
-        <script type="text/javascript" src="https://www.livescore.bz/api.livescore.0.1.js"></script>
+    <div class="results-wrap">
+        <h1 style="text-align:center; font-size: 3rem; margin: 20px 0;">ARENA <span style="color:var(--accent-yellow)">RESULTS</span></h1>
 
-        <p style="text-align:center; color:#555; margin-top:30px; font-size:0.8rem;">
-            Real-time scores provided by Nexus Arena Engine
-        </p>
+        <!-- LIVE MATCHES -->
+        <div id="live-header" class="section-header" style="display:none;"><i class="fa-solid fa-satellite-dish"></i> LIVE MATCHES</div>
+        <div id="live-results"></div>
+
+        <!-- UPCOMING FIXTURES -->
+        <div class="section-header"><i class="fa-solid fa-calendar-days"></i> UPCOMING FIXTURES</div>
+        <div id="upcoming-results"></div>
+
+        <!-- PAST RESULTS -->
+        <div class="section-header"><i class="fa-solid fa-clock-rotate-left"></i> PAST RESULTS (PASS)</div>
+        <div id="past-results"></div>
     </div>
 
+    <script>
+        async function fetchResults() {
+            try {
+                const res = await fetch('https://nl-server-k7i9.onrender.com/api/arena-results');
+                const matches = await res.json();
+
+                const liveDiv = document.getElementById('live-results');
+                const upDiv = document.getElementById('upcoming-results');
+                const pastDiv = document.getElementById('past-results');
+
+                matches.forEach(m => {
+                    const isFinished = (m.s1 !== "-" && m.s2 !== "-");
+                    const isLive = m.tourStatus === "Live" && !isFinished;
+
+                    const html = `
+                        <div class="match-card">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span style="font-size:0.7rem; color:#666;">${m.tournamentTitle}</span>
+                                <span class="tag ${isLive ? 'tag-live' : (isFinished ? 'tag-pass' : 'tag-up')}">
+                                    ${isLive ? 'LIVE' : (isFinished ? 'FINISHED' : 'SCHEDULED')}
+                                </span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; text-align: center;">
+                                <div style="text-align: right; font-weight: 700; font-size: 1.1rem;">${m.p1}</div>
+                                <div style="background: ${isLive ? '#ff003c' : (isFinished ? 'var(--accent-yellow)' : '#222')}; color: ${isFinished ? 'black' : 'white'}; font-weight: 900; padding: 5px 0; border-radius: 4px; margin: 0 10px;">
+                                    ${m.s1} : ${m.s2}
+                                </div>
+                                <div style="text-align: left; font-weight: 700; font-size: 1.1rem;">${m.p2}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (isLive) {
+                        document.getElementById('live-header').style.display = 'flex';
+                        liveDiv.innerHTML += html;
+                    } else if (isFinished) {
+                        pastDiv.innerHTML += html;
+                    } else {
+                        upDiv.innerHTML += html;
+                    }
+                });
+            } catch (err) { console.error("Load Failed"); }
+        }
+        window.onload = fetchResults;
+    </script>
 </body>
 </html>
