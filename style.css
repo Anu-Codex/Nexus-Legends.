@@ -397,8 +397,16 @@ footer {
     display: none; align-items: center; justify-content: center; z-index: 10000;
 }
 .ann-modal {
-    background: #111; border: 1px solid #ff00ff;
-    width: 90%; max-width: 400px; padding: 25px;
-    border-radius: 20px; text-align: center;
-    box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
+    background: #0a0a0a; border: 1px solid #ff00ff;
+    width: 95%; max-width: 450px; max-height: 80vh; /* Limit height */
+    padding: 0; border-radius: 20px; overflow: hidden;
+    display: flex; flex-direction: column;
 }
+.ann-list {
+    padding: 20px; overflow-y: auto; text-align: left;
+}
+.ann-item {
+    background: rgba(255,255,255,0.05); padding: 15px;
+    border-radius: 10px; margin-bottom: 15px; border-left: 3px solid #ff00ff;
+}
+.ann-date { font-size: 0.7rem; color: #888; margin-bottom: 5px; }
