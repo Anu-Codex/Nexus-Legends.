@@ -491,3 +491,44 @@ body.ann-open {
     color: white !important;
     animation: pulse-red 1.5s infinite;
 }
+.newsletter-sec {
+    padding: 80px 5%;
+    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://i.postimg.cc/0jM38mS6/news-bg.jpg') center/cover;
+    text-align: center;
+    border-top: 1px solid #222;
+}
+
+.news-content { max-width: 600px; margin: 0 auto; }
+
+.news-form {
+    display: flex;
+    margin-top: 30px;
+    gap: 10px;
+}
+
+.news-form input {
+    flex: 2;
+    padding: 15px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #333;
+    color: white;
+    border-radius: 5px;
+    outline: none;
+}
+
+.news-form button {
+    flex: 1;
+    background: var(--accent-yellow);
+    color: black;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.news-form button:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--accent-yellow); }
+
+@media (max-width: 600px) {
+    .news-form { flex-direction: column; }
+}
