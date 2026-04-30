@@ -532,3 +532,29 @@ body.ann-open {
 @media (max-width: 600px) {
     .news-form { flex-direction: column; }
 }
+/* Container for the icon to hold the badge */
+.ann-icon-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* The Notification Dot */
+.ann-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background: #ff003c; /* Urgent Red */
+    border-radius: 50%;
+    display: none; /* Hidden by default */
+    box-shadow: 0 0 10px #ff003c;
+    z-index: 10;
+    animation: badge-pulse 1.5s infinite;
+}
+
+@keyframes badge-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
