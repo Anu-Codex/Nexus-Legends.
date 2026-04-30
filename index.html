@@ -20,11 +20,13 @@
         
         <!-- RIGHT SIDE CONTROLS -->
         <div style="display: flex; align-items: center; gap: 15px;">
-            
-            <!-- 1. Announcement Icon (Single) -->
-            <div class="ann-icon" onclick="showAnn()" title="View Announcements">
+        <!-- Updated Icon Container -->
+        <div class="ann-icon-container" onclick="showAnn()">
+            <div id="annBadge" class="ann-badge"></div> <!-- The Notification Dot -->
+            <div class="ann-icon">
                 <i class="fa-solid fa-bullhorn"></i>
             </div>
+        </div>
 
             <!-- 2. Menu Dropdown -->
             <div class="dropdown">
@@ -271,42 +273,61 @@ window.addEventListener('DOMContentLoaded', loadHomeTournaments);
 // Run when page loads
 window.addEventListener('DOMContentLoaded', loadHomeRankings);
         let currentBroadcast = "";
-        
-        // Function to show announcements
+let allMessages = [];
+
+// 1. Check for new announcements on page load
+async function checkAnnouncements() {
+    try {
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/announcement');
+        allMessages = await res.json();
+
+        if (allMessages.length > 0) {
+            const latestMsgId = allMessages[0]._id; // Get ID of newest message
+            const lastSeenId = localStorage.getItem('nexus_last_seen_ann');
+
+            // If the latest ID is different from the one in local storage, show the badge
+            if (latestMsgId !== lastSeenId) {
+                document.getElementById('annBadge').style.display = 'block';
+            }
+        }
+    } catch(e) { console.error("Sync Error"); }
+}
+
+// 2. Modified showAnn function
 async function showAnn() {
     const overlay = document.getElementById('annOverlay');
     const list = document.getElementById('annList');
     
-    // 1. Immediately show the overlay and lock scrolling
     overlay.style.display = 'flex';
     document.body.classList.add('ann-open');
-    list.innerHTML = "<p style='text-align:center;'>Fetching Broadcasts...</p>";
 
-    try {
-        const res = await fetch('https://nl-server-k7i9.onrender.com/api/announcement');
-        if(!res.ok) throw new Error();
-        const messages = await res.json();
-
-        if (!messages || messages.length === 0) {
-            list.innerHTML = "<p style='text-align:center; color:#555;'>No recent announcements.</p>";
-            return;
-        }
-
-        list.innerHTML = messages.map(m => {
-            const date = new Date(m.date).toLocaleDateString('en-GB', {
-                day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-            });
-            return `
-                <div class="ann-item">
-                    <div class="ann-date">${date}</div>
-                    <div style="white-space: pre-wrap; color:#fff; font-family: inherit;">${m.message}</div>
-                </div>
-            `;
-        }).join('');
-    } catch(e) { 
-        list.innerHTML = "<p style='text-align:center; color:red;'>Offline. Check your connection.</p>";
+    // MARK AS READ: Save the latest message ID to local storage
+    if (allMessages.length > 0) {
+        localStorage.setItem('nexus_last_seen_ann', allMessages[0]._id);
+        document.getElementById('annBadge').style.display = 'none'; // Hide the red dot
     }
+
+    // Render the list (using your existing logic)
+    if (allMessages.length === 0) {
+        list.innerHTML = "<p style='text-align:center; color:#555;'>No announcements yet.</p>";
+        return;
+    }
+
+    list.innerHTML = allMessages.map(m => {
+        const date = new Date(m.date).toLocaleDateString('en-GB', {
+            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+        return `
+            <div class="ann-item">
+                <div class="ann-date">${date}</div>
+                <div style="white-space: pre-wrap; color:#fff;">${m.message}</div>
+            </div>
+        `;
+    }).join('');
 }
+
+// Call checkAnnouncements as soon as the page opens
+window.addEventListener('DOMContentLoaded', checkAnnouncements);
 
 // Function to close announcements
 function closeAnn() {
