@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Arena | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; }
+        header { padding: 20px 5%; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; }
+        
+        .score-container { padding: 40px 5%; max-width: 1000px; margin: 0 auto; }
+        
+        /* Widget Styling Fixes */
+        #ls-widget-full { 
+            background: #111 !important; 
+            border-radius: 15px !important; 
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+    <header style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="logo">NEXUS <span>ARENA</span></div>
+        <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;">
+            <i class="fa-solid fa-arrow-left"></i> BACK HOME
+        </a>
+    </header>
+
+    <div class="score-container">
+        <h1 style="text-align:center; color:#E4FF00; margin-bottom:40px;">GLOBAL FIXTURES</h1>
+        
+        <!-- Full Professional Fixture Widget -->
+        <div id="ls-widget-full" data-w="nw_w_8281" class="livescore-widget"></div>
+        <script type="text/javascript" src="https://ls.livescore.bz/api/w/v1/ls-widget.js"></script>
+
+        <p style="text-align:center; color:#555; margin-top:30px; font-size:0.8rem;">
+            Real-time scores provided by Nexus Arena Engine
+        </p>
+    </div>
+
+</body>
+</html>
