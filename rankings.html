@@ -66,19 +66,21 @@
         </div>
 
         <table class="leaderboard-table">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Player Name</th>
-                    <th>Wins</th>
-                    <th>Total Pts</th>
-                </tr>
-            </thead>
-            <tbody id="ranking-body">
-                <tr>
-                    <td colspan="4" class="status-msg">Synchronizing with Arena Servers...</td>
-                </tr>
-            </tbody>
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Player Name</th>
+            <th style="text-align:center;">GS</th> <!-- Goals Scored -->
+            <th style="text-align:center;">GA</th> <!-- Goals Attested -->
+            <th>Performance</th>
+            <th style="text-align:right;">Pts</th>
+        </tr>
+    </thead>
+    <tbody id="ranking-body">
+        <tr>
+            <td colspan="6" class="status-msg">Synchronizing with Arena Servers...</td>
+        </tr>
+    </tbody>
         </table>
     </div>
 
@@ -103,19 +105,16 @@ function exportToPDF() {
 // --- NEW STABLE CONNECTION LOGIC ---
 const API = "https://nl-server-k7i9.onrender.com/api";
 
+// --- UPDATED MAPPING LOGIC ---
 async function loadRankings() {
     const tbody = document.getElementById('ranking-body');
-    
     try {
-        // Using the same fetch pattern as your working dashboard
         const response = await fetch(`${API}/rankings`);
-        
         if (!response.ok) throw new Error("Offline");
-
         const players = await response.json();
 
         if (players.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="status-msg">No strikers registered in the Arena.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="status-msg">No strikers registered.</td></tr>';
             return;
         }
 
@@ -123,40 +122,25 @@ async function loadRankings() {
             const currentRank = index + 1;
             const oldRank = player.previousRank || 0;
             let trendIcon = '';
-
             if (oldRank !== 0) {
-                if (oldRank > currentRank) {
-                    trendIcon = '<i class="fa-solid fa-caret-up" style="color:#00ff88; margin-left:8px;"></i>';
-                } else if (oldRank < currentRank) {
-                    trendIcon = '<i class="fa-solid fa-caret-down" style="color:#ff4444; margin-left:8px;"></i>';
-                }
+                if (oldRank > currentRank) trendIcon = '<i class="fa-solid fa-caret-up" style="color:#00ff88; margin-left:8px;"></i>';
+                else if (oldRank < currentRank) trendIcon = '<i class="fa-solid fa-caret-down" style="color:#ff4444; margin-left:8px;"></i>';
             }
 
             return `
             <tr class="player-row">
                 <td class="rank-num">#${currentRank}</td>
-                <td>${player.name} ${trendIcon}</td>
-                <td>${player.wins || 0}</td>
-                <td class="pts-cell">${player.points || 0}</td>
+                <td style="font-weight:700;">${player.name} ${trendIcon}</td>
+                <td style="text-align:center; color:var(--green); font-family:monospace;">${player.goalsFor || 0}</td>
+                <td style="text-align:center; color:var(--red); font-family:monospace;">${player.goalsAgainst || 0}</td>
+                <td style="font-size:0.85rem; color:var(--accent); font-weight:bold;">${player.trophies || '-'}</td>
+                <td class="pts-cell" style="text-align:right;">${player.points || 0}</td>
             </tr>`;
         }).join('');
-
     } catch (error) {
-        console.error("Connection error:", error);
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" class="status-msg error-msg">
-                    <i class="fa-solid fa-wifi-slash"></i> Arena Connection Failure<br>
-                    <small style="color:#888;">Render server is taking too long to respond.</small><br>
-                    <button class="retry-btn" style="background:var(--accent-yellow); color:black; margin-top:10px; padding:5px 15px; border:none; font-weight:bold; cursor:pointer;" onclick="loadRankings()">RETRY NOW</button>
-                </td>
-            </tr>`;
-        // Automatic retry every 10 seconds
-        setTimeout(loadRankings, 10000);
+        tbody.innerHTML = '<tr><td colspan="6" class="status-msg error-msg">Connection error. <button onclick="loadRankings()">Retry</button></td></tr>';
     }
 }
-
-// Start loading
 loadRankings();
 </script>
 </body>
