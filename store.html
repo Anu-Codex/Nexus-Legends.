@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Store | Official In-Game Shop</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --nexus-cyan: #00d2ff; --nexus-pink: #ff00ff; --nexus-yellow: #E4FF00; }
+        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; }
+        
+        .store-header { text-align: center; padding: 100px 20px 40px; background: radial-gradient(circle at top, #002b36 0%, #050505 100%); }
+        .store-header h1 { font-size: 3rem; color: var(--nexus-cyan); text-transform: uppercase; letter-spacing: 4px; margin: 0; }
+
+        .section-title { padding: 20px 5%; font-size: 1.5rem; color: white; display: flex; align-items: center; gap: 10px; margin-top: 40px; }
+        .section-title::after { content: ""; flex: 1; height: 1px; background: #222; }
+
+        /* Mobile 2-Column Grid */
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+            padding: 0 5%;
+        }
+
+        .product-card {
+            background: #111; border: 1px solid #222; border-radius: 12px;
+            padding: 15px; text-align: center; position: relative; transition: 0.3s;
+        }
+        .product-card:hover { border-color: var(--nexus-cyan); transform: translateY(-5px); }
+
+        .product-img { width: 100%; height: 120px; object-fit: contain; margin-bottom: 10px; border-radius: 8px; }
+        .product-name { font-weight: 700; font-size: 1rem; margin-bottom: 5px; color: #fff; }
+        
+        .price-tag { color: var(--nexus-cyan); font-weight: bold; font-size: 1.1rem; }
+        .old-price { font-size: 0.8rem; color: #666; text-decoration: line-through; margin-right: 5px; }
+
+        .buy-btn {
+            display: block; width: 100%; background: var(--nexus-cyan); color: black;
+            padding: 10px; text-decoration: none; border-radius: 5px; margin-top: 10px;
+            font-weight: 800; font-size: 0.8rem; text-transform: uppercase;
+        }
+
+        /* Badges */
+        .badge { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; font-weight: 900; text-transform: uppercase; }
+        .badge-special { background: var(--nexus-pink); color: white; box-shadow: 0 0 10px var(--nexus-pink); }
+        .badge-discount { background: var(--nexus-yellow); color: black; }
+    </style>
+</head>
+<body>
+
+    <div class="store-header">
+        <h1>NEXUS STORE</h1>
+        <p style="color: #888;">PREMIUM IN-GAME ASSETS & OFFERS</p>
+    </div>
+
+    <!-- DISCOUNT OFFERS -->
+    <div id="discount-title" class="section-title" style="display:none; color:var(--nexus-yellow)"><i class="fa-solid fa-tag"></i> DISCOUNT OFFERS</div>
+    <div id="discount-grid" class="product-grid"></div>
+
+    <!-- SPECIAL OFFERS -->
+    <div id="special-title" class="section-title" style="display:none; color:var(--nexus-pink)"><i class="fa-solid fa-star"></i> SPECIAL DEALS</div>
+    <div id="special-grid" class="product-grid"></div>
+
+    <!-- ALL PRODUCTS -->
+    <div class="section-title"><i class="fa-solid fa-box-open"></i> ALL ITEMS</div>
+    <div id="standard-grid" class="product-grid"></div>
+
+    <script>
+        const API = 'https://nl-server-k7i9.onrender.com/api/store';
+        const WHATSAPP_NUM = "9903099178"; // e.g. 8801700000000
+
+        async function loadStore() {
+            try {
+                const res = await fetch(API);
+                const items = await res.json();
+                
+                const grids = {
+                    Standard: document.getElementById('standard-grid'),
+                    Special: document.getElementById('special-grid'),
+                    Discount: document.getElementById('discount-grid')
+                };
+
+                items.forEach(item => {
+                    if (item.category === 'Special') document.getElementById('special-title').style.display = 'flex';
+                    if (item.category === 'Discount') document.getElementById('discount-title').style.display = 'flex';
+
+                    const card = `
+                        <div class="product-card">
+                            ${item.category !== 'Standard' ? `<div class="badge badge-${item.category.toLowerCase()}">${item.category}</div>` : ''}
+                            <img src="${item.image || 'https://via.placeholder.com/150'}" class="product-img">
+                            <div class="product-name">${item.name}</div>
+                            <div class="price-box">
+                                ${item.oldPrice ? `<span class="old-price">${item.oldPrice}</span>` : ''}
+                                <span class="price-tag">${item.price}</span>
+                            </div>
+                            <a href="https://wa.me/${WHATSAPP_NUM}?text=Hello Nexus Legends! I want to buy ${item.name} for ${item.price}" target="_blank" class="buy-btn">
+                                <i class="fa-brands fa-whatsapp"></i> PURCHASE
+                            </a>
+                        </div>
+                    `;
+                    grids[item.category].innerHTML += card;
+                });
+            } catch (e) { console.error("Store offline"); }
+        }
+        window.onload = loadStore;
+    </script>
+</body>
+</html>
