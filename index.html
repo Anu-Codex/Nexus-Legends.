@@ -69,69 +69,106 @@
     <section class="hero">
         <div class="hero-content">
             <!-- MISSION & ABOUT SECTION -->
-<section class="about-nexus" style="padding: 60px 5%; background: #050505;">
-    <div style="max-width: 1000px; margin: 0 auto;">
-        
-        <!-- Main Heading -->
-        <h2 style="color:var(--accent-yellow); font-size: 2.2rem; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 40px;">
-            The Ultimate Stage for <span style="color:var(--accent-blue)">eFootball Excellence</span>
+<style>
+    /* New spacing optimization for Mobile */
+    .nexus-section {
+        padding: 80px 20px; /* Large vertical gap */
+        max-width: 1000px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+    .text-block {
+        margin-bottom: 50px; /* Force separation between sections */
+        line-height: 1.8;
+    }
+    .mission-title {
+        font-size: clamp(1.8rem, 6vw, 2.5rem);
+        margin-bottom: 30px;
+        line-height: 1.2;
+    }
+    .sub-title {
+        color: var(--accent-yellow);
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        display: block;
+        letter-spacing: 2px;
+    }
+    @media (max-width: 768px) {
+        .nexus-section { padding: 50px 15px; }
+        .text-block { margin-bottom: 40px; }
+    }
+</style>
+
+<section class="nexus-section">
+    
+    <!-- 1. MAIN HEADING -->
+    <div class="text-block" style="text-align: center;">
+        <h2 class="mission-title" style="color: white; text-transform: uppercase;">
+            The Ultimate Stage for <br>
+            <span style="color:var(--accent-yellow)">eFootball Excellence</span>
         </h2>
-
-        <!-- Elevate Your Game -->
-        <div style="margin-bottom: 50px; border-left: 3px solid var(--accent-blue); padding-left: 20px;">
-            <h3 style="color:white; text-transform: uppercase; margin-bottom: 15px;">Elevate Your Game</h3>
-            <p style="color:#aaa; line-height: 1.8; font-size: 1.1rem;">
-                Nexus Legends isn’t just a community; it’s the premier destination for <strong>eFootball enthusiasts</strong> who live for the thrill of the pitch. Whether you are a tactical mastermind or a mechanical virtuoso, our platform provides the infrastructure you need to test your skills against the very best in the region.
-            </p>
-        </div>
-
-        <!-- Why Join Grid -->
-        <h3 style="color:var(--accent-yellow); text-transform: uppercase; text-align: center; margin-bottom: 30px;">Why Join the Nexus Elite?</h3>
-        <div class="home-tour-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-            
-            <div class="home-tour-card" style="border-color: #222;">
-                <h4 style="color:var(--accent-yellow); margin-bottom: 10px;"><i class="fa-solid fa-trophy"></i> Structured Tournaments</h4>
-                <p style="color:#888; font-size: 0.9rem;">Experience the adrenaline of high-stakes competitive play with organized leagues, knockout brackets, and seasonal championships.</p>
-            </div>
-
-            <div class="home-tour-card" style="border-color: #222;">
-                <h4 style="color:var(--accent-yellow); margin-bottom: 10px;"><i class="fa-solid fa-chart-line"></i> Skill-Based Matchmaking</h4>
-                <p style="color:#888; font-size: 0.9rem;">Find your equals. Our community ranking system ensures every match is a challenge, pushing you to refine your tactics.</p>
-            </div>
-
-            <div class="home-tour-card" style="border-color: #222;">
-                <h4 style="color:var(--accent-yellow); margin-bottom: 10px;"><i class="fa-solid fa-brain"></i> Strategic Insights</h4>
-                <p style="color:#888; font-size: 0.9rem;">Access a collective brain trust of elite players. Share formations, player builds, and meta-analysis to stay ahead of the curve.</p>
-            </div>
-
-            <div class="home-tour-card" style="border-color: #222;">
-                <h4 style="color:var(--accent-yellow); margin-bottom: 10px;"><i class="fa-solid fa-comments"></i> Thriving Social Hub</h4>
-                <p style="color:#888; font-size: 0.9rem;">Beyond the matches, connect with a global network of fans. Discuss real-world football and build lasting rivalries.</p>
-            </div>
-
-        </div>
-
-        <!-- Passion to Podium -->
-        <div style="margin-top: 60px; text-align: center; background: rgba(255,255,255,0.02); padding: 40px; border-radius: 15px; border: 1px solid #111;">
-            <h3 style="color:white; text-transform: uppercase; margin-bottom: 15px;">From Passion to Podium</h3>
-            <p style="color:#bbb; line-height: 1.8; max-width: 800px; margin: 0 auto;">
-                We believe every player has the potential to become a legend. <strong>Nexus Legends</strong> bridges the gap between casual play and professional esports by offering a stage where consistency is rewarded and talent is showcased.
-            </p>
-        </div>
-
-        <!-- Ready to Make Your Mark -->
-        <div style="margin-top: 60px; text-align: center;">
-            <h3 style="color:var(--accent-yellow); text-transform: uppercase;">Ready to Make Your Mark?</h3>
-            <p style="color:#888; margin: 15px 0 30px;">The whistle is about to blow. Don't watch from the sidelines—become part of the most dedicated eFootball community on the web.</p>
-            
-            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <a href="https://chat.whatsapp.com/Idtmr2beKY48zXvjVo6fNl" target="_blank" class="view-all-btn" style="background: var(--accent-blue); color:white; border:none;">JOIN THE COMMUNITY</a>
-                <a href="tournaments.html" class="view-all-btn">VIEW ACTIVE TOURNAMENTS</a>
-            </div>
-        </div>
-
     </div>
-    </section>
+
+    <!-- 2. ELEVATE YOUR GAME -->
+    <div class="text-block" style="border-left: 4px solid var(--accent-blue); padding-left: 20px; background: rgba(0,65,255,0.03); padding-top: 20px; padding-bottom: 20px; border-radius: 0 15px 15px 0;">
+        <span class="sub-title">Elevate Your Game</span>
+        <p style="color:#bbb; font-size: 1.1rem; margin: 0;">
+            Nexus Legends isn’t just a community; it’s the premier destination for <strong>eFootball enthusiasts</strong> who live for the thrill of the pitch. Whether you are a tactical mastermind or a mechanical virtuoso, our platform provides the infrastructure you need to test your skills against the very best in the region.
+        </p>
+    </div>
+
+    <!-- 3. WHY JOIN GRID (Separated Cards) -->
+    <div class="text-block">
+        <h3 style="color:white; text-transform: uppercase; text-align: center; margin-bottom: 35px; letter-spacing: 3px;">
+            Why Join the <span style="color:var(--accent-yellow)">Nexus Elite?</span>
+        </h3>
+        
+        <div class="home-tour-grid" style="gap: 25px;"> <!-- Increased Gap -->
+            <div class="home-tour-card" style="margin-bottom: 10px;">
+                <h4 style="color:var(--accent-yellow); margin-bottom: 12px;"><i class="fa-solid fa-trophy"></i> Structured Tournaments</h4>
+                <p style="color:#888; font-size: 0.95rem; line-height: 1.6;">Experience the adrenaline of high-stakes competitive play with organized leagues and seasonal championships.</p>
+            </div>
+
+            <div class="home-tour-card" style="margin-bottom: 10px;">
+                <h4 style="color:var(--accent-yellow); margin-bottom: 12px;"><i class="fa-solid fa-chart-line"></i> Skill-Based Matchmaking</h4>
+                <p style="color:#888; font-size: 0.95rem; line-height: 1.6;">Find your equals. Our ranking system ensures every match pushes you to refine your tactics and climb the ladder.</p>
+            </div>
+
+            <div class="home-tour-card" style="margin-bottom: 10px;">
+                <h4 style="color:var(--accent-yellow); margin-bottom: 12px;"><i class="fa-solid fa-brain"></i> Strategic Insights</h4>
+                <p style="color:#888; font-size: 0.95rem; line-height: 1.6;">Access a collective brain trust of elite players. Share formations, player builds, and meta-analysis.</p>
+            </div>
+
+            <div class="home-tour-card" style="margin-bottom: 10px;">
+                <h4 style="color:var(--accent-yellow); margin-bottom: 12px;"><i class="fa-solid fa-comments"></i> Thriving Social Hub</h4>
+                <p style="color:#888; font-size: 0.95rem; line-height: 1.6;">Beyond the matches, connect with fans. Share your "Dream Team" pulls and build lasting rivalries.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. PASSION TO PODIUM -->
+    <div class="text-block" style="text-align: center; background: #0a0a0a; padding: 40px 25px; border-radius: 20px; border: 1px solid #1a1a1a;">
+        <span class="sub-title">From Passion to Podium</span>
+        <p style="color:#eee; font-size: 1.1rem; max-width: 800px; margin: 0 auto;">
+            We believe every player has the potential to become a legend. <strong>Nexus Legends</strong> bridges the gap between casual play and professional esports by offering a stage where consistency is rewarded.
+        </p>
+    </div>
+
+    <!-- 5. READY TO MAKE YOUR MARK (CTA) -->
+    <div class="text-block" style="text-align: center; padding-top: 20px;">
+        <h3 style="color:var(--accent-yellow); text-transform: uppercase; margin-bottom: 20px; font-size: 1.8rem;">Ready to Make Your Mark?</h3>
+        <p style="color:#888; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto;">
+            The whistle is about to blow. Don't watch from the sidelines—become part of the most dedicated eFootball community on the web.
+        </p>
+        
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+            <a href="https://chat.whatsapp.com/Idtmr2beKY48zXvjVo6fNl" target="_blank" class="join-action-btn" style="width: auto; padding: 15px 30px; margin: 0;">JOIN THE COMMUNITY</a>
+            <a href="tournaments.html" class="view-all-btn" style="padding: 15px 30px;">VIEW ACTIVE TOURNAMENTS</a>
+        </div>
+    </div>
+
+</section>
             
     <!-- RECENT TOURNAMENTS SECTION -->
 <section class="recent-events">
