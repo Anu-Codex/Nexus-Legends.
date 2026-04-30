@@ -21,22 +21,15 @@
         </div>
         <div class="menu-btn"><i class="fa-solid fa-bars"></i></div>
     </div>
-</header>
-
-<!-- Announcement Popup -->
-<div id="annOverlay" class="ann-overlay" onclick="closeAnn()">
-    <div class="ann-modal" onclick="event.stopPropagation()">
-        <div style="background:#ff00ff; padding:15px; color:white; font-weight:bold; display:flex; justify-content:space-between;">
-            <span><i class="fa-solid fa-bullhorn"></i> ANNOUNCEMENTS</span>
-            <i class="fa-solid fa-xmark" onclick="closeAnn()" style="cursor:pointer"></i>
-        </div>
         
-        <div id="annList" class="ann-list">
-            <!-- Messages will appear here -->
+        <!-- Announcement Icon -->
+        <div class="ann-icon" onclick="showAnn()">
+            <i class="fa-solid fa-bullhorn"></i>
         </div>
-    </div>
-</div>
-        <div class="dropdown">
+        <!-- Your existing Menu Bar button -->
+        <div class="menu-btn" id="menuBtn">
+            <i class="fa-solid fa-bars"></i>
+            <div class="dropdown">
             <button class="dropbtn">MENU <i class="fa-solid fa-bars"></i></button>
             <div class="dropdown-content">
                 <a href="tournaments.html" target="_blank">Tournament Info</a>
@@ -46,7 +39,27 @@
                 <a href="rules.html" target="_blank">Rules & Regulations</a>
                 <a href="contact.html" target="_blank">Contact Us</a>
             </div>
+            </div>
         </div>
+
+<!-- Announcement Popup -->
+<div id="annOverlay" class="ann-overlay">
+    <div class="ann-modal">
+        <div style="background:#ff00ff; padding:15px; color:white; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-bullhorn"></i> BROADCAST CENTER</span>
+            <i class="fa-solid fa-xmark" onclick="closeAnn()" style="cursor:pointer; font-size:1.5rem;"></i>
+        </div>
+        
+        <div id="annList" class="ann-list">
+            <!-- Messages injected here -->
+        </div>
+        
+        <div style="padding:15px; border-top:1px solid #222;">
+            <button onclick="closeAnn()" style="width:100%; background:#ff00ff; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">CLOSE BROADCAST</button>
+        </div>
+    </div>
+</div>
+        
     </header>
 
     <!-- Hero Section -->
