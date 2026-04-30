@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Legends | eFootball Community</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts for eSports Look -->
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Social Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -15,52 +13,50 @@
     <!-- Header & Navigation -->
     <header>
         <div class="logo">NEXUS <span>LEGENDS</span></div>
-        <!-- Megaphone Icon -->
-        <div class="ann-icon" onclick="showAnn()">
-            <i class="fa-solid fa-bullhorn"></i>
-        </div>
-        <div class="menu-btn"><i class="fa-solid fa-bars"></i></div>
-    </div>
         
-        <!-- Announcement Icon -->
-        <div class="ann-icon" onclick="showAnn()">
-            <i class="fa-solid fa-bullhorn"></i>
-        </div>
-        <!-- Your existing Menu Bar button -->
-        <div class="menu-btn" id="menuBtn">
-            <i class="fa-solid fa-bars"></i>
-            <div class="dropdown">
-            <button class="dropbtn">MENU <i class="fa-solid fa-bars"></i></button>
-            <div class="dropdown-content">
-                <a href="tournaments.html" target="_blank">Tournament Info</a>
-                <a href="login.html">Admin Login</a>
-                <a href="rankings.html" target="_blank">Player Rankings</a>
-                <a href="about.html" target="_blank">About Us</a>
-                <a href="rules.html" target="_blank">Rules & Regulations</a>
-                <a href="contact.html" target="_blank">Contact Us</a>
+        <!-- RIGHT SIDE CONTROLS -->
+        <div style="display: flex; align-items: center; gap: 15px;">
+            
+            <!-- 1. Announcement Icon (Single) -->
+            <div class="ann-icon" onclick="showAnn()" title="View Announcements">
+                <i class="fa-solid fa-bullhorn"></i>
             </div>
-            </div>
-        </div>
 
-<!-- Announcement Popup -->
-<div id="annOverlay" class="ann-overlay">
-    <div class="ann-modal">
-        <div style="background:#ff00ff; padding:15px; color:white; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-            <span><i class="fa-solid fa-bullhorn"></i> BROADCAST CENTER</span>
-            <i class="fa-solid fa-xmark" onclick="closeAnn()" style="cursor:pointer; font-size:1.5rem;"></i>
+            <!-- 2. Menu Dropdown -->
+            <div class="dropdown">
+                <button class="dropbtn">MENU <i class="fa-solid fa-bars"></i></button>
+                <div class="dropdown-content">
+                    <a href="tournaments.html" target="_blank">Tournament Info</a>
+                    <a href="login.html">Admin Login</a>
+                    <a href="rankings.html" target="_blank">Player Rankings</a>
+                    <a href="about.html" target="_blank">About Us</a>
+                    <a href="rules.html" target="_blank">Rules & Regulations</a>
+                    <a href="contact.html" target="_blank">Contact Us</a>
+                </div>
+            </div>
+
         </div>
-        
-        <div id="annList" class="ann-list">
-            <!-- Messages injected here -->
-        </div>
-        
-        <div style="padding:15px; border-top:1px solid #222;">
-            <button onclick="closeAnn()" style="width:100%; background:#ff00ff; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">CLOSE BROADCAST</button>
+    </header>
+
+    <!-- Announcement Popup Modal (Keep outside header) -->
+    <div id="annOverlay" class="ann-overlay">
+        <div class="ann-modal">
+            <div style="background:#ff00ff; padding:15px; color:white; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+                <span><i class="fa-solid fa-bullhorn"></i> BROADCAST CENTER</span>
+                <i class="fa-solid fa-xmark" onclick="closeAnn()" style="cursor:pointer; font-size:1.5rem;"></i>
+            </div>
+            
+            <div id="annList" class="ann-list">
+                <!-- Messages injected here -->
+            </div>
+            
+            <div style="padding:15px; border-top:1px solid #222;">
+                <button onclick="closeAnn()" style="width:100%; background:#ff00ff; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">CLOSE BROADCAST</button>
+            </div>
         </div>
     </div>
-</div>
-        
-    </header>
+
+    <!-- Rest of your content (Hero, Recent Events, etc.) stays exactly the same -->
 
     <!-- Hero Section -->
     <section class="hero">
