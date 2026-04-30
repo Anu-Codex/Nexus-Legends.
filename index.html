@@ -26,10 +26,14 @@
 <!-- Announcement Popup -->
 <div id="annOverlay" class="ann-overlay" onclick="closeAnn()">
     <div class="ann-modal" onclick="event.stopPropagation()">
-        <i class="fa-solid fa-message" style="color:#ff00ff; font-size:2rem; margin-bottom:15px;"></i>
-        <h2 style="margin:0 0 15px; text-transform:uppercase; letter-spacing:2px;">Announcement</h2>
-<div id="annContent" style="font-size:1.1rem; line-height:1.5; color:#eee; white-space: pre-wrap;">Loading...</div>
-        <button onclick="closeAnn()" style="margin-top:20px; background:#ff00ff; color:white; border:none; padding:10px 30px; border-radius:5px; font-weight:bold; cursor:pointer;">CLOSE</button>
+        <div style="background:#ff00ff; padding:15px; color:white; font-weight:bold; display:flex; justify-content:space-between;">
+            <span><i class="fa-solid fa-bullhorn"></i> ANNOUNCEMENTS</span>
+            <i class="fa-solid fa-xmark" onclick="closeAnn()" style="cursor:pointer"></i>
+        </div>
+        
+        <div id="annList" class="ann-list">
+            <!-- Messages will appear here -->
+        </div>
     </div>
 </div>
         <div class="dropdown">
@@ -207,25 +211,33 @@ window.addEventListener('DOMContentLoaded', loadHomeTournaments);
 // Run when page loads
 window.addEventListener('DOMContentLoaded', loadHomeRankings);
         let currentBroadcast = "";
+        
+        async function showAnn() {
+    const list = document.getElementById('annList');
+    list.innerHTML = "Loading...";
+    document.getElementById('annOverlay').style.display = 'flex';
 
-async function fetchAnnouncement() {
     try {
         const res = await fetch('https://nl-server-k7i9.onrender.com/api/announcement');
-        const data = await res.json();
-        currentBroadcast = data.message;
-    } catch(e) { console.error("Ann Error"); }
-}
+        const messages = await res.json();
 
-function showAnn() {
-    document.getElementById('annContent').innerText = currentBroadcast;
-    document.getElementById('annOverlay').style.display = 'flex';
-}
+        if (messages.length === 0) {
+            list.innerHTML = "<p style='text-align:center; color:#555;'>No announcements yet.</p>";
+            return;
+        }
 
-function closeAnn() {
-    document.getElementById('annOverlay').style.display = 'none';
-}
-
-// Call on load
-fetchAnnouncement();
+        list.innerHTML = messages.map(m => {
+            const date = new Date(m.date).toLocaleDateString('en-GB', {
+                day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+            });
+            return `
+                <div class="ann-item">
+                    <div class="ann-date">${date}</div>
+                    <div style="white-space: pre-wrap; color:#fff;">${m.message}</div>
+                </div>
+            `;
+        }).join('');
+    } catch(e) { list.innerHTML = "Connection Error"; }
+        }
     </script>
 </html>
