@@ -405,6 +405,38 @@ async function loadTop5Results() {
     } catch (err) { container.innerHTML = '<p style="color:red; text-align:center; width:100%;">Connection Error</p>'; }
 }
 window.addEventListener('DOMContentLoaded', loadTop5Results);
+        document.getElementById('newsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('subEmail').value;
+    const btn = document.getElementById('subBtn');
+    const msg = document.getElementById('newsMsg');
+
+    btn.innerText = "Syncing...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/subscribe', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if(res.ok) {
+            msg.style.color = "var(--neon-green)";
+            msg.innerText = "✓ Welcome to Nexus Legends!";
+            document.getElementById('subEmail').value = "";
+        } else {
+            msg.style.color = "#ff4444";
+            msg.innerText = data.error;
+        }
+    } catch(err) {
+        msg.innerText = "Offline. Try again later.";
+    } finally {
+        btn.innerText = "SUBSCRIBE";
+        btn.disabled = false;
+    }
+});
 
 
 </script>
