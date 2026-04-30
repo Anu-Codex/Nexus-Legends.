@@ -36,9 +36,31 @@ header {
 }
 
 .logo {
-    font-size: 1.8rem; /* Slightly smaller for mobile speed */
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between logo and text */
+    font-size: 1.8rem;
     font-weight: 700;
     letter-spacing: 2px;
+}
+
+.nav-logo {
+    height: 45px; /* Adjust this to make the logo bigger or smaller */
+    width: auto;
+    object-fit: contain;
+    /* Optional: Add a subtle glow to match your theme */
+    filter: drop-shadow(0 0 5px var(--accent-blue)); 
+}
+
+/* Mobile Adjustment for Speed & Fit */
+@media (max-width: 768px) {
+    .nav-logo {
+        height: 35px; 
+    }
+    .logo {
+        font-size: 1.4rem;
+        gap: 8px;
+    }
 }
 
 .logo span {
