@@ -112,6 +112,23 @@
         </a>
     </div>
 </section>
+    <!-- HOME STORE HIGHLIGHTS -->
+<section class="recent-events" style="background: linear-gradient(to top, #050505, #0a0a0a);">
+    <h2 style="text-align:center; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px;">
+        EXCLUSIVE <span style="color:#00d2ff">OFFERS</span>
+    </h2>
+
+    <div id="home-store-container" class="home-tour-grid">
+        <!-- 1 Discount + 1 Special Item will load here -->
+        <p style="text-align:center; color:#555; width:100%;">Checking Stock...</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="store.html" class="view-all-btn" style="border-color:#00d2ff; color:#00d2ff;">
+            OPEN FULL STORE <i class="fa-solid fa-cart-shopping"></i>
+        </a>
+    </div>
+</section>
 
     <!-- Blank Space (As Requested) -->
     <div class="spacer"></div>
@@ -273,5 +290,59 @@ function closeAnn() {
 document.getElementById('annOverlay').addEventListener('click', function(e) {
     if(e.target === this) closeAnn();
 });
+        async function loadHomeStore() {
+    const container = document.getElementById('home-store-container');
+    const API_URL = 'https://nl-server-k7i9.onrender.com/api/store';
+    const WHATSAPP = "YOUR_WHATSAPP_NUMBER"; // Replace with your number
+
+    try {
+        const res = await fetch(API_URL);
+        const items = await res.json();
+
+        // Get the latest 1 Discount and 1 Special item
+        const discountItem = items.find(i => i.category === 'Discount');
+        const specialItem = items.find(i => i.category === 'Special');
+
+        let html = "";
+
+        if (discountItem) html += renderHomeStoreCard(discountItem, '#E4FF00', WHATSAPP);
+        if (specialItem) html += renderHomeStoreCard(specialItem, '#ff00ff', WHATSAPP);
+
+        if (!discountItem && !specialItem) {
+            container.innerHTML = '<p style="text-align:center; color:#555;">No active offers at the moment.</p>';
+            return;
+        }
+
+        container.innerHTML = html;
+
+    } catch (err) {
+        container.innerHTML = '<p style="color:red;">Store connection paused.</p>';
+    }
+}
+
+// Helper function to keep code clean and fast
+function renderHomeStoreCard(item, color, wa) {
+    return `
+        <div class="home-tour-card" style="border-color: ${color}44;">
+            <div class="home-status-badge" style="background:${color}; color:black;">${item.category}</div>
+            <div style="display:flex; gap:15px; align-items:center;">
+                <img src="${item.image}" style="width:70px; height:70px; object-fit:contain; border-radius:8px; background:#000;">
+                <div>
+                    <h3 style="margin:0; font-size:1.1rem;">${item.name}</h3>
+                    <p style="margin:5px 0; color:${color}; font-weight:bold;">
+                        ${item.oldPrice ? `<span style="text-decoration:line-through; color:#555; font-size:0.8rem; margin-right:5px;">${item.oldPrice}</span>` : ''}
+                        ${item.price}
+                    </p>
+                </div>
+            </div>
+            <a href="https://wa.me/${wa}?text=I want to buy ${item.name}" target="_blank" class="join-action-btn" style="background:${color}; margin-top:15px; font-size:0.9rem; padding:10px;">
+                BUY NOW
+            </a>
+        </div>
+    `;
+}
+
+// Run when page loads
+window.addEventListener('DOMContentLoaded', loadHomeStore);
     </script>
 </html>
