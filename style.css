@@ -25,23 +25,37 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 5%;
+    padding: 10px 5%; /* Slightly tighter for faster feel */
     position: fixed;
+    top: 0;
     width: 100%;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(10px);
-    z-index: 1001; /* Keeps nav above the page but below the modal */
+    z-index: 1001;
+    border-bottom: 1px solid #1a1a1a;
 }
 
 .logo {
-    font-size: 2rem;
+    font-size: 1.8rem; /* Slightly smaller for mobile speed */
     font-weight: 700;
     letter-spacing: 2px;
 }
 
 .logo span {
     color: var(--accent-yellow);
+}
+.ann-icon {
+    font-size: 1.3rem;
+    color: var(--accent-yellow);
+    cursor: pointer;
+    transition: 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.ann-icon:hover {
+    color: #ff00ff; /* Purple glow matching modal */
+    transform: scale(1.1);
 }
 
 .dropdown {
@@ -52,12 +66,16 @@ header {
 .dropbtn {
     background: transparent;
     color: white;
-    padding: 10px 20px;
-    font-size: 1.2rem;
-    border: 2px solid var(--accent-yellow);
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    border: 1px solid var(--accent-yellow);
     cursor: pointer;
     font-weight: 700;
     transition: 0.3s;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .dropbtn:hover {
