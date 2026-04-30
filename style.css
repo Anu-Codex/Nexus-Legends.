@@ -472,3 +472,22 @@ body.ann-open {
     border-radius: 10px; margin-bottom: 15px; border-left: 3px solid #ff00ff;
 }
 .ann-date { font-size: 0.7rem; color: #888; margin-bottom: 5px; }
+/* Live Score Container Enhancements */
+.livescore-widget {
+    min-height: 400px;
+    background: transparent !important;
+    color-scheme: dark;
+}
+
+/* Red Pulsing Animation for Live Feel */
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 60, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(255, 0, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 60, 0); }
+}
+
+.view-all-btn[style*="#ff003c"]:hover {
+    background: #ff003c;
+    color: white !important;
+    animation: pulse-red 1.5s infinite;
+}
