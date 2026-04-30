@@ -225,17 +225,23 @@ window.addEventListener('DOMContentLoaded', loadHomeTournaments);
 window.addEventListener('DOMContentLoaded', loadHomeRankings);
         let currentBroadcast = "";
         
-        async function showAnn() {
+        // Function to show announcements
+async function showAnn() {
+    const overlay = document.getElementById('annOverlay');
     const list = document.getElementById('annList');
-    list.innerHTML = "Loading...";
-    document.getElementById('annOverlay').style.display = 'flex';
+    
+    // 1. Immediately show the overlay and lock scrolling
+    overlay.style.display = 'flex';
+    document.body.classList.add('ann-open');
+    list.innerHTML = "<p style='text-align:center;'>Fetching Broadcasts...</p>";
 
     try {
         const res = await fetch('https://nl-server-k7i9.onrender.com/api/announcement');
+        if(!res.ok) throw new Error();
         const messages = await res.json();
 
-        if (messages.length === 0) {
-            list.innerHTML = "<p style='text-align:center; color:#555;'>No announcements yet.</p>";
+        if (!messages || messages.length === 0) {
+            list.innerHTML = "<p style='text-align:center; color:#555;'>No recent announcements.</p>";
             return;
         }
 
@@ -246,11 +252,25 @@ window.addEventListener('DOMContentLoaded', loadHomeRankings);
             return `
                 <div class="ann-item">
                     <div class="ann-date">${date}</div>
-                    <div style="white-space: pre-wrap; color:#fff;">${m.message}</div>
+                    <div style="white-space: pre-wrap; color:#fff; font-family: inherit;">${m.message}</div>
                 </div>
             `;
         }).join('');
-    } catch(e) { list.innerHTML = "Connection Error"; }
-        }
+    } catch(e) { 
+        list.innerHTML = "<p style='text-align:center; color:red;'>Offline. Check your connection.</p>";
+    }
+}
+
+// Function to close announcements
+function closeAnn() {
+    const overlay = document.getElementById('annOverlay');
+    overlay.style.display = 'none'; // Completely removes the element from click-path
+    document.body.classList.remove('ann-open'); // Restores scrolling
+}
+
+// Safety: Close when clicking outside the modal
+document.getElementById('annOverlay').addEventListener('click', function(e) {
+    if(e.target === this) closeAnn();
+});
     </script>
 </html>
