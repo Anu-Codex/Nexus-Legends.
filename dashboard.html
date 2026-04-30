@@ -197,6 +197,13 @@
         <!-- Items listed here for deletion -->
     </div>
         </div>
+        <div class="card" style="border-left: 4px solid #ffaa00;">
+    <h3 style="color:#ffaa00"><i class="fa-solid fa-envelope-open-text"></i> NEWSLETTER LEADS</h3>
+    <button onclick="loadSubscribers()" class="btn-outline" style="margin-bottom:10px;">Refresh List</button>
+    <div id="subList" style="max-height: 200px; overflow-y: auto; font-size: 0.8rem;">
+        <!-- Emails will load here -->
+    </div>
+        </div>
 
     </main>
     <!-- KEEP ALL YOUR STYLES AND CARDS - REPLACE THE SCRIPT SECTION ONLY -->
@@ -510,6 +517,20 @@ async function deleteStoreItem(id) {
     loadAdminStore();
 }
 // Add loadAdminStore() to your window.onload
+    async function loadSubscribers() {
+    const div = document.getElementById('subList');
+    div.innerHTML = "Fetching...";
+    try {
+        const res = await fetch(`${API}/subscribers`);
+        const data = await res.json();
+        div.innerHTML = data.map(s => `
+            <div style="padding:8px; border-bottom:1px solid #222; display:flex; justify-content:space-between;">
+                <span>${s.email}</span>
+                <span style="color:#555;">${new Date(s.date).toLocaleDateString()}</span>
+            </div>
+        `).join('');
+    } catch(e) { div.innerHTML = "Error loading list."; }
+    }
 </script>
 
     
