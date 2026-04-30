@@ -178,6 +178,25 @@
         <button onclick="clearAnnouncements()" class="btn-outline" style="color:#ff4444; border-color:#ff4444; flex:1;">Clear All</button>
     </div>
         </div>
+        <div class="card" style="border-left: 4px solid #00d2ff;">
+    <h3 style="color:#00d2ff"><i class="fa-solid fa-cart-shopping"></i> STORE MANAGER</h3>
+    <input type="text" id="itemName" placeholder="Product Name">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <input type="text" id="itemPrice" placeholder="Current Price (e.g. 500 TK)">
+        <input type="text" id="itemOldPrice" placeholder="Old Price (Optional)">
+    </div>
+    <input type="text" id="itemImg" placeholder="Image URL (Imgur/PostImage)">
+    <select id="itemCat">
+        <option value="Standard">Standard Product</option>
+        <option value="Special">Special Offer</option>
+        <option value="Discount">Discount Offer</option>
+    </select>
+    <button onclick="addStoreItem()" class="btn-blue" style="background:#00d2ff; color:black;">Add to Store</button>
+    
+    <div id="adminStoreList" style="margin-top:20px; max-height:300px; overflow-y:auto;">
+        <!-- Items listed here for deletion -->
+    </div>
+        </div>
 
     </main>
     <!-- KEEP ALL YOUR STYLES AND CARDS - REPLACE THE SCRIPT SECTION ONLY -->
@@ -455,6 +474,42 @@
     if(res.ok) notify("History Wiped!", "#ff4444");
 }
 // broadcast() function remains same as previous reply
+    async function addStoreItem() {
+    const data = {
+        name: document.getElementById('itemName').value,
+        price: document.getElementById('itemPrice').value,
+        oldPrice: document.getElementById('itemOldPrice').value,
+        image: document.getElementById('itemImg').value,
+        category: document.getElementById('itemCat').value
+    };
+    const res = await fetch(`${API}/manage-store`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ action: 'add', data })
+    });
+    if(res.ok) { notify("Product Added!"); loadAdminStore(); }
+}
+
+async function loadAdminStore() {
+    const res = await fetch(`${API}/store`);
+    const items = await res.json();
+    document.getElementById('adminStoreList').innerHTML = items.map(i => `
+        <div style="display:flex; justify-content:space-between; padding:10px; background:#000; margin-bottom:5px; border-radius:5px; border:1px solid #222;">
+            <span>${i.name} (${i.category})</span>
+            <i class="fa-solid fa-trash" onclick="deleteStoreItem('${i._id}')" style="color:red; cursor:pointer;"></i>
+        </div>
+    `).join('');
+}
+async function deleteStoreItem(id) {
+    if(!confirm("Delete Item?")) return;
+    await fetch(`${API}/manage-store`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ action: 'delete', id })
+    });
+    loadAdminStore();
+}
+// Add loadAdminStore() to your window.onload
 </script>
 
     
