@@ -131,28 +131,19 @@
     <!-- LIVE SCORE WIDGET SECTION -->
 <section class="recent-events" style="background: #050505;">
     <h2 style="text-align:center; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px;">
-        LIVE <span style="color:#ff003c">ARENA SCORES</span>
+        RECENT <span style="color:var(--accent-yellow)">ARENA RESULTS</span>
     </h2>
 
-    <!-- MINI ARENA FOR HOMEPAGE -->
-<div class="mini-leaderboard" style="max-width: 800px; border: 1px solid #ff003c44; border-radius: 15px; overflow: hidden; background: #000; position: relative;">
-    <div style="filter: invert(0.92) hue-rotate(180deg) contrast(1.2) brightness(0.8); background: #fff;">
-        <iframe 
-            src="https://livescores.biz/live" 
-            width="100%" 
-            height="500" 
-            frameborder="0" 
-            style="border:none; width: 100%;">
-        </iframe>
+    <div id="home-recent-results" class="home-tour-grid">
+        <!-- Top 5 Results injected here -->
+        <p style="text-align:center; color:#555; width:100%;">Syncing Arena Data...</p>
     </div>
-</div>
 
     <div style="text-align: center; margin-top: 30px;">
         <a href="livescores.html" class="view-all-btn" style="border-color:#ff003c; color:#ff003c;">
             VIEW ALL MATCHES <i class="fa-solid fa-tower-broadcast"></i>
         </a>
     </div>
-</section>
 </section>
 
     <!-- Blank Space (As Requested) -->
@@ -369,5 +360,40 @@ function renderHomeStoreCard(item, color, wa) {
 
 // Run when page loads
 window.addEventListener('DOMContentLoaded', loadHomeStore);
-    </script>
+      
+async function loadTop5Results() {
+    const container = document.getElementById('home-recent-results');
+    try {
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/arena-results');
+        const matches = await res.json();
+
+        // Filter for "Pass" results (where scores are not "-") and take top 5
+        const finishedMatches = matches.filter(m => m.s1 !== "-" && m.s2 !== "-").slice(0, 5);
+
+        if (finishedMatches.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#555; width:100%;">No recent results recorded.</p>';
+            return;
+        }
+
+        container.innerHTML = finishedMatches.map(m => `
+            <div class="home-tour-card" style="border-left: 3px solid var(--accent-yellow); padding: 15px; margin-bottom:10px;">
+                <div style="font-size: 0.65rem; color: #888; text-transform: uppercase; margin-bottom: 8px;">
+                    ${m.tournamentTitle} • ${m.stageName}
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 50px 1fr; align-items: center; text-align: center;">
+                    <div style="text-align: right; font-weight: 700; color: #fff;">${m.p1}</div>
+                    <div style="background: var(--accent-yellow); color: black; font-weight: 900; padding: 4px 0; border-radius: 4px; margin: 0 10px; font-size: 0.8rem;">
+                        ${m.s1} : ${m.s2}
+                    </div>
+                    <div style="text-align: left; font-weight: 700; color: #fff;">${m.p2}</div>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) { container.innerHTML = '<p style="color:red; text-align:center; width:100%;">Connection Error</p>'; }
+}
+window.addEventListener('DOMContentLoaded', loadTop5Results);
+
+
+</script>
+    
 </html>
