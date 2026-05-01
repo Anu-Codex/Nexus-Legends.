@@ -11,96 +11,33 @@
             --accent: #f8d448; --blue: #0041FF; --red: #ff4444; --green: #00ff88;
             --bg: #050505; --card: #111; --border: #222;
         }
-
-        body { 
-            background: var(--bg); color: white; font-family: 'Rajdhani', sans-serif; 
-            margin: 0; padding: 0; overflow-x: hidden;
-        }
-
-        /* --- NEW HEADER AREA --- */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        body { background: var(--bg); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        header { position: sticky; top: 0; z-index: 1000; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
         .header-brand h2 { color: var(--accent); margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
         .header-brand p { color: #555; margin: 0; font-size: 0.8rem; text-transform: uppercase; }
-
         .header-btns { display: flex; gap: 10px; }
         .header-btns button { width: auto; padding: 8px 15px; font-size: 0.8rem; }
-
-        /* --- DYNAMIC GRID LAYOUT --- */
-        .main-container {
-            padding: 25px 5%;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 20px;
-            align-items: start;
-        }
-
-        .card { 
-            background: var(--card); padding: 20px; border-radius: 12px; 
-            border: 1px solid var(--border);
-            transition: 0.3s ease;
-        }
+        .main-container { padding: 25px 5%; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; align-items: start; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); transition: 0.3s ease; }
         .card:hover { border-color: #333; transform: translateY(-3px); }
-
         h3 { margin-top: 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;}
-
-        input, select, textarea { 
-            width: 100%; padding: 12px; margin: 8px 0; background: #000; 
-            border: 1px solid #333; color: white; border-radius: 6px; 
-            font-family: inherit; outline: none; box-sizing: border-box;
-        }
-
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: white; border-radius: 6px; font-family: inherit; outline: none; box-sizing: border-box; }
         input:focus, select:focus { border-color: var(--accent); }
-
-        button { 
-            width: 100%; padding: 12px; border: none; font-weight: 700; 
-            cursor: pointer; border-radius: 6px; text-transform: uppercase; transition: 0.2s;
-        }
+        button { width: 100%; padding: 12px; border: none; font-weight: 700; cursor: pointer; border-radius: 6px; text-transform: uppercase; transition: 0.2s; }
         button:active { transform: scale(0.97); }
-
         .btn-yellow { background: var(--accent); color: black; }
         .btn-blue { background: var(--blue); color: white; }
         .btn-red { background: var(--red); color: white; }
         .btn-outline { background: transparent; border: 1px solid #444; color: #888; }
-
-        #toast {
-            position: fixed; bottom: 20px; right: 20px; padding: 15px 25px;
-            background: var(--green); color: black; border-radius: 8px;
-            font-weight: bold; transform: translateY(100px); transition: 0.4s; z-index: 2000;
-        }
-
-        @media (max-width: 600px) {
-            header { padding: 10px 15px; }
-            .header-brand h2 { font-size: 1.2rem; }
-            .dashboard-grid { grid-template-columns: 1fr; }
-            .main-container { padding: 15px; }
-        }
+        #toast { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; background: var(--green); color: black; border-radius: 8px; font-weight: bold; transform: translateY(100px); transition: 0.4s; z-index: 2000; }
+        @media (max-width: 600px) { .header-brand h2 { font-size: 1.2rem; } .dashboard-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-
     <div id="toast">Success!</div>
-
-    <!-- HEADER: Replaced the Sidebar -->
     <header>
-        <div class="header-brand">
-            <h2>NEXUS ADMIN</h2>
-            <p>Management Suite</p>
-        </div>
+        <div class="header-brand"><h2>NEXUS ADMIN</h2><p>Management Suite</p></div>
         <div class="header-btns">
             <button class="btn-outline" onclick="location.reload()">REFRESH</button>
             <button class="btn-red" onclick="window.location.href='index.html'">LOGOUT</button>
@@ -109,140 +46,106 @@
 
     <div class="main-container">
         <div class="dashboard-grid">
-            
-            <!-- CARD 1: PLAYER REGISTRATION -->
             <div class="card" style="border-left: 4px solid var(--blue);">
-                <h3 style="color:var(--blue)"><i class="fa-solid fa-user-plus"></i> Add New Player</h3>
+                <h3><i class="fa-solid fa-user-plus"></i> Add New Player</h3>
                 <input type="text" id="newPlayerName" placeholder="Enter Full Name">
                 <button onclick="addPlayer()" class="btn-blue">Register to Database</button>
             </div>
 
-            <!-- CARD 2: PLAYER SCORING -->
             <div class="card" style="border-left: 4px solid var(--green);">
                 <h3><i class="fa-solid fa-ranking-star"></i> Player Scoring</h3>
-                <select id="playerSelect"><option>Loading Arena...</option></select>
-                
+                <select id="playerSelect"><option>Loading...</option></select>
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
                     <button onclick="rankAction('update-points', {result:'win'})" style="background:var(--green); color:black;">WIN</button>
                     <button onclick="rankAction('update-points', {result:'draw'})" style="background:#555;">DRAW</button>
                     <button onclick="rankAction('update-points', {result:'loss'})" style="background:#222;">LOSS</button>
                 </div>
-
                 <div style="margin-top:15px; display:flex; gap:5px;">
                     <input type="text" id="trophyInput" placeholder="Performance (e.g. 🏆 Winner)" style="margin:0;">
                     <button onclick="updateTrophies()" class="btn-blue" style="width:80px; background:var(--accent); color:black;">SAVE</button>
                 </div>
-
                 <div style="margin-top:20px; padding-top:20px; border-top:1px solid #222;">
-                    <p style="color:var(--red); font-size:0.7rem; margin:0 0 10px; font-weight:bold;">DANGER ZONE / RESET</p>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
-                        <button onclick="rankAction('adjust-points', {wins:1, points:3})" class="btn-outline" style="color:var(--red); border-color:var(--red); font-size:0.7rem;">-1 WIN</button>
-                        <button onclick="rankAction('adjust-points', {wins:0, points:1})" class="btn-outline" style="color:orange; border-color:orange; font-size:0.7rem;">-1 PT</button>
-                    </div>
-                    <button onclick="resetAll()" class="btn-outline" style="color:#fff; border-color:#555; margin-bottom:10px; font-size:0.7rem;">
-                        <i class="fa-solid fa-rotate"></i> RESET ALL PLAYERS
-                    </button>
-                    <button onclick="deletePlayer()" class="btn-red" style="font-size:0.7rem;">
-                        <i class="fa-solid fa-trash"></i> DELETE PLAYER PERMANENTLY
-                    </button>
+                    <p style="color:var(--red); font-size:0.7rem; margin:0 0 10px; font-weight:bold;">DANGER ZONE</p>
+                    <button onclick="resetAll()" class="btn-outline" style="color:#fff; border-color:#555; margin-bottom:10px; font-size:0.7rem;">RESET ALL STATS</button>
+                    <button onclick="deletePlayer()" class="btn-red" style="font-size:0.7rem;">DELETE PLAYER</button>
                 </div>
             </div>
 
-            <!-- CARD 3: TOURNAMENT CONTROLLER -->
             <div class="card" style="border-left: 4px solid var(--accent);">
                 <h3><i class="fa-solid fa-gamepad"></i> Tournament Controller</h3>
-                <select id="tourSelect" onchange="fillTourForm()" style="border-color:var(--accent);">
-                    <option value="">+ CREATE NEW TOURNAMENT</option>
-                </select>
+                <select id="tourSelect" onchange="fillTourForm()"><option value="">+ CREATE NEW</option></select>
                 <div id="tourForm">
                     <input type="hidden" id="editId">
                     <input type="text" id="tTitle" placeholder="Tournament Name">
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                         <input type="text" id="tTeams" placeholder="Teams Count">
                         <select id="tStatus" onchange="toggleWinField()">
-                            <option value="Upcoming">Upcoming</option>
-                            <option value="Live">Live</option>
-                            <option value="Ended">Ended</option>
+                            <option value="Upcoming">Upcoming</option><option value="Live">Live</option><option value="Ended">Ended</option>
                         </select>
                     </div>
+                    <select id="tTableType">
+                        <option value="Normal">Normal Standings</option><option value="Group">Group Standings</option>
+                    </select>
                     <input type="text" id="tWinner" placeholder="Winner Name" style="display:none; border: 1px solid gold;">
-                    <input type="text" id="tJoin" placeholder="WhatsApp Join Link">
-                    <input type="text" id="tFixture" placeholder="Brackets/Fixture Link">
-                    <input type="text" id="tRoster" placeholder="Roster/Teams Link">
+                    <input type="text" id="tJoin" placeholder="WhatsApp Link">
+                    <input type="text" id="tFixture" placeholder="Fixture Link">
+                    <input type="text" id="tRoster" placeholder="Roster Link">
                     <input type="text" id="tPrize" placeholder="Prize Pool">
                     <input type="date" id="tDate">
                     <div style="display:flex; gap:10px; margin-top:10px;">
-                        <button id="subBtn" onclick="submitTour()" class="btn-yellow" style="flex:2;">Deploy to Site</button>
+                        <button id="subBtn" onclick="submitTour()" class="btn-yellow" style="flex:2;">Deploy</button>
                         <button id="delBtn" onclick="deleteTour()" class="btn-red" style="flex:1; display:none;">Del</button>
                     </div>
-                    <button onclick="resetTourForm()" style="background:none; color:#444; border:none; margin-top:10px; font-size:0.7rem;">Clear Form</button>
                 </div>
             </div>
 
-            <!-- CARD 4: ROSTER & TEAM BUILDER -->
             <div class="card" style="border-left: 4px solid #00ff88;">
                 <h3><i class="fa-solid fa-users-gear"></i> Roster & Team Builder</h3>
-                <select id="rosterTourSelect" onchange="loadRosterList()">
-                    <option value="">-- Select Tournament --</option>
-                </select>
-                <div id="rosterEditor" style="display:none; background: rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
+                <select id="rosterTourSelect" onchange="loadRosterList()"><option value="">-- Select Tournament --</option></select>
+                <div id="rosterEditor" style="display:none;">
                     <input type="text" id="rosTeam" placeholder="Team Name">
                     <input type="text" id="rosPlayer" placeholder="Player Name">
+                    <input type="text" id="rosGroup" placeholder="Assign Group (e.g. Group A)" value="Group A">
                     <button onclick="addToRoster()" class="btn-yellow" style="background:#00ff88; color:black; margin-top:10px;">ADD TO TEAM</button>
                     <div id="currentRoster" style="margin-top:20px; max-height: 200px; overflow-y: auto;"></div>
                 </div>
             </div>
 
-            <!-- CARD 5: FIXTURES & RESULTS -->
             <div class="card" style="border-left: 4px solid var(--red);">
-                <h3 style="color:var(--red)"><i class="fa-solid fa-stadium"></i> Fixtures & Results</h3>
-                <select id="fixTourSelect" onchange="loadFixtureManager()">
-                    <option value="">-- Select Tournament --</option>
-                </select>
-                <div id="fixtureEditor" style="display:none; margin-top:15px;">
-                    <div style="display:flex; gap:5px; margin-bottom:15px;">
-                        <input type="text" id="newStageName" placeholder="New Stage Name">
-                        <button onclick="manageFixture('add-stage')" class="btn-blue" style="width:100px; background:var(--red);">+ STAGE</button>
+                <h3><i class="fa-solid fa-stadium"></i> Fixtures & Results</h3>
+                <select id="fixTourSelect" onchange="loadFixtureManager()"><option value="">-- Select Tournament --</option></select>
+                <div id="fixtureEditor" style="display:none;">
+                    <div style="display:flex; gap:5px; margin: 10px 0;">
+                        <input type="text" id="newStageName" placeholder="New Stage (e.g. Group A)">
+                        <button onclick="manageFixture('add-stage')" class="btn-blue" style="width:80px; background:var(--red);">+ STAGE</button>
                     </div>
-                    <div id="stagesList" style="max-height: 400px; overflow-y: auto;"></div>
+                    <div id="stagesList"></div>
                 </div>
             </div>
 
-            <!-- CARD 6: BROADCAST CENTER -->
             <div class="card" style="border-left: 4px solid #ff00ff;">
-                <h3 style="color:#ff00ff"><i class="fa-solid fa-bullhorn"></i> Broadcast Center</h3>
-                <textarea id="annMsg" placeholder="Type message (English, Bengali, Emoji)..." style="height:80px;"></textarea>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button onclick="broadcast()" class="btn-blue" style="background:#ff00ff; flex:3;">Push</button>
-                    <button onclick="clearAnnouncements()" class="btn-outline" style="color:#ff4444; border-color:#ff4444; flex:1;">Clear</button>
-                </div>
+                <h3><i class="fa-solid fa-bullhorn"></i> Broadcast Center</h3>
+                <textarea id="annMsg" placeholder="Type message..." style="height:80px;"></textarea>
+                <button onclick="broadcast()" class="btn-blue" style="background:#ff00ff;">Push Announcement</button>
             </div>
 
-            <!-- CARD 7: STORE MANAGER -->
             <div class="card" style="border-left: 4px solid #00d2ff;">
-                <h3 style="color:#00d2ff"><i class="fa-solid fa-cart-shopping"></i> Store Manager</h3>
-                <input type="text" id="itemName" placeholder="Product Name">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <input type="text" id="itemPrice" placeholder="Price">
-                    <input type="text" id="itemOldPrice" placeholder="Old Price">
-                </div>
+                <h3><i class="fa-solid fa-cart-shopping"></i> Store Manager</h3>
+                <input type="text" id="itemName" placeholder="Product">
+                <input type="text" id="itemPrice" placeholder="Price">
                 <input type="text" id="itemImg" placeholder="Image URL">
                 <select id="itemCat">
-                    <option value="Standard">Standard</option>
-                    <option value="Special">Special</option>
-                    <option value="Discount">Discount</option>
+                    <option value="Standard">Standard</option><option value="Special">Special</option><option value="Discount">Discount</option>
                 </select>
                 <button onclick="addStoreItem()" class="btn-blue" style="background:#00d2ff; color:black;">Add Item</button>
-                <div id="adminStoreList" style="margin-top:15px; max-height:200px; overflow-y:auto;"></div>
+                <div id="adminStoreList" style="margin-top:10px;"></div>
             </div>
 
-            <!-- CARD 8: NEWSLETTER -->
             <div class="card" style="border-left: 4px solid #ffaa00;">
-                <h3 style="color:#ffaa00"><i class="fa-solid fa-envelope-open-text"></i> Newsletter Leads</h3>
-                <button onclick="loadSubscribers()" class="btn-outline" style="margin-bottom:10px;">Refresh List</button>
-                <div id="subList" style="max-height: 200px; overflow-y: auto; font-size: 0.8rem;"></div>
+                <h3><i class="fa-solid fa-envelope-open-text"></i> Newsletter</h3>
+                <button onclick="loadSubscribers()" class="btn-outline">Refresh Emails</button>
+                <div id="subList" style="margin-top:10px; max-height:150px; overflow-y:auto;"></div>
             </div>
-
         </div>
     </div>
 
@@ -265,92 +168,63 @@
                 ]);
                 document.getElementById('playerSelect').innerHTML = pRes.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
                 toursData = tRes;
-                const tourOptions = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
-                document.getElementById('tourSelect').innerHTML = '<option value="">+ CREATE NEW TOURNAMENT</option>' + tourOptions;
-                document.getElementById('rosterTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + tourOptions;
-                document.getElementById('fixTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + tourOptions;
+                const opts = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
+                document.getElementById('tourSelect').innerHTML = '<option value="">+ CREATE NEW</option>' + opts;
+                document.getElementById('rosterTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + opts;
+                document.getElementById('fixTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + opts;
                 loadAdminStore();
             } catch (e) { notify("Sync Failed", "#ff4444"); }
         }
 
         async function addPlayer() {
             const name = document.getElementById('newPlayerName').value;
-            if(!name) return alert("Enter Name");
-            const res = await fetch(`${API}/add-player`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name })
-            });
+            const res = await fetch(`${API}/add-player`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name }) });
             if(res.ok) { notify("Registered!"); document.getElementById('newPlayerName').value = ""; loadEverything(); }
         }
 
         async function rankAction(endpoint, data) {
             const name = document.getElementById('playerSelect').value;
-            const res = await fetch(`${API}/${endpoint}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, ...data })
-            });
-            if(res.ok) notify("Synchronized!");
+            await fetch(`${API}/${endpoint}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, ...data }) });
+            notify("Updated!");
         }
 
         async function updateTrophies() {
             const name = document.getElementById('playerSelect').value;
             const trophies = document.getElementById('trophyInput').value;
-            const res = await fetch(`${API}/update-trophies`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, trophies })
-            });
-            if(res.ok) { notify("Performance Saved!", "var(--accent)"); document.getElementById('trophyInput').value=""; }
+            await fetch(`${API}/update-trophies`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, trophies }) });
+            notify("Saved!");
         }
 
         async function resetAll() {
-            if (!confirm("Wipe all data?")) return;
-            const pass = prompt("Admin Password:");
-            if (pass !== "nexus2024") return alert("Denied");
-            await fetch(`${API}/reset-rankings`, { method: 'POST' });
-            loadEverything();
+            if (prompt("Type 'nexus2024' to wipe stats") === "nexus2024") {
+                await fetch(`${API}/reset-rankings`, { method: 'POST' });
+                loadEverything();
+            }
         }
 
         async function deletePlayer() {
             const name = document.getElementById('playerSelect').value;
-            if(!confirm(`Delete ${name}?`)) return;
-            await fetch(`${API}/delete-player-safe`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name })
-            });
-            loadEverything();
+            if(confirm(`Delete ${name}?`)) { await fetch(`${API}/delete-player-safe`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name }) }); loadEverything(); }
         }
 
-        function toggleWinField() {
-            document.getElementById('tWinner').style.display = (document.getElementById('tStatus').value === 'Ended') ? 'block' : 'none';
-        }
-
-        function resetTourForm() {
-            document.getElementById('editId').value = "";
-            document.querySelectorAll('#tourForm input').forEach(i => i.value = "");
-            document.getElementById('subBtn').innerText = "Deploy to Site";
-            document.getElementById('delBtn').style.display = "none";
-            toggleWinField();
-        }
+        function toggleWinField() { document.getElementById('tWinner').style.display = (document.getElementById('tStatus').value === 'Ended') ? 'block' : 'none'; }
+        function resetTourForm() { document.getElementById('editId').value = ""; document.querySelectorAll('#tourForm input').forEach(i => i.value = ""); document.getElementById('delBtn').style.display = "none"; toggleWinField(); }
 
         function fillTourForm() {
             const id = document.getElementById('tourSelect').value;
-            if(!id) { resetTourForm(); return; }
+            if(!id) return resetTourForm();
             const t = toursData.find(x => x._id === id);
             document.getElementById('editId').value = t._id;
             document.getElementById('tTitle').value = t.title;
             document.getElementById('tTeams').value = t.totalTeams;
             document.getElementById('tStatus').value = t.status;
+            document.getElementById('tTableType').value = t.tableType || "Normal";
             document.getElementById('tWinner').value = t.winner || "";
             document.getElementById('tJoin').value = t.joinLink || "";
             document.getElementById('tFixture').value = t.fixtureLink || "";
             document.getElementById('tRoster').value = t.rosterLink || "";
-            document.getElementById('tPrize').value = t.prize;
-            document.getElementById('tDate').value = t.date;
-            document.getElementById('subBtn').innerText = "Update Tournament";
+            document.getElementById('tPrize').value = t.prize || "";
+            document.getElementById('tDate').value = t.date || "";
             document.getElementById('delBtn').style.display = "block";
             toggleWinField();
         }
@@ -361,6 +235,7 @@
                 title: document.getElementById('tTitle').value,
                 totalTeams: document.getElementById('tTeams').value,
                 status: document.getElementById('tStatus').value,
+                tableType: document.getElementById('tTableType').value,
                 winner: document.getElementById('tWinner').value,
                 joinLink: document.getElementById('tJoin').value,
                 fixtureLink: document.getElementById('tFixture').value,
@@ -369,35 +244,22 @@
                 date: document.getElementById('tDate').value
             };
             const endpoint = id ? 'update-tournament' : 'manage-tournament';
-            const res = await fetch(`${API}/${endpoint}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(id ? {id, data} : data)
-            });
-            if(res.ok) { notify("Tournament Live!"); loadEverything(); }
+            await fetch(`${API}/${endpoint}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(id ? {id, data} : data) });
+            notify("Tournament Live!"); loadEverything();
         }
 
         async function deleteTour() {
-            const id = document.getElementById('editId').value;
-            if(!confirm("Delete?")) return;
-            await fetch(`${API}/delete-tournament`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id })
-            });
-            resetTourForm(); loadEverything();
+            if(confirm("Delete?")) { await fetch(`${API}/delete-tournament`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: document.getElementById('editId').value }) }); resetTourForm(); loadEverything(); }
         }
 
         async function loadRosterList() {
             const id = document.getElementById('rosterTourSelect').value;
-            const listDiv = document.getElementById('currentRoster');
             if(!id) { document.getElementById('rosterEditor').style.display="none"; return; }
             document.getElementById('rosterEditor').style.display="block";
             const t = toursData.find(x => x._id === id);
-            if(!t.roster || t.roster.length === 0) { listDiv.innerHTML = "Empty Roster"; return; }
-            listDiv.innerHTML = t.roster.map(team => `
-                <div style="background:#000; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88; display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${team.teamName}</b><br><small>${team.players.join(', ')}</small></div>
+            document.getElementById('currentRoster').innerHTML = (t.roster || []).map(team => `
+                <div style="background:#000; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88; display:flex; justify-content:space-between;">
+                    <div><b>${team.teamName}</b> (${team.groupName})<br><small>${team.players.join(', ')}</small></div>
                     <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
                 </div>
             `).join('');
@@ -407,156 +269,69 @@
             const tourId = document.getElementById('rosterTourSelect').value;
             const teamName = document.getElementById('rosTeam').value;
             const playerName = document.getElementById('rosPlayer').value;
-            if(!teamName || !playerName) return alert("Fill both fields");
-            const res = await fetch(`${API}/update-roster`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ tourId, teamName, playerName, action: 'add' })
-            });
-            if(res.ok) { await loadEverything(); loadRosterList(); }
+            const groupName = document.getElementById('rosGroup').value;
+            await fetch(`${API}/update-roster`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId, teamName, playerName, groupName, action: 'add' }) });
+            await loadEverything(); loadRosterList();
         }
 
         async function removeTeam(teamId) {
-            const tourId = document.getElementById('rosterTourSelect').value;
-            const res = await fetch(`${API}/update-roster`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ tourId, teamId, action: 'remove-team' })
-            });
-            if(res.ok) { await loadEverything(); loadRosterList(); }
+            await fetch(`${API}/update-roster`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: document.getElementById('rosterTourSelect').value, teamId, action: 'remove-team' }) });
+            await loadEverything(); loadRosterList();
         }
 
         async function loadFixtureManager() {
             const id = document.getElementById('fixTourSelect').value;
-            const listDiv = document.getElementById('stagesList');
             if(!id) { document.getElementById('fixtureEditor').style.display="none"; return; }
             document.getElementById('fixtureEditor').style.display="block";
             const t = toursData.find(x => x._id === id);
-            if(!t.fixtures || t.fixtures.length === 0) { listDiv.innerHTML = "No stages."; return; }
-            listDiv.innerHTML = t.fixtures.map(stage => `
-                <div style="background:#000; border:1px solid #333; padding:15px; border-radius:10px; margin-bottom:20px;">
+            document.getElementById('stagesList').innerHTML = (t.fixtures || []).map(stage => `
+                <div style="background:#000; border:1px solid #333; padding:15px; border-radius:10px; margin-bottom:15px;">
                     <div style="display:flex; justify-content:space-between; color:var(--red); font-weight:bold; margin-bottom:10px;">
-                        <span>${stage.stageName}</span>
-                        <i class="fa-solid fa-trash" onclick="manageFixture('delete-stage', {stageId:'${stage._id}'})" style="cursor:pointer;"></i>
+                        <span>${stage.stageName}</span><i class="fa-solid fa-trash" onclick="manageFixture('delete-stage', {stageId:'${stage._id}'})" style="cursor:pointer;"></i>
                     </div>
-                    <div id="matches_${stage._id}">
-                        ${stage.matches.map(m => `
-                            <div style="display:grid; grid-template-columns: 1fr 40px 10px 40px 1fr 40px; gap:5px; margin-bottom:8px; align-items:center;">
-                                <span style="font-size:0.7rem; text-align:right;">${m.p1}</span>
-                                <input type="text" value="${m.s1}" id="s1_${m._id}" style="padding:4px; text-align:center; margin:0;">
-                                <span>-</span>
-                                <input type="text" value="${m.s2}" id="s2_${m._id}" style="padding:4px; text-align:center; margin:0;">
-                                <span style="font-size:0.7rem;">${m.p2}</span>
-                                <button onclick="updateMatchScore('${stage._id}', '${m._id}')" style="background:var(--green); color:black; padding:5px; width:auto;"><i class="fa-solid fa-save"></i></button>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:5px; margin-top:10px; border-top:1px solid #222; padding-top:10px;">
-                    <input type="text" id="p1_${stage._id}" placeholder="T1" style="margin:0;">
-                        <input type="text" id="p2_${stage._id}" placeholder="T2" style="margin:0;">
-                        <button onclick="addMatchToStage('${stage._id}')" style="background:#444; width:40px; margin:0;">+</button>
+                    ${stage.matches.map(m => `
+                        <div style="display:grid; grid-template-columns: 1fr 40px 10px 40px 1fr 40px; gap:5px; margin-bottom:8px; align-items:center;">
+                            <span style="font-size:0.7rem; text-align:right;">${m.p1}</span>
+                            <input type="text" value="${m.s1}" id="s1_${m._id}" style="padding:4px; text-align:center; margin:0;"><span>-</span>
+                            <input type="text" value="${m.s2}" id="s2_${m._id}" style="padding:4px; text-align:center; margin:0;">
+                            <span style="font-size:0.7rem;">${m.p2}</span>
+                            <button onclick="updateMatchScore('${stage._id}', '${m._id}')" style="background:var(--green); color:black; padding:5px;"><i class="fa-solid fa-save"></i></button>
+                        </div>
+                    `).join('')}
+                    <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:5px; border-top:1px solid #222; padding-top:10px;">
+                        <input type="text" id="p1_${stage._id}" placeholder="P1"><input type="text" id="p2_${stage._id}" placeholder="P2">
+                   <button onclick="addMatchToStage('${stage._id}')" style="background:#444; width:40px;">+</button>
                     </div>
                 </div>
             `).join('');
         }
 
         async function manageFixture(action, extraData = {}) {
-            const tourId = document.getElementById('fixTourSelect').value;
-            const stageName = document.getElementById('newStageName').value;
-            const res = await fetch(`${API}/update-fixtures`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ tourId, stageName, action, ...extraData })
-            });
-            if(res.ok) { await loadEverything(); loadFixtureManager(); document.getElementById('newStageName').value=""; }
+            await fetch(`${API}/update-fixtures`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: document.getElementById('fixTourSelect').value, stageName: document.getElementById('newStageName').value, action, ...extraData }) });
+
+await loadEverything(); loadFixtureManager();
         }
 
         async function addMatchToStage(stageId) {
-            const tourId = document.getElementById('fixTourSelect').value;
-            const p1 = document.getElementById(`p1_${stageId}`).value;
-            const p2 = document.getElementById(`p2_${stageId}`).value;
-            const res = await fetch(`${API}/update-fixtures`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ tourId, stageId, action: 'add-match', matchData: { p1, p2 } })
-            });
-            if(res.ok) { await loadEverything(); loadFixtureManager(); }
+            await fetch(`${API}/update-fixtures`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: document.getElementById('fixTourSelect').value, stageId, action: 'add-match', matchData: { p1: document.getElementById(`p1_${stageId}`).value, p2: document.getElementById(`p2_${stageId}`).value } }) });
+            await loadEverything(); loadFixtureManager();
         }
 
-        async function updateMatchScore(stageId, matchId) {
-            const tourId = document.getElementById('fixTourSelect').value;
-            const s1 = document.getElementById(`s1_${matchId}`).value;
-            const s2 = document.getElementById(`s2_${matchId}`).value;
-            const res = await fetch(`${API}/update-fixtures`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ tourId, stageId, matchId, action: 'update-score', matchData: { s1, s2 } })
-            });
-            if(res.ok) notify("Result Saved!");
+async function updateMatchScore(stageId, matchId) {
+            await fetch(`${API}/update-fixtures`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: document.getElementById('fixTourSelect').value, stageId, matchId, action: 'update-score', matchData: { s1: document.getElementById(`s1_${matchId}`).value, s2: document.getElementById(`s2_${matchId}`).value } }) });
+            notify("Saved!");
         }
 
-        async function broadcast() {
-            const message = document.getElementById('annMsg').value;
-            if(!message) return alert("Type something!");
-            const res = await fetch(`${API}/announcement`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ message })
-            });
-            if(res.ok) { notify("Broadcast Live!", "#ff00ff"); document.getElementById('annMsg').value = ""; }
-        }
+        async function broadcast() { await fetch(`${API}/announcement`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: document.getElementById('annMsg').value }) }); notify("Broadcasted!"); }
+async function addStoreItem() { await fetch(`${API}/manage-store`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'add', data: { name: document.getElementById('itemName').value, price: document.getElementById('itemPrice').value, image: document.getElementById('itemImg').value, category: document.getElementById('itemCat').value } }) }); loadAdminStore(); }
+async function loadAdminStore() { const res = await fetch(`${API}/store`); const items = await res.json(); document.getElementById('adminStoreList').innerHTML = items.map(i => `<div style="padding:5px; border-bottom:1px solid #222;">${i.name} <i class="fa-solid fa-trash" onclick="deleteStoreItem('${i._id}')" style="float:right; color:red; cursor:pointer;"></i></div>`).join(''); }
+        async function deleteStoreItem(id) { await fetch(`${API}/manage-store`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'delete', id }) }); loadAdminStore(); }
 
-        async function clearAnnouncements() {
-            if(!confirm("Clear history?")) return;
-            await fetch(`${API}/clear-announcements`, { method: 'POST' });
-            notify("History Wiped!", "#ff4444");
-        }
-        async function addStoreItem() {
-            const data = {
-                name: document.getElementById('itemName').value,
-                price: document.getElementById('itemPrice').value,
-                oldPrice: document.getElementById('itemOldPrice').value,
-                image: document.getElementById('itemImg').value,
-                category: document.getElementById('itemCat').value
-            };
-            const res = await fetch(`${API}/manage-store`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: 'add', data })
-            });
-            if(res.ok) { notify("Product Added!"); loadAdminStore(); }
-        }
-
-        async function loadAdminStore() {
-            const res = await fetch(`${API}/store`);
-            const items = await res.json();
-            document.getElementById('adminStoreList').innerHTML = items.map(i => `
-                <div style="display:flex; justify-content:space-between; padding:8px; background:#000; margin-bottom:5px; border-radius:5px; border:1px solid #222; font-size:0.8rem;">
-                    <span>${i.name}</span>
-                    <i class="fa-solid fa-trash" onclick="deleteStoreItem('${i._id}')" style="color:red; cursor:pointer;"></i>
-                </div>
-                `).join('');
-        }
-
-        async function deleteStoreItem(id) {
-            if(!confirm("Delete Item?")) return;
-            await fetch(`${API}/manage-store`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: 'delete', id })
-            });
-            loadAdminStore();
-        }
-
-        async function loadSubscribers() {
-            const div = document.getElementById('subList');
-            div.innerHTML = "Fetching...";
-            const res = await fetch(`${API}/subscribers`);
-            const data = await res.json();
-            div.innerHTML = data.map(s => `<div style="padding:5px; border-bottom:1px solid #222;">${s.email}</div>`).join('');
-        }
+async function loadSubscribers() { const res = await fetch(`${API}/subscribers`); const data = await res.json(); document.getElementById('subList').innerHTML = data.map(s => `<div style="padding:5px; border-bottom:1px solid #222;">${s.email}</div>`).join(''); }
 
         window.onload = loadEverything;
     </script>
 </body>
 </html>
+
+
