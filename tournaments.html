@@ -68,19 +68,22 @@
                 allToursData = await res.json();
                 document.getElementById('tour-display').innerHTML = allToursData.map(t => {
                     let statusClass = t.status === 'Live' ? 'badge-live' : (t.status === 'Ended' ? 'badge-ended' : 'badge-upcoming');
-                    return `
-                        <div class="tour-card">
-                            <div class="status-badge ${statusClass}">${t.status}</div>
-                            <h2 class="tour-title">${t.title}</h2>
-                            <div class="tour-meta"><i class="fa-solid fa-users"></i> ${t.totalTeams} Teams</div>
-                            ${t.status === 'Ended' ? `<div class="winner-display">🏆 WINNER: ${t.winner || 'TBD'}</div>` : `<a href="${t.joinLink || '#'}" target="_blank" class="join-btn">JOIN NOW</a>`}
-                            <div class="info-row"><div class="info-box"><span>Prize Pool</span><strong>${t.prize}</strong></div><div class="info-box"><span>Date</span><strong>${t.date}</strong></div></div>
-                            <div class="footer-btns">
-                                <button onclick="openFixture('${t._id}')" class="sec-btn"><i class="fa-solid fa-sitemap"></i> BRACKETS</button>
-                                <button onclick="openStandings('${t._id}')" class="sec-btn"><i class="fa-solid fa-table-list"></i> POINTS</button>
-                                <button onclick="openRoster('${t._id}')" class="sec-btn"><i class="fa-solid fa-list-ul"></i> ROSTER</button>
-                            </div>
-                        </div>`;
+                    // Inside your loadTournaments() function, replace the return section with this:
+return `
+    <div class="tour-card">
+        <div class="status-badge ${statusClass}">${t.status}</div>
+        <h2 class="tour-title">${t.title}</h2>
+        <div class="tour-meta"><i class="fa-solid fa-users"></i> ${t.totalTeams} Teams</div>
+        ${t.status === 'Ended' ? `<div class="winner-display">🏆 WINNER: ${t.winner || 'TBD'}</div>` : `<a href="${t.joinLink || '#'}" target="_blank" class="join-btn">JOIN NOW</a>`}
+        <div class="info-row"><div class="info-box"><span>Prize Pool</span><strong>${t.prize}</strong></div><div class="info-box"><span>Date</span><strong>${t.date}</strong></div></div>
+        <div class="footer-btns">
+            <button onclick="openFixture('${t._id}')" class="sec-btn"><i class="fa-solid fa-sitemap"></i></button>
+            <button onclick="openStandings('${t._id}')" class="sec-btn"><i class="fa-solid fa-table-list"></i></button>
+            <button onclick="openRoster('${t._id}')" class="sec-btn"><i class="fa-solid fa-list-ul"></i></button>
+            <!-- NEW SHARE BUTTON -->
+            <button onclick="shareTour('${t._id}', '${t.title}')" class="sec-btn" style="color:var(--accent-yellow);"><i class="fa-solid fa-share-nodes"></i></button>
+        </div>
+    </div>`;
                 }).join('');
             } catch (e) { document.getElementById('tour-display').innerHTML = "Offline"; }
         }
