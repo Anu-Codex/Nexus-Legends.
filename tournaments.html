@@ -127,6 +127,22 @@
                 <div style="text-align:right;">${m.p1}</div><div style="text-align:center; background:var(--live-red); border-radius:3px; margin:0 5px;">${m.s1}:${m.s2}</div><div>${m.p2}</div></div>`).join('')}</div>`).join('');
             document.getElementById('fixtureOverlay').style.display = 'flex';
         }
+        // ADD THIS AT THE BOTTOM OF YOUR SCRIPT TAG
+function shareTour(tourId, title) {
+    const shareUrl = `${window.location.origin}/view-tournament.html?id=${tourId}`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `Nexus Legends: ${title}`,
+            text: `Join the ${title} Tournament on Nexus Legends!`,
+            url: shareUrl
+        }).catch(err => console.log("Share cancelled"));
+    } else {
+        // Fallback for browsers that don't support native share
+        navigator.clipboard.writeText(shareUrl);
+        alert("Tournament Link Copied to Clipboard!");
+    }
+}
 
         function toggleAccordion(el) { let list = el.nextElementSibling; list.style.maxHeight = list.style.maxHeight ? null : list.scrollHeight + "px"; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
