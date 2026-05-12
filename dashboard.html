@@ -253,18 +253,42 @@
         }
 
         async function loadRosterList() {
-            const id = document.getElementById('rosterTourSelect').value;
-            if(!id) { document.getElementById('rosterEditor').style.display="none"; return; }
-            document.getElementById('rosterEditor').style.display="block";
-            const t = toursData.find(x => x._id === id);
-            document.getElementById('currentRoster').innerHTML = (t.roster || []).map(team => `
-                <div style="background:#000; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88; display:flex; justify-content:space-between;">
-                    <div><b>${team.teamName}</b> (${team.groupName})<br><small>${team.players.join(', ')}</small></div>
-                    <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
-                </div>
-            `).join('');
-        }
+    const id = document.getElementById('rosterTourSelect').value;
+    if(!id) { document.getElementById('rosterEditor').style.display="none"; return; }
+    document.getElementById('rosterEditor').style.display="block";
+    const t = toursData.find(x => x._id === id);
+    
+    document.getElementById('currentRoster').innerHTML = (t.roster || []).map(team => `
+        <div style="background:#000; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <b id="name_${team._id}">${team.teamName}</b> (${team.groupName})<br>
+                <small>${team.players.join(', ')}</small>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <i class="fa-solid fa-pen-to-square" onclick="promptRename('${t._id}', '${team.teamName}')" style="color:var(--accent); cursor:pointer;"></i>
+                <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
+            </div>
+        </div>
+    `).join('');
+}
 
+// New function to handle the rename prompt
+async function promptRename(tourId, oldName) {
+    const newName = prompt(`Rename team "${oldName}" to:`, oldName);
+    if (!newName || newName === oldName) return;
+
+    const res = await fetch(`${API}/edit-team-name`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, oldName, newName })
+    });
+
+    if (res.ok) {
+        notify("Team Renamed Everywhere!", "var(--green)");
+        await loadEverything(); // Sync local data
+        loadRosterList(); // Refresh UI
+    }
+}
         async function addToRoster() {
             const tourId = document.getElementById('rosterTourSelect').value;
             const teamName = document.getElementById('rosTeam').value;
