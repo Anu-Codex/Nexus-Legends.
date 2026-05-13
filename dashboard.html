@@ -607,11 +607,17 @@ async function settleBets(matchId, result) {
     notify("Bets Settled & Payments Sent!", "var(--green)");
 }
         async function toggleBetStatus(matchId, status) {
-    await fetch(`${API}/predictions/toggle-status`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ matchId, status })
+    const res = await fetch(`${API}/predictions/toggle-status`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ matchId, status }) // status will be 'Available' or 'Closed'
     });
-    notify(`Match is now ${status}`);
+    
+    if (res.ok) {
+        notify(`Match is now ${status.toUpperCase()}`, status === 'Available' ? "var(--green)" : "red");
+        // We don't need to refresh the whole page, just reload the bookmaker list
+        loadBookmaker(); 
+    }
         }
         
         
