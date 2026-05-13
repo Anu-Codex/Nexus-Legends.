@@ -323,6 +323,86 @@
         async function addMatchToStage(stageId) { await fetch(`${API}/update-fixtures`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: document.getElementById('fixTourSelect').value, stageId, action: 'add-match', matchData: { p1: document.getElementById(`p1_${stageId}`).value, p2: document.getElementById(`p2_${stageId}`).value } }) }); await loadEverything(); loadFixtureManager(); }
         async function updateMatchScore(stageId, matchId) { await fetch(`${API}/update-fixtures`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: document.getElementById('fixTourSelect').value, stageId, matchId, action: 'update-score', matchData: { s1: document.getElementById(`s1_${matchId}`).value, s2: document.getElementById(`s2_${matchId}`).value } }) }); notify("Saved!"); await loadEverything(); loadFixtureManager(); }
         async function deleteProof(stageId, matchId) { if(confirm("Delete proof?")) { await fetch(`${API}/delete-evidence`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({tourId:document.getElementById('fixTourSelect').value, stageId, matchId}) }); await loadEverything(); loadFixtureManager(); } }
+        function exportTournamentPDF() {
+            const id = document.getElementById('tourSelect').value;
+            if(!id) return alert("Select a tournament first!");
+            const t = toursData.find(x => x._id === id);
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // 1. Header
+            doc.setFillColor(0, 65, 255);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.text("NEXUS LEGENDS ARENA", 105, 20, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text(t.title, 105, 32, { align: 'center' });
+            // 2. Info Section
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 15, 50);
+            doc.text(`Prize Pool: ${t.prize}`, 15, 56);
+            doc.text(`Date: ${t.date}`, 15, 62);
+
+            // 3. Points Table (STANDINGS) Calculation
+            let stats = {};
+            (t.roster || []).forEach(tm => stats[tm.teamName] = { name: tm.teamName, p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 });
+            (t.fixtures || []).forEach(stg => stg.matches.forEach(m => {
+                if(m.s1 !== "-" && m.s2 !== "-" && stats[m.p1] && stats[m.p2]){
+                    let s1 = parseInt(m.s1), s2 = parseInt(m.s2);
+                    stats[m.p1].p++; stats[m.p2].p++; stats[m.p1].gf += s1; stats[m.p1].ga += s2; stats[m.p2].gf += s2; stats[m.p2].ga += s1;
+                    if(s1 > s2){ stats[m.p1].w++; stats[m.p1].pts += 3; stats[m.p2].l++; }
+                    else if(s2 > s1){ stats[m.p2].w++; stats[m.p2].pts += 3; stats[m.p1].l++; }
+                    else { stats[m.p1].d++; stats[m.p2].d++; stats[m.p1].pts += 1; stats[m.p2].pts += 1; }
+                }
+            }));
+            const tableData = Object.values(stats)
+                .sort((a,b) => (b.pts - a.pts) || ((b.gf-b.ga)-(a.gf-a.ga)) || (b.gf-a.gf))
+                .map((s,i) => [i+1, s.name, s.p, s.w, s.d, s.l, s.gf, s.ga, s.gf-s.ga, s.pts]);
+
+            doc.autoTable({
+                head: [['#', 'TEAM', 'P', 'W', 'D', 'L', 'GF', 'GA', 'GD', 'PTS']],
+                body: tableData,
+                startY: 70,
+                theme: 'grid',
+                headStyles: { fillColor: [0, 65, 255] }
+            });
+            // 4. Fixtures Section
+            let fixturesData = [];
+            (t.fixtures || []).forEach(stg => {
+                stg.matches.forEach(m => {
+                    fixturesData.push([stg.stageName, `${m.p1} vs ${m.p2}`, `${m.s1} - ${m.s2}`]);
+                });
+            });
+            
+            if(fixturesData.length > 0) {
+                doc.text("FIXTURES & RESULTS", 15, doc.lastAutoTable.finalY + 15);
+                doc.autoTable({
+                    head: [['STAGE', 'MATCH', 'SCORE']],
+                    body: fixturesData,
+                    startY: doc.lastAutoTable.finalY + 20,
+                    theme: 'striped',
+                    headStyles: { fillColor: [255, 68, 68] }
+                });
+            }
+
+            // 5. Roster Section
+            let rosterData = (t.roster || []).map(r => [r.teamName, r.players.join(', ')]);
+            if(rosterData.length > 0) {
+                doc.addPage();
+                doc.text("TEAM ROSTERS", 15, 20);
+                doc.autoTable({
+                    head: [['TEAM', 'PLAYERS']],
+                    body: rosterData,
+                    startY: 25,
+                    theme: 'grid',
+                    headStyles: { fillColor: [0, 255, 136], textColor: [0,0,0] }
+                });
+            }
+
+            doc.save(`Nexus_${t.title}_Report.pdf`);
+        }
 
         async function broadcast() { await fetch(`${API}/announcement`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: document.getElementById('annMsg').value }) }); notify("Pushed!"); }
         async function clearAnnouncements() { if(confirm("Wipe?")) { await fetch(`${API}/clear-announcements`, { method: 'POST' }); notify("Wiped!"); } }
