@@ -57,7 +57,20 @@
     <div id="rosterOverlay" class="roster-overlay"><div class="roster-modal"><div class="roster-header"><h2 id="modalTitle" style="margin:0; font-size:1.2rem;">Roster</h2><i class="fa-solid fa-xmark" onclick="closeModal('rosterOverlay')" style="cursor:pointer; font-size:1.5rem;"></i></div><div id="modalBody" class="roster-body"></div></div></div>
     <div id="fixtureOverlay" class="roster-overlay"><div class="roster-modal" style="border-color:var(--live-red);"><div class="roster-header" style="background:var(--live-red);"><h2 id="fixtureTitle" style="margin:0; font-size:1.2rem;">Fixtures</h2><i class="fa-solid fa-xmark" onclick="closeModal('fixtureOverlay')" style="cursor:pointer; font-size:1.5rem;"></i></div><div id="fixtureBody" class="roster-body"></div></div></div>
     <div id="standingsOverlay" class="roster-overlay"><div class="roster-modal" style="border-color:var(--accent-yellow);"><div class="roster-header" style="background:var(--accent-yellow); color:black;"><h2 id="standingsTitle" style="margin:0; font-size:1.2rem;">Standings</h2><i class="fa-solid fa-xmark" onclick="closeModal('standingsOverlay')" style="cursor:pointer; font-size:1.5rem;"></i></div><div id="standingsBody" class="roster-body"></div></div></div>
-
+    <div id="applyOverlay" class="roster-overlay">
+    <div class="roster-modal" style="max-width: 400px; border-color:var(--neon-green);">
+        <div class="roster-header" style="background:var(--neon-green); color:black;">
+            <h2 style="margin:0; font-size:1.1rem;">TOURNAMENT ENTRY</h2>
+            <i class="fa-solid fa-xmark" onclick="closeApply()" style="cursor:pointer;"></i>
+        </div>
+        <div class="roster-body">
+            <p id="applyTourName" style="color:var(--neon-green); font-weight:bold; margin-bottom:20px;"></p>
+            <input type="text" id="appUserName" placeholder="Your In-Game Name" style="width:100%; padding:12px; background:#111; border:1px solid #333; color:white; border-radius:8px; margin-bottom:10px;">
+            <input type="text" id="appUserWA" placeholder="WhatsApp Number (With Country Code)" style="width:100%; padding:12px; background:#111; border:1px solid #333; color:white; border-radius:8px; margin-bottom:20px;">
+            <button onclick="submitApplication()" class="join-btn" style="border:none; cursor:pointer;">SUBMIT APPLICATION</button>
+        </div>
+    </div>
+    </div>
     <script>
         const API_URL = 'https://nl-server-k7i9.onrender.com/api/manage-tournament';
         let allToursData = [];
@@ -73,7 +86,13 @@
                             <div class="status-badge ${statusClass}">${t.status}</div>
                             <h2 class="tour-title">${t.title}</h2>
                             <div class="tour-meta"><i class="fa-solid fa-users"></i> ${t.totalTeams} Teams</div>
-                            ${t.status === 'Ended' ? `<div class="winner-display">🏆 WINNER: ${t.winner || 'TBD'}</div>` : `<a href="${t.joinLink || '#'}" target="_blank" class="join-btn">JOIN NOW</a>`}
+                            ${t.status === 'Ended' ? `<div class="winner-display">🏆 WINNER: ${t.winner || 'TBD'}</div>` : `<button onclick="openApply('${t._id}', '${t.title}')" class="join-btn">
+        <i class="fa-solid fa-file-signature"></i> APPLY FOR SLOT
+    </button>
+` : `
+    <a href="${t.joinLink || '#'}" target="_blank" class="join-btn">
+        <i class="fa-solid fa-right-to-bracket"></i> JOIN WHATSAPP
+    </a> `}
                             <div class="info-row"><div class="info-box"><span>Prize Pool</span><strong>${t.prize}</strong></div><div class="info-box"><span>Date</span><strong>${t.date}</strong></div></div>
                             <div class="footer-btns">
                                 <button onclick="openFixture('${t._id}')" class="sec-btn"><i class="fa-solid fa-sitemap"></i></button>
@@ -156,6 +175,35 @@
                 alert("Tournament Link Copied!");
             }
         }
+        let activeApplyTourId = "";
+
+function openApply(id, title) {
+    activeApplyTourId = id;
+    document.getElementById('applyTourName').innerText = title;
+    document.getElementById('applyOverlay').style.display = 'flex';
+}
+
+function closeApply() { document.getElementById('applyOverlay').style.display = 'none'; }
+
+async function submitApplication() {
+    const name = document.getElementById('appUserName').value;
+    const whatsapp = document.getElementById('appUserWA').value;
+    if(!name || !whatsapp) return alert("Fill all fields!");
+
+    const res = await fetch('https://nl-server-k7i9.onrender.com/api/apply-tournament', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId: activeApplyTourId, name, whatsapp })
+    });
+
+    if(res.ok) {
+        alert("✓ Application Sent! Admins will review and add you to the roster.");
+        closeApply();
+    } else {
+        const data = await res.json();
+        alert(data.error);
+    }
+}
 
         async function uploadProof(tourId, stageId, matchId, fileInput) {
             const file = fileInput.files[0];
