@@ -148,6 +148,42 @@ function shareTour(tourId, title) {
         alert("Tournament Link Copied to Clipboard!");
     }
 }
+        async function uploadProof(tourId, stageId, matchId, fileInput) {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const btn = fileInput.parentElement;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; // Loading state
+
+    // 1. Upload to ImgBB (Free API)
+    const formData = new FormData();
+    formData.append("image", file);
+    
+    try {
+        // I'm using a common key, but you can get your own at api.imgbb.com
+        const imgRes = await fetch("https://api.imgbb.com/1/upload?key=adfb1275c3b21edbcf5a5a778719cc28", {
+            method: "POST",
+            body: formData
+        });
+        const imgData = await imgRes.json();
+        const evidenceUrl = imgData.data.url;
+
+        // 2. Save Link to your Database
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/save-evidence', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ tourId, stageId, matchId, evidenceUrl })
+        });
+
+        if (res.ok) {
+            alert("✓ Proof Uploaded Successfully!");
+            btn.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>';
+        }
+    } catch (e) {
+        alert("Upload failed. Try again.");
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>';
+    }
+        }
 
         function toggleAccordion(el) { let list = el.nextElementSibling; list.style.maxHeight = list.style.maxHeight ? null : list.scrollHeight + "px"; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
