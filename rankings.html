@@ -51,6 +51,84 @@
             background: #444; color: white; border: none; padding: 5px 15px; 
             cursor: pointer; border-radius: 4px; margin-top: 10px; 
         }
+        /* EFOOTBALL PRO PLAYER CARD */
+.efootball-card {
+    width: 320px;
+    height: 450px;
+    margin: 0 auto;
+    background-image: url('https://i.postimg.cc/mD3WjY3m/card-frame.jpg'); /* Use the image link here */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.card-avatar {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    height: 280px;
+    object-fit: contain;
+    z-index: 1;
+    /* Optional: Add a subtle drop shadow to player */
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+}
+
+.card-info-overlay {
+    position: absolute;
+    bottom: 65px; /* Positioned right above the eFootball logo tab */
+    width: 100%;
+    text-align: center;
+    z-index: 2;
+}
+
+.card-player-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 5px rgba(0,0,0,1);
+    margin: 0;
+}
+
+.card-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 0 25px;
+    margin-top: 10px;
+}
+
+.card-stat-item {
+    text-align: center;
+}
+
+.card-stat-item small {
+    display: block;
+    font-size: 0.6rem;
+    color: var(--accent-yellow);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-stat-item b {
+    font-size: 0.9rem;
+    color: white;
+}
+
+/* Modal cleaning for card view */
+#playerCardOverlay .ann-modal {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+
     </style>
 </head>
 <body>
@@ -58,6 +136,9 @@
     <div class="ranking-container">
         <h1 style="text-align:center;">TOP <span style="color:var(--accent-yellow)">STRIKERS</span></h1>
         <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-house"></i> HOME</a>
+        <div style="margin-bottom: 20px;">
+    <input type="text" id="rankSearch" onkeyup="filterRankings()" placeholder="🔍 Search Strikers by name..." style="width:100%; padding:15px; background:#111; border:1px solid #333; color:white; border-radius:10px; font-family:inherit;">
+        </div>
         
         <div style="text-align: right; margin-bottom: 20px;">
             <button onclick="exportToPDF()" style="background:var(--accent-yellow); color:black; padding:10px 20px; font-weight:bold; border:none; cursor:pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);">
@@ -82,6 +163,13 @@
         </tr>
     </tbody>
         </table>
+        <div id="playerCardOverlay" class="roster-overlay" onclick="closePlayerCard()">
+    <div class="ann-modal" style="border-color:var(--accent-yellow); max-width:350px; background:linear-gradient(145deg, #0a0a0a, #1a1a1a);" onclick="event.stopPropagation()">
+        <div id="cardContent">
+            <!-- Professional eSports Card Content -->
+        </div>
+    </div>
+        </div>
     </div>
 
 <!-- KEEP ALL YOUR STYLES AND HTML BODY - REPLACE THE SCRIPT SECTION ONLY -->
@@ -142,6 +230,73 @@ async function loadRankings() {
     }
 }
 loadRankings();
+let allPlayers = []; // Store data for search
+
+async function loadRankings() {
+    // ... existing fetch logic ...
+    allPlayers = await response.json();
+    renderTable(allPlayers);
+}
+
+function renderTable(data) {
+    const tbody = document.getElementById('ranking-body');
+    tbody.innerHTML = data.map((player, index) => `
+        <tr class="player-row" onclick="viewPlayerCard('${player.name}')" style="cursor:pointer;">
+            <td class="rank-num">#${index + 1}</td>
+            <td>${player.name} <i class="fa-solid fa-circle-info" style="font-size:0.7rem; color:#444;"></i></td>
+            <td style="text-align:center;">${player.goalsFor || 0}</td>
+            <td style="text-align:center;">${player.goalsAgainst || 0}</td>
+            <td style="color:gold;">${player.trophies || '-'}</td>
+            <td class="pts-cell" style="text-align:right;">${player.points}</td>
+        </tr>
+    `).join('');
+}
+
+function filterRankings() {
+    const query = document.getElementById('rankSearch').value.toLowerCase();
+    const filtered = allPlayers.filter(p => p.name.toLowerCase().includes(query));
+    renderTable(filtered);
+}
+
+function viewPlayerCard(name) {
+    const p = allPlayers.find(x => x.name === name);
+    const content = document.getElementById('cardContent');
+    
+    // Using your uploaded image as the background frame
+    content.innerHTML = `
+        <div class="efootball-card">
+            <!-- Player Main Photo -->
+            <img src="${p.avatar || 'https://i.postimg.cc/85zXY7mB/default-avatar.png'}" class="card-avatar">
+            
+            <!-- Dynamic Data Overlay -->
+            <div class="card-info-overlay">
+                <h2 class="card-player-name">${p.name}</h2>
+                
+                <div class="card-stats-grid">
+                    <div class="card-stat-item">
+                        <small>STYLE</small>
+                        <b>${p.playstyle || 'BAL'}</b>
+                    </div>
+                    <div class="card-stat-item">
+                        <small>FORMATION</small>
+                        <b>${p.formation || '4-3-3'}</b>
+                    </div>
+                    <div class="card-stat-item">
+                        <small>POINTS</small>
+                        <b>${p.points}</b>
+                    </div>
+                </div>
+                
+                <div style="color:rgba(255,255,255,0.6); font-size:0.6rem; margin-top:8px; letter-spacing:2px;">
+                    NEXUS LEGENDS OFFICIAL
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('playerCardOverlay').style.display = 'flex';
+}
+function closePlayerCard() { document.getElementById('playerCardOverlay').style.display = 'none'; }
+
 </script>
 </body>
 </html>
