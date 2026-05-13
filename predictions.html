@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Center | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --nexus-orange: #ff8800; --nexus-blue: #0041FF; }
+        body { background: radial-gradient(circle at top, #1a0f00 0%, #050505 100%); color: white; font-family: 'Rajdhani', sans-serif; }
+        .pred-container { padding: 100px 5% 50px; max-width: 800px; margin: 0 auto; }
+        
+        .pred-card {
+            background: rgba(20,20,20,0.8); border: 1px solid #333; border-radius: 20px;
+            padding: 25px; margin-bottom: 25px; backdrop-filter: blur(10px);
+            position: relative; overflow: hidden;
+        }
+
+        .vs-badge { background: var(--nexus-orange); color: black; font-weight: 900; padding: 5px 12px; border-radius: 4px; font-size: 0.8rem; }
+
+        /* Hype Meter */
+        .hype-bar { width: 100%; height: 12px; background: #111; border-radius: 20px; display: flex; overflow: hidden; margin: 20px 0; border: 1px solid #222; }
+        .hype-p1 { height: 100%; background: var(--nexus-blue); transition: 0.5s; }
+        .hype-draw { height: 100%; background: #444; transition: 0.5s; }
+        .hype-p2 { height: 100%; background: var(--nexus-orange); transition: 0.5s; }
+
+        .vote-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .v-btn { 
+            background: #111; border: 1px solid #333; color: white; padding: 12px; 
+            border-radius: 10px; cursor: pointer; font-weight: 700; transition: 0.3s;
+            font-family: inherit; font-size: 0.8rem;
+        }
+        .v-btn:hover:not(:disabled) { border-color: var(--nexus-orange); background: #1a1a1a; }
+        .v-btn.voted { background: var(--nexus-orange); color: black; border-color: var(--nexus-orange); }
+        .v-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .perc-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <header style="display:flex; justify-content:space-between; align-items:center; padding:15px 5%; background:rgba(0,0,0,0.9); position:fixed; top:0; width:100%; z-index:100; border-bottom:1px solid #222;">
+        <div class="logo">NEXUS <span>PREDICTS</span></div>
+        <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-arrow-left"></i> BACK</a>
+    </header>
+
+    <div class="pred-container">
+        <h1 style="text-align:center; text-transform:uppercase; letter-spacing:4px; margin-bottom:40px;">Community <span style="color:var(--nexus-orange)">Hype Board</span></h1>
+        
+        <div id="prediction-list">
+            <p style="text-align:center; color:#555;">Scanning Arena for Active Matchups...</p>
+        </div>
+    </div>
+
+    <script>
+        const API = 'https://nl-server-k7i9.onrender.com/api';
+
+        async function loadPredictions() {
+            try {
+                const res = await fetch(`${API}/predictions`);
+                const data = await res.json();
+                const container = document.getElementById('prediction-list');
+
+                if(data.length === 0) {
+                    container.innerHTML = "<p style='text-align:center; color:#444;'>No active predictions. Check back during tournament hours!</p>";
+                    return;
+                }
+
+                container.innerHTML = data.map(p => {
+                    const total = p.votesP1 + p.votesDraw + p.votesP2 || 1;
+                    const pr1 = Math.round((p.votesP1 / total) * 100);
+                    const prD = Math.round((p.votesDraw / total) * 100);
+                    const pr2 = Math.round((p.votesP2 / total) * 100);
+
+                    const hasVoted = localStorage.getItem(`voted_${p._id}`);
+
+                    return `
+                        <div class="pred-card">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                <b style="font-size:1.2rem;">${p.p1}</b>
+                                <span class="vs-badge">VS</span>
+                                <b style="font-size:1.2rem; text-align:right;">${p.p2}</b>
+                            </div>
+
+                            <div class="hype-bar">
+                                <div class="hype-p1" style="width:${pr1}%"></div>
+                                <div class="hype-draw" style="width:${prD}%"></div>
+                                <div class="hype-p2" style="width:${pr2}%"></div>
+                            </div>
+
+                            <div style="display:flex; justify-content:space-between; margin-bottom:15px;" class="perc-label">
+                                <span>${pr1}% Win</span>
+                                <span>${prD}% Draw</span>
+                                <span>${pr2}% Win</span>
+                            </div>
+
+                            <div class="vote-btns">
+                                <button class="v-btn ${hasVoted==='p1'?'voted':''}" ${hasVoted?'disabled':''} onclick="castVote('${p._id}', 'p1')">${p.p1}</button>
+                                <button class="v-btn ${hasVoted==='draw'?'voted':''}" ${hasVoted?'disabled':''} onclick="castVote('${p._id}', 'draw')">DRAW</button>
+                                <button class="v-btn ${hasVoted==='p2'?'voted':''}" ${hasVoted?'disabled':''} onclick="castVote('${p._id}', 'p2')">${p.p2}</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        async function castVote(predId, pick) {
+            const res = await fetch(`${API}/predictions/vote`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ predId, pick })
+            });
+            if(res.ok) {
+                localStorage.setItem(`voted_${predId}`, pick);
+                loadPredictions(); // Lightning fast refresh
+            }
+        }
+
+        window.onload = loadPredictions;
+    </script>
+</body>
+</html>
