@@ -151,6 +151,16 @@
                     <button onclick="deletePlayer()" class="btn-red" style="font-size:0.7rem;">DELETE PLAYER</button>
                 </div>
             </div>
+            <!-- PLAYER PROFILE MANAGER -->
+<div class="card" style="border-left: 4px solid var(--accent);">
+    <h3><i class="fa-solid fa-id-card"></i> Profile Manager</h3>
+    <select id="profilePlayerSelect"><option>Select Player</option></select>
+    <input type="text" id="pAvatar" placeholder="Avatar Link (PNG)">
+    <input type="text" id="pStyle" placeholder="Playstyle (e.g. Quick Counter)">
+    <input type="text" id="pForm" placeholder="Fav Formation (e.g. 4-2-4)">
+    <input type="text" id="pSig" placeholder="Signature Player">
+    <button onclick="updatePlayerProfile()" class="btn-yellow">Update Card</button>
+</div>
 
             <!-- TOURNAMENT CONTROLLER -->
             <div class="card" style="border-left: 4px solid var(--accent);">
