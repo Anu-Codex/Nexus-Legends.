@@ -207,18 +207,38 @@
 
         
         async function withdrawBet(matchId) {
-    if(!confirm("Cancel bets and refund ₦?")) return;
-    const res = await fetch(`${API}/bets/withdraw`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ userId: currentUser._id, matchId })
-    });
-    const data = await res.json();
-    if(res.ok) {
-        currentUser.balance = data.newBalance;
-        localStorage.setItem('nexus_user', JSON.stringify(currentUser));
-        location.reload();
+    if (!currentUser) return alert("Please login first");
+    
+    if (!confirm("Are you sure? All slips for this match will be deleted and ₦ refunded to your balance.")) return;
+
+    try {
+        const res = await fetch(`${API}/bets/withdraw`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                userId: currentUser._id, 
+                matchId: matchId 
+            })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            // Update local storage and UI instantly
+            currentUser.balance = data.newBalance;
+            localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+            
+            alert(`✓ Refund Success! ₦${data.newBalance.toLocaleString()} is your new balance.`);
+            
+            // Refresh the list to show 0 slips and remove the withdraw button
+            location.reload(); 
+        } else {
+            alert("Withdraw Denied: " + data.error);
+        }
+    } catch (e) {
+        alert("Connection Error. Try again.");
     }
-}
+        }
 
         async function buySlip(matchId, pick, multiplier) {
             if(!currentUser) return toggleAuthModal();
