@@ -558,3 +558,9 @@ body.ann-open {
     50% { transform: scale(1.4); opacity: 0.7; }
     100% { transform: scale(1); opacity: 1; }
 }
+/* Prediction Button Hover Effect */
+.view-all-btn[style*="#ff8800"]:hover {
+    background: #ff8800;
+    color: black !important;
+    box-shadow: 0 0 20px rgba(255, 136, 0, 0.4);
+}
