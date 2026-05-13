@@ -7,31 +7,24 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Using specific version for stability -->
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+
     <style>
-        :root { --accent: #E4FF00; --blue: #0041FF; --pink: #ff00ff; }
+        :root { --accent: #E4FF00; --blue: #0041FF; }
         body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; }
         .studio-container { padding: 100px 5% 50px; max-width: 900px; margin: 0 auto; }
-        
-        .main-card { background: rgba(15,15,15,0.9); border: 1px solid #222; border-radius: 20px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        
-        /* Grid for Options */
+        .main-card { background: rgba(15,15,15,0.9); border: 1px solid #222; border-radius: 20px; padding: 30px; }
         .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
-        .opt-box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
-        .opt-box.active { border-color: var(--accent); background: rgba(228,255,0,0.05); }
-        .opt-box i { color: var(--accent); margin-bottom: 10px; font-size: 1.2rem; }
-
+        .opt-box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 10px; }
         input, select { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 6px; font-family: inherit; margin-top: 5px; }
-        
         .preview-area { margin: 20px 0; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid #222; display: none; }
         video { width: 100%; display: block; }
-
-        .btn-render { width: 100%; background: var(--accent); color: black; border: none; padding: 18px; font-weight: 800; border-radius: 10px; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-render { width: 100%; background: var(--accent); color: black; border: none; padding: 18px; font-weight: 800; border-radius: 10px; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; }
         .btn-render:disabled { opacity: 0.3; cursor: not-allowed; }
-
         .loading-zone { margin-top: 20px; display: none; }
-        .status-text { font-size: 0.8rem; color: var(--accent); text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
-        .bar-bg { width: 100%; height: 8px; background: #222; border-radius: 10px; overflow: hidden; }
+        .bar-bg { width: 100%; height: 8px; background: #222; border-radius: 10px; overflow: hidden; margin-top: 10px; }
         .bar-fill { width: 0%; height: 100%; background: var(--blue); transition: 0.3s; }
     </style>
 </head>
@@ -44,58 +37,47 @@
 
     <div class="studio-container">
         <div class="main-card">
-            <h2 style="margin:0 0 20px; text-align:center;">PRO <span style="color:var(--accent)">HIGHLIGHT EDITOR</span></h2>
+            <h2 style="margin:0 0 20px; text-align:center;">PRO <span style="color:var(--accent)">CLIP EDITOR</span></h2>
 
-            <!-- UPLOAD -->
             <div id="uploadBox" style="border: 2px dashed #333; padding: 40px; text-align: center; border-radius: 15px; cursor: pointer;" onclick="document.getElementById('vidIn').click()">
                 <i class="fa-solid fa-film" style="font-size:3rem; color:#444; margin-bottom:15px;"></i>
-                <p id="fileName">DRAG OR TAP TO SELECT MATCH CLIP</p>
-                <input type="file" id="vidIn" hidden accept="video/*">
+                <p>SELECT MATCH CLIP (MP4)</p>
+                <input type="file" id="vidIn" hidden accept="video/mp4">
             </div>
 
             <div id="editorUI" style="display:none; margin-top:30px;">
                 <div class="preview-area" id="pArea"><video id="vPreview" controls></video></div>
 
                 <div class="option-grid">
-                    <div class="opt-box">
-                        <i class="fa-solid fa-scissors"></i>
-                        <b>TRIM CLIP</b>
+                    <div class="opt-box"><b>TRIM (SECONDS)</b>
                         <div style="display:flex; gap:5px; margin-top:10px;">
-                            <input type="number" id="start" value="0" placeholder="Start">
-                            <input type="number" id="duration" value="10" placeholder="Secs">
+                            <input type="number" id="start" value="0">
+                            <input type="number" id="duration" value="10">
                         </div>
                     </div>
-                    <div class="opt-box">
-                        <i class="fa-solid fa-copyright"></i>
-                        <b>WATERMARK</b>
+                    <div class="opt-box"><b>WATERMARK</b>
                         <select id="watermark">
                             <option value="none">None</option>
                             <option value="text">"Nexus Legends" Text</option>
-                            <option value="logo">Community Logo</option>
                         </select>
                     </div>
-                    <div class="opt-box">
-                        <i class="fa-solid fa-volume-xmark"></i>
-                        <b>AUDIO</b>
+                    <div class="opt-box"><b>AUDIO</b>
                         <select id="audioOpt">
-                            <option value="keep">Keep Game Sound</option>
-                            <option value="mute">Mute (Silent)</option>
+                            <option value="keep">Keep Sound</option>
+                            <option value="mute">Mute</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="loading-zone" id="loader">
-                    <div class="status-text" id="status">Encoding Frames...</div>
+                    <div style="font-size:0.8rem; color:var(--accent); text-align:center;" id="status">Ready...</div>
                     <div class="bar-bg"><div class="bar-fill" id="fill"></div></div>
                 </div>
 
-                <button class="btn-render" id="renderBtn" onclick="renderVideo()">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Render Nexus Highlight
-                </button>
+                <button class="btn-render" id="renderBtn" onclick="renderVideo()">RENDER CLIP</button>
 
                 <div id="resultBox" style="display:none; text-align:center; margin-top:20px; padding:20px; background:rgba(0,255,136,0.1); border:1px solid #00ff88; border-radius:10px;">
-                    <p style="color:#00ff88; font-weight:bold; margin:0 0 10px;">✓ RENDER COMPLETE!</p>
-                    <a id="downloadBtn" href="#" download="nexus_pro_clip.mp4" class="cta-btn" style="background:#00ff88; color:black; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">DOWNLOAD FINAL CLIP</a>
+                    <a id="downloadBtn" href="#" download="nexus_clip.mp4" style="background:#00ff88; color:black; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">DOWNLOAD FINAL CLIP</a>
                 </div>
             </div>
         </div>
@@ -103,10 +85,13 @@
 
     <script>
         const { createFFmpeg, fetchFile } = FFmpeg;
-        const ffmpeg = createFFmpeg({ log: true });
+        // Pointing explicitly to the core for cross-origin stability
+        const ffmpeg = createFFmpeg({ 
+            log: true,
+            corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+        });
 
         const vidIn = document.getElementById('vidIn');
-        const editorUI = document.getElementById('editorUI');
         const vPreview = document.getElementById('vPreview');
         const renderBtn = document.getElementById('renderBtn');
 
@@ -115,67 +100,68 @@
             if(!file) return;
             vPreview.src = URL.createObjectURL(file);
             document.getElementById('uploadBox').style.display = 'none';
-            editorUI.style.display = 'block';
+            document.getElementById('editorUI').style.display = 'block';
             document.getElementById('pArea').style.display = 'block';
         });
 
         async function renderVideo() {
             const file = vidIn.files[0];
+            if(!file) return;
+
             renderBtn.disabled = true;
             document.getElementById('loader').style.display = 'block';
             document.getElementById('resultBox').style.display = 'none';
 
-            if (!ffmpeg.isLoaded()) {
-                document.getElementById('status').innerText = "Waking up Studio Engine...";
-                await ffmpeg.load();
+            try {
+                if (!ffmpeg.isLoaded()) {
+                    document.getElementById('status').innerText = "Loading Engine...";
+                    await ffmpeg.load();
+                }
+
+                // Cleanup old files from memory
+                try { ffmpeg.FS('unlink', 'src.mp4'); ffmpeg.FS('unlink', 'out.mp4'); } catch(e){}
+
+                document.getElementById('status').innerText = "Reading File...";
+                ffmpeg.FS('writeFile', 'src.mp4', await fetchFile(file));
+
+                const ss = document.getElementById('start').value;
+                const t = document.getElementById('duration').value;
+                const audio = document.getElementById('audioOpt').value;
+                const wm = document.getElementById('watermark').value;
+
+                ffmpeg.setProgress(({ ratio }) => {
+                    document.getElementById('fill').style.width = (ratio * 100) + "%";
+                    document.getElementById('status').innerText = `Rendering: ${Math.round(ratio * 100)}%`;
+                });
+
+                // SIMPLE COMMAND FOR SPEED
+                let args = ['-ss', ss, '-i', 'src.mp4', '-t', t];
+
+                if(wm === 'text') {
+                    args.push('-vf', "drawtext=text='NEXUS LEGENDS':x=w-tw-20:y=20:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5");
+                }
+                
+                if(audio === 'mute') args.push('-an');
+
+                // FASTEST PRESET TO PREVENT TIMEOUTS
+                args.push('-preset', 'ultrafast', '-c:v', 'libx264', 'out.mp4');
+
+                await ffmpeg.run(...args);
+
+                const data = ffmpeg.FS('readFile', 'out.mp4');
+                const blob = new Blob([data.buffer], { type: 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+                
+                document.getElementById('downloadBtn').href = url;
+                document.getElementById('resultBox').style.display = 'block';
+                document.getElementById('status').innerText = "Done!";
+            } catch (err) {
+                console.error(err);
+                alert("Render failed. Make sure your video is an MP4 and not too large.");
+            } finally {
+                renderBtn.disabled = false;
+                document.getElementById('loader').style.display = 'none';
             }
-
-            // Write source to memory
-            ffmpeg.FS('writeFile', 'src.mp4', await fetchFile(file));
-
-            const ss = document.getElementById('start').value;
-            const t = document.getElementById('duration').value;
-            const audio = document.getElementById('audioOpt').value;
-            const wm = document.getElementById('watermark').value;
-
-            // Track Progress
-            ffmpeg.setProgress(({ ratio }) => {
-                document.getElementById('fill').style.width = (ratio * 100) + "%";
-                document.getElementById('status').innerText = `Processing: ${Math.round(ratio * 100)}%`;
-            });
-
-            // BUILD THE COMMAND
-            let args = ['-i', 'src.mp4', '-ss', ss, '-t', t];
-
-            // Filter for Watermark/Text
-            if(wm === 'text') {
-                args.push('-vf', "drawtext=text='NEXUS LEGENDS':x=w-tw-20:y=20:fontsize=24:fontcolor=yellow:box=1:boxcolor=black@0.5");
-            } else if(wm === 'logo') {
-                // This assumes you have logo.png in your root.
-                // We fetch it and put it in ffmpeg memory
-                try {
-                    ffmpeg.FS('writeFile', 'logo1.png', await fetchFile('/logo1.png'));
-                    args = ['-i', 'src.mp4', '-i', 'logo.png', '-ss', ss, '-t', t, '-filter_complex', 'overlay=W-w-20:20'];
-                } catch(e) { console.log("Logo file not found in root."); }
-            }
-
-            // Audio Muting
-            if(audio === 'mute') args.push('-an');
-
-            // Quality & Output
-            args.push('-preset', 'ultrafast', '-c:v', 'libx264', 'out.mp4');
-
-            // RUN FFmpeg
-            await ffmpeg.run(...args);
-
-            // Output
-            const data = ffmpeg.FS('readFile', 'out.mp4');
-            const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
-            
-            document.getElementById('downloadBtn').href = url;
-            document.getElementById('resultBox').style.display = 'block';
-            document.getElementById('loader').style.display = 'none';
-            renderBtn.disabled = false;
         }
     </script>
 </body>
