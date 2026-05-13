@@ -129,6 +129,14 @@ return `
             document.getElementById('fixtureBody').innerHTML = (t.fixtures || []).map(s => `
                 <div style="margin-bottom:20px;"><div style="color:var(--live-red); font-weight:800; border-bottom:1px solid #333; margin-bottom:10px;">${s.stageName}</div>
                 ${s.matches.map(m => `<div style="display:grid; grid-template-columns: 1fr 50px 1fr; align-items:center; background:#111; padding:8px; border-radius:5px; margin-bottom:5px; font-size:0.8rem;">
+                // Add this next to the score divider in openFixture()
+<div class="upload-proof-btn" style="margin-left: 10px;">
+    <label style="cursor:pointer;">
+        <input type="file" accept="image/*" style="display:none;" 
+               onchange="uploadProof('${tourId}', '${stage._id}', '${m._id}', this)">
+        <i class="fa-solid fa-cloud-arrow-up" style="color:#555; font-size:0.8rem;" title="Upload Result Proof"></i>
+    </label>
+</div>
                 <div style="text-align:right;">${m.p1}</div><div style="text-align:center; background:var(--live-red); border-radius:3px; margin:0 5px;">${m.s1}:${m.s2}</div><div>${m.p2}</div></div>`).join('')}</div>`).join('');
             document.getElementById('fixtureOverlay').style.display = 'flex';
         }
