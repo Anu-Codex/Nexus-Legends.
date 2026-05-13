@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1024">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Rankings | Nexus Legends</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
@@ -48,71 +48,73 @@
 
         .status-msg { text-align: center; padding: 20px; font-weight: bold; }
         .error-msg { color: #ff4444; }
-        .retry-btn { 
-            background: #444; color: white; border: none; padding: 5px 15px; 
-            cursor: pointer; border-radius: 4px; margin-top: 10px; 
-        }
 
-        /* EFOOTBALL PRO PLAYER CARD - FIXED BACKGROUND */
+        /* --- FIXED EFOOTBALL PRO PLAYER CARD --- */
         .efootball-card {
             width: 320px;
             height: 450px;
-            margin: 0 auto;
-            /* FIXED: Updated to direct image link */
+            margin: auto;
+            /* Update the URL below with your DIRECT link from ImgBB */
             background-image: url('https://i.ibb.co/7JqBsJd3/F5k-IL2-UWUAAw-C8g.jpg');
-            background-size: 100% 100%;
+            background-size: 100% 100%; /* Forces image to fit card perfectly */
             background-repeat: no-repeat;
             background-position: center;
             position: relative;
-            border-radius: 15px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 50px rgba(0,0,0,0.9);
         }
 
         .card-avatar {
             position: absolute;
-            top: 45px;
+            top: 40px;
             left: 50%;
             transform: translateX(-50%);
-            width: 220px;
-            height: 260px;
+            width: 250px;
+            height: 280px;
             object-fit: contain;
             z-index: 1;
         }
 
         .card-info-overlay {
             position: absolute;
-            bottom: 65px;
+            bottom: 60px;
             width: 100%;
             text-align: center;
             z-index: 2;
         }
 
         .card-player-name {
-            font-size: 1.8rem;
+            font-size: 1.7rem;
             font-weight: 700;
             color: white;
             text-transform: uppercase;
-            text-shadow: 2px 2px 5px rgba(0,0,0,1);
-            margin: 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,1);
+            margin: 0 0 5px 0;
         }
 
         .card-stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            padding: 0 25px;
-            margin-top: 10px;
+            padding: 0 20px;
         }
 
-        .card-stat-item small { display: block; font-size: 0.6rem; color: var(--accent-yellow); text-transform: uppercase; }
-        .card-stat-item b { font-size: 0.9rem; color: white; }
+        .card-stat-item small { display: block; font-size: 0.55rem; color: var(--accent-yellow); text-transform: uppercase; }
+        .card-stat-item b { font-size: 0.85rem; color: white; }
 
-        #playerCardOverlay .ann-modal { background: transparent; border: none; box-shadow: none; padding: 0; }
-
+        /* --- OVERLAY CENTERED FIX --- */
         .roster-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
             display: none; align-items: center; justify-content: center; z-index: 9999;
+        }
+
+        #cardContent {
+            width: 320px;
+            height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -146,16 +148,14 @@
                 </tr>
             </thead>
             <tbody id="ranking-body">
-                <tr>
-                    <td colspan="6" class="status-msg">Synchronizing with Arena Servers...</td>
-                </tr>
+                <tr><td colspan="6" class="status-msg">Synchronizing with Arena Servers...</td></tr>
             </tbody>
         </table>
 
-        <!-- PLAYER CARD MODAL -->
+        <!-- PLAYER CARD POPUP -->
         <div id="playerCardOverlay" class="roster-overlay" onclick="closePlayerCard()">
-            <div class="ann-modal" onclick="event.stopPropagation()">
-                <div id="cardContent"></div>
+            <div id="cardContent" onclick="event.stopPropagation()">
+                <!-- Card HTML Injected Here -->
             </div>
         </div>
     </div>
@@ -164,6 +164,7 @@
 const API = "https://nl-server-k7i9.onrender.com/api";
 let allPlayers = [];
 
+// --- PDF EXPORT ---
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -176,22 +177,26 @@ function exportToPDF() {
     doc.save("Nexus_Legends_Rankings.pdf");
 }
 
+// --- LOAD DATA ---
 async function loadRankings() {
     const tbody = document.getElementById('ranking-body');
     try {
         const response = await fetch(`${API}/rankings`);
         if (!response.ok) throw new Error("Offline");
         allPlayers = await response.json();
+
         if (allPlayers.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" class="status-msg">No strikers registered.</td></tr>';
             return;
         }
+
         renderTable(allPlayers);
     } catch (error) {
         tbody.innerHTML = '<tr><td colspan="6" class="status-msg error-msg">Connection error. <button onclick="loadRankings()">Retry</button></td></tr>';
     }
 }
 
+// --- RENDER TABLE ---
 function renderTable(data) {
     const tbody = document.getElementById('ranking-body');
     tbody.innerHTML = data.map((player, index) => {
@@ -215,31 +220,34 @@ function renderTable(data) {
     }).join('');
 }
 
+// --- SEARCH ---
 function filterRankings() {
     const query = document.getElementById('rankSearch').value.toLowerCase();
     const filtered = allPlayers.filter(p => p.name.toLowerCase().includes(query));
     renderTable(filtered);
 }
 
+// --- POPUP CARD VIEW ---
 function viewPlayerCard(name) {
     const p = allPlayers.find(x => x.name === name);
     const content = document.getElementById('cardContent');
     
     content.innerHTML = `
         <div class="efootball-card">
-            <!-- Player Avatar with fallback to a transparent spacer if empty -->
+            <!-- Player Avatar -->
             <img src="${p.avatar || 'https://i.postimg.cc/85zXY7mB/default-avatar.png'}" 
                  class="card-avatar" 
                  onerror="this.src='https://i.postimg.cc/85zXY7mB/default-avatar.png'">
             
+            <!-- Card Details -->
             <div class="card-info-overlay">
                 <h2 class="card-player-name">${p.name}</h2>
                 <div class="card-stats-grid">
                     <div class="card-stat-item"><small>STYLE</small><b>${p.playstyle || 'BAL'}</b></div>
-                    <div class="card-stat-item"><small>FORMATION</small><b>${p.formation || 'DEF'}</b></div>
+                    <div class="card-stat-item"><small>FORMATION</small><b>${p.formation || '4-3-3'}</b></div>
                     <div class="card-stat-item"><small>POINTS</small><b>${p.points}</b></div>
                 </div>
-                <div style="color:rgba(255,255,255,0.6); font-size:0.6rem; margin-top:8px; letter-spacing:2px;">NEXUS LEGENDS OFFICIAL</div>
+                <div style="color:rgba(255,255,255,0.4); font-size:0.5rem; margin-top:8px; letter-spacing:2px; text-transform:uppercase;">Nexus Legends Official</div>
             </div>
         </div>
     `;
@@ -248,6 +256,7 @@ function viewPlayerCard(name) {
 
 function closePlayerCard() { document.getElementById('playerCardOverlay').style.display = 'none'; }
 
+// Start
 loadRankings();
 </script>
 </body>
