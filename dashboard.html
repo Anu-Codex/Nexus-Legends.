@@ -223,6 +223,7 @@
                 document.getElementById('tourSelect').innerHTML = '<option value="">+ CREATE NEW</option>' + opts;
                 document.getElementById('rosterTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + opts;
                 document.getElementById('fixTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + opts;
+                document.getElementById('appTourSelect').innerHTML = '<option value="">-- Select --</option>' + opts;
                 loadAdminStore();
             } catch (e) { notify("Sync Failed", "#ff4444"); console.error(e); }
         }
