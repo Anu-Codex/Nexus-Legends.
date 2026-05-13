@@ -259,17 +259,66 @@
     const t = toursData.find(x => x._id === id);
     
     document.getElementById('currentRoster').innerHTML = (t.roster || []).map(team => `
-        <div style="background:#000; padding:10px; margin-bottom:5px; border-radius:5px; border-left:3px solid #00ff88; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <b id="name_${team._id}">${team.teamName}</b> (${team.groupName})<br>
-                <small>${team.players.join(', ')}</small>
+        <div style="background:#000; padding:12px; margin-bottom:8px; border-radius:8px; border-left:3px solid #00ff88;">
+            <!-- Team Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #111; padding-bottom:5px;">
+                <b style="color:white; font-size:0.9rem;">${team.teamName} <small style="color:#555;">(${team.groupName})</small></b>
+                <div style="display:flex; gap:10px;">
+                    <i class="fa-solid fa-pen-to-square" title="Edit Team Name" onclick="promptRename('${t._id}', '${team.teamName}')" style="color:var(--accent); cursor:pointer; font-size:0.8rem;"></i>
+                    <i class="fa-solid fa-trash" title="Delete Team" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer; font-size:0.8rem;"></i>
+                </div>
             </div>
-            <div style="display:flex; gap:10px;">
-                <i class="fa-solid fa-pen-to-square" onclick="promptRename('${t._id}', '${team.teamName}')" style="color:var(--accent); cursor:pointer;"></i>
-                <i class="fa-solid fa-trash" onclick="removeTeam('${team._id}')" style="color:red; cursor:pointer;"></i>
+            <!-- Individual Players List -->
+            <div style="display:flex; flex-direction:column; gap:5px;">
+                ${team.players.map(p => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:5px 8px; border-radius:4px;">
+                        <span style="font-size:0.8rem; color:#bbb;">${p}</span>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <!-- Edit Player Name Icon -->
+                            <i class="fa-solid fa-user-pen" title="Edit Name" onclick="promptPlayerRename('${t._id}', '${p}')" style="color:var(--blue); cursor:pointer; font-size:0.7rem;"></i>
+                            <!-- NEW: Delete Individual Player Icon -->
+                            <i class="fa-solid fa-user-minus" title="Remove Player" onclick="removePlayerFromRoster('${t._id}', '${team._id}', '${p}')" style="color:#ff4444; cursor:pointer; font-size:0.7rem;"></i>
+                        </div>
+                    </div>
+                `).join('')}
             </div>
         </div>
     `).join('');
+}
+
+// New function to handle the player removal
+async function removePlayerFromRoster(tourId, teamId, playerName) {
+    if(!confirm(`Remove ${playerName} from this team?`)) return;
+
+    const res = await fetch(`${API}/remove-player-roster`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, teamId, playerName })
+    });
+
+    if (res.ok) {
+        notify("Player Removed from Roster", "#ff4444");
+        await loadEverything(); 
+        loadRosterList(); 
+    }
+}
+
+// New function to handle the player rename prompt
+async function promptPlayerRename(tourId, oldName) {
+    const newName = prompt(`Change Player Name from "${oldName}" to:`, oldName);
+    if (!newName || newName === oldName) return;
+
+    const res = await fetch(`${API}/edit-player-name`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, oldName, newName })
+    });
+
+    if (res.ok) {
+        notify("Player Name Updated Everywhere!", "var(--blue)");
+        await loadEverything(); // Sync local data
+        loadRosterList(); // Refresh UI
+    }
 }
 
 // New function to handle the rename prompt
