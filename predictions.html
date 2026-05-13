@@ -37,6 +37,9 @@
         .v-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .perc-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        .nexus-currency { color: #E4FF00; font-weight: 900; }
+.slip-badge { background: #ff8800; color: black; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+.user-bar { background: rgba(0,0,0,0.8); padding: 10px 5%; display: flex; justify-content: space-between; position: sticky; top: 70px; z-index: 99; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
@@ -44,6 +47,28 @@
     <header style="display:flex; justify-content:space-between; align-items:center; padding:15px 5%; background:rgba(0,0,0,0.9); position:fixed; top:0; width:100%; z-index:100; border-bottom:1px solid #222;">
         <div class="logo">NEXUS <span>PREDICTS</span></div>
         <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-arrow-left"></i> BACK</a>
+        <div id="authSection" class="user-bar">
+    <div id="userInfo">Welcome, Guest Strikers</div>
+    <div id="balanceDisplay" class="nexus-currency">₦ 0</div>
+    <button onclick="toggleAuthModal()" id="loginBtn" class="sec-btn" style="padding:5px 15px;">SIGN IN</button>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div id="authOverlay" class="roster-overlay">
+    <div class="roster-modal" style="max-width:350px; border-color:var(--nexus-yellow);">
+        <div class="roster-header" style="background:var(--nexus-yellow); color:black;">
+            <h2 id="authTitle">ARENA REGISTRATION</h2>
+            <i class="fa-solid fa-xmark" onclick="toggleAuthModal()"></i>
+        </div>
+        <div class="roster-body">
+            <input type="text" id="authUser" placeholder="Username">
+            <input type="password" id="authPass" placeholder="Password">
+            <button onclick="handleAuth('signup')" class="join-btn">CREATE & GET ₦10,000</button>
+            <p style="text-align:center; font-size:0.8rem; margin:10px 0;">OR</p>
+            <button onclick="handleAuth('login')" class="btn-outline" style="width:100%; border-radius:8px; padding:10px;">SIGN IN TO ACCOUNT</button>
+        </div>
+    </div>
+</div>
     </header>
 
     <div class="pred-container">
@@ -68,44 +93,63 @@
                     return;
                 }
 
-                container.innerHTML = data.map(p => {
-                    const total = p.votesP1 + p.votesDraw + p.votesP2 || 1;
-                    const pr1 = Math.round((p.votesP1 / total) * 100);
-                    const prD = Math.round((p.votesDraw / total) * 100);
-                    const pr2 = Math.round((p.votesP2 / total) * 100);
+                // Replace your loadPredictions loop with this logic:
+                container.innerHTML = data.map(p => `
+    <div class="pred-card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <b>${p.p1}</b> <span class="vs-badge">${p.oddsP1}x</span>
+            <span style="color:#444">vs</span>
+            <span class="vs-badge">${p.oddsP2}x</span> <b>${p.p2}</b>
+        </div>
+        <div class="vote-btns">
+            <button onclick="buySlip('${p._id}', 'p1', ${p.oddsP1})" class="v-btn">BET P1 (100₦)</button>
+            <button onclick="buySlip('${p._id}', 'draw', ${p.oddsDraw})" class="v-btn">BET DRAW (100₦)</button>
+            <button onclick="buySlip('${p._id}', 'p2', ${p.oddsP2})" class="v-btn">BET P2 (100₦)</button>
+        </div>
+    </div>
+`).join('');
+                let currentUser = JSON.parse(localStorage.getItem('nexus_user'));
 
-                    const hasVoted = localStorage.getItem(`voted_${p._id}`);
+function updateUI() {
+    if(currentUser) {
+        document.getElementById('userInfo').innerText = currentUser.username;
+        document.getElementById('balanceDisplay').innerText = `₦ ${currentUser.balance.toLocaleString()}`;
+        document.getElementById('loginBtn').innerText = "LOGOUT";
+        document.getElementById('loginBtn').onclick = () => { localStorage.clear(); location.reload(); };
+    }
+}
 
-                    return `
-                        <div class="pred-card">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                                <b style="font-size:1.2rem;">${p.p1}</b>
-                                <span class="vs-badge">VS</span>
-                                <b style="font-size:1.2rem; text-align:right;">${p.p2}</b>
-                            </div>
+async function handleAuth(type) {
+    const username = document.getElementById('authUser').value;
+    const password = document.getElementById('authPass').value;
+    const res = await fetch(`${API}/auth/${type}`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if(res.ok) {
+        localStorage.setItem('nexus_user', JSON.stringify(data.user));
+        location.reload();
+    } else alert(data.error);
+}
 
-                            <div class="hype-bar">
-                                <div class="hype-p1" style="width:${pr1}%"></div>
-                                <div class="hype-draw" style="width:${prD}%"></div>
-                                <div class="hype-p2" style="width:${pr2}%"></div>
-                            </div>
+async function buySlip(matchId, pick, multiplier) {
+    if(!currentUser) return toggleAuthModal();
+    
+    const res = await fetch(`${API}/bets/place`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ userId: currentUser._id, matchId, pick, slips: 1, multiplier })
+    });
+    const data = await res.json();
+    if(res.ok) {
+        currentUser.balance = data.newBalance;
+        localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+        updateUI();
+        alert("✓ Slip Purchased! 100₦ Deducted.");
+    } else alert(data.error);
+}
 
-                            <div style="display:flex; justify-content:space-between; margin-bottom:15px;" class="perc-label">
-                                <span>${pr1}% Win</span>
-                                <span>${prD}% Draw</span>
-                                <span>${pr2}% Win</span>
-                            </div>
-
-                            <div class="vote-btns">
-                                <button class="v-btn ${hasVoted==='p1'?'voted':''}" ${hasVoted?'disabled':''} onclick="castVote('${p._id}', 'p1')">${p.p1}</button>
-                                <button class="v-btn ${hasVoted==='draw'?'voted':''}" ${hasVoted?'disabled':''} onclick="castVote('${p._id}', 'draw')">DRAW</button>
-                                <button class="v-btn ${hasVoted==='p2'?'voted':''}" ${hasVoted?'disabled':''} onclick="castVote('${p._id}', 'p2')">${p.p2}</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch(e) { console.error(e); }
-        }
+                    
 
         async function castVote(predId, pick) {
             const res = await fetch(`${API}/predictions/vote`, {
