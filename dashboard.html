@@ -389,6 +389,12 @@ async function promptRename(tourId, oldName) {
                         </div>
 
                         <button onclick="updateMatchScore('${stage._id}', '${m._id}')" style="background:var(--green); color:black; padding:5px; width:auto;"><i class="fa-solid fa-save"></i></button>
+                        ${m.evidence ? `
+    <i class="fa-solid fa-eye" onclick="window.open('${m.evidence}', '_blank')" 
+       style="color:var(--green); cursor:pointer; font-size:0.9rem;" title="View Match Proof"></i>
+` : `
+    <i class="fa-solid fa-eye-slash" style="color:#222; font-size:0.9rem;" title="No proof uploaded"></i>
+`}
                     </div>
                 `).join('')}
             </div>
