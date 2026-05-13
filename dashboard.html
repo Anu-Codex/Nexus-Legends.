@@ -35,82 +35,8 @@
         .btn-outline { background: transparent; border: 1px solid #444; color: #888; }
         #toast { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; background: var(--green); color: black; border-radius: 8px; font-weight: bold; transform: translateY(100px); transition: 0.4s; z-index: 2000; }
         @media (max-width: 600px) { .header-brand h2 { font-size: 1.2rem; } .dashboard-grid { grid-template-columns: 1fr; } }
-        /* EFOOTBALL PRO PLAYER CARD */
-.efootball-card {
-    width: 320px;
-    height: 450px;
-    margin: 0 auto;
-    background-image: url('https://i.postimg.cc/CxkfL0tH/F5k-IL2UWUAAw-C8g.jpg'); /* Use the image link here */
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-    font-family: 'Rajdhani', sans-serif;
-}
+        
 
-.card-avatar {
-    position: absolute;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 240px;
-    height: 280px;
-    object-fit: contain;
-    z-index: 1;
-    /* Optional: Add a subtle drop shadow to player */
-    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
-}
-
-.card-info-overlay {
-    position: absolute;
-    bottom: 65px; /* Positioned right above the eFootball logo tab */
-    width: 100%;
-    text-align: center;
-    z-index: 2;
-}
-
-.card-player-name {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: white;
-    text-transform: uppercase;
-    text-shadow: 2px 2px 5px rgba(0,0,0,1);
-    margin: 0;
-}
-
-.card-stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    padding: 0 25px;
-    margin-top: 10px;
-}
-
-.card-stat-item {
-    text-align: center;
-}
-
-.card-stat-item small {
-    display: block;
-    font-size: 0.6rem;
-    color: var(--accent-yellow);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.card-stat-item b {
-    font-size: 0.9rem;
-    color: white;
-}
-
-/* Modal cleaning for card view */
-#playerCardOverlay .ann-modal {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-}
     </style>
 </head>
 <body>
