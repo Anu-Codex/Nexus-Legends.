@@ -149,60 +149,53 @@
         const data = await res.json();
         const container = document.getElementById('prediction-list');
 
-        if (data.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color:#444;'>No active predictions.</p>";
+        if(data.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#555;'>No active matchups found in database.</p>";
             return;
         }
 
-        // FIX 1: Fetch ALL user bets at once (if logged in) to keep it Lightning Fast
-        let allUserBets = [];
-        if (currentUser) {
-            const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`); // You'll need this route on server
-            allUserBets = await betRes.json();
+        // Fetch user bets to show slip count (Safety check for guest)
+        let userBets = [];
+        if(currentUser) {
+            const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`);
+            userBets = await betRes.json();
         }
 
-        // FIX 2: Generate HTML string properly
-        let html = "";
-        
-        data.forEach(p => {
-            // Find slips for this specific match from our pre-fetched list
-            const myMatchSlips = allUserBets.filter(b => b.matchId === p.matchId);
-            const mySlipsCount = myMatchSlips.length;
-            const isClosed = p.status === "Closed";
+        container.innerHTML = data.map(p => {
+            // "Closed" or "LOCKED" makes buttons red and disabled
+            const isLocked = (p.status === "Closed" || p.status === "LOCKED");
+            const mySlips = userBets.filter(b => b.matchId === p.matchId).length;
 
-            html += `
+            return `
                 <div class="pred-card">
-                    <div style="display:flex; justify-content:space-between; font-size:0.7rem; margin-bottom:10px;">
-                        <span style="color:${isClosed ? 'red' : '#0f8'}">● ${p.status.toUpperCase()}</span>
-                        ${mySlipsCount > 0 ? `<span class="slip-badge">${mySlipsCount} SLIPS BOUGHT</span>` : ''}
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span style="color:${isLocked ? '#ff4444' : '#00ff88'}; font-weight:bold; font-size:0.7rem;">
+                            ● ${p.status.toUpperCase()}
+                        </span>
+                        ${mySlips > 0 ? `<span class="slip-badge">${mySlips} SLIPS BOUGHT</span>` : ''}
                     </div>
                     
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin:20px 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                         <div style="text-align:center;"><b style="display:block;">${p.p1}</b><small style="color:var(--nexus-orange)">${p.oddsP1}x</small></div>
                         <span class="vs-badge">VS</span>
                         <div style="text-align:center;"><b style="display:block;">${p.p2}</b><small style="color:var(--nexus-orange)">${p.oddsP2}x</small></div>
                     </div>
 
                     <div class="vote-btns">
-                        <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn" ${isClosed ? 'disabled' : ''}>BET P1</button>
-                        <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn" ${isClosed ? 'disabled' : ''}>DRAW</button>
-                        <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn" ${isClosed ? 'disabled' : ''}>BET P2</button>
+                        <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p1}</button>
+                        <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn" ${isLocked ? 'disabled' : ''}>DRAW</button>
+                        <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p2}</button>
                     </div>
 
-                    ${mySlipsCount > 0 && !isClosed ? `
+                    ${mySlips > 0 && !isLocked ? `
                         <button onclick="withdrawBet('${p.matchId}')" style="width:100%; margin-top:10px; background:none; border:1px solid #444; color:#666; font-size:0.7rem; padding:8px; cursor:pointer; border-radius:8px;">
-                            WITHDRAW ALL BETS (REFUND ₦)
+                            WITHDRAW & REFUND ₦
                         </button>
                     ` : ''}
                 </div>
             `;
-        });
-
-        container.innerHTML = html;
-
-    } catch (e) {
-        console.error("Sync Error:", e);
-    }
+        }).join('');
+    } catch(e) { console.error("Sync Error"); }
         }
 
         
