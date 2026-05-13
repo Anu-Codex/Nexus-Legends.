@@ -458,6 +458,39 @@
     });
     if(res.ok) notify("Prediction Board Updated!", "#ff8800");
         }
+        async function addAgent() {
+    const data = {
+        name: document.getElementById('agName').value,
+        division: document.getElementById('agDiv').value,
+        basePrice: document.getElementById('agPrice').value,
+        playstyle: document.getElementById('agStyle').value,
+        whatsapp: document.getElementById('agWA').value
+    };
+    await fetch(`${API}/manage-agents`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ action: 'add', data })
+    });
+    notify("Player Listed!"); loadAdminAgents();
+}
+
+async function loadAdminAgents() {
+    const res = await fetch(`${API}/free-agents`);
+    const data = await res.json();
+    document.getElementById('adminAgentList').innerHTML = data.map(a => `
+        <div style="display:flex; justify-content:space-between; padding:8px; background:#000; margin-bottom:5px; border-radius:5px; border:1px solid #222; font-size:0.8rem;">
+            <span style="color:${a.status==='Signed'?'#555':'#0f8'}">${a.name} (${a.status})</span>
+            <div style="display:flex; gap:10px;">
+                <i class="fa-solid fa-check" onclick="signAgent('${a._id}')" style="color:cyan; cursor:pointer;"></i>
+                <i class="fa-solid fa-trash" onclick="deleteAgent('${a._id}')" style="color:red; cursor:pointer;"></i>
+            </div>
+        </div>
+    `).join('');
+}
+async function signAgent(id) { await fetch(`${API}/manage-agents`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'sign', id}) }); loadAdminAgents(); }
+async function deleteAgent(id) { await fetch(`${API}/manage-agents`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'delete', id}) }); loadAdminAgents(); }
+
+// Add loadAdminAgents() to your window.onload
         
 
         async function broadcast() { await fetch(`${API}/announcement`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: document.getElementById('annMsg').value }) }); notify("Pushed!"); }
