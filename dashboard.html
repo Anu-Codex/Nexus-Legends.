@@ -144,6 +144,21 @@
                     <div id="stagesList"></div>
                 </div>
             </div>
+            <div class="card" style="border-left: 4px solid var(--green);">
+    <h3 style="color:var(--green)"><i class="fa-solid fa-user-tie"></i> TRANSFER MARKET</h3>
+    <input type="text" id="agName" placeholder="Player Name">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <input type="text" id="agDiv" placeholder="Highest Div (e.g. Div 1)">
+        <input type="text" id="agPrice" placeholder="Base Price (e.g. 500)">
+    </div>
+    <input type="text" id="agStyle" placeholder="Playstyle (e.g. Possession)">
+    <input type="text" id="agWA" placeholder="WhatsApp Number">
+    <button onclick="addAgent()" class="btn-blue" style="background:var(--green); color:black;">List Free Agent</button>
+    
+    <div id="adminAgentList" style="margin-top:15px; max-height:200px; overflow-y:auto;">
+        <!-- Agents listed here -->
+    </div>
+            </div>
 
             <!-- BROADCAST -->
             <div class="card" style="border-left: 4px solid #ff00ff;">
