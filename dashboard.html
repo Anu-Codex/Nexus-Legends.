@@ -168,11 +168,17 @@
     </div>
             </div>
             
-            <div class="card" style="border-left: 4px solid #ff8800;">
+            <!-- NEXUS BOOKMAKER (BETTING MANAGEMENT) -->
+<div class="card" style="border-left: 4px solid #ff8800;">
     <h3 style="color:#ff8800"><i class="fa-solid fa-coins"></i> NEXUS BOOKMAKER</h3>
-    <select id="betTourSelect" onchange="loadBookmaker()"><option value="">-- Select Tour --</option></select>
-    <div id="bookmakerList" style="margin-top:15px;"></div>
-            </div>
+    <select id="betTourSelect" onchange="loadBookmaker()">
+        <option value="">-- Select Tour to Manage Bets --</option>
+    </select>
+    
+    <div id="bookmakerList" style="margin-top:15px; max-height: 400px; overflow-y: auto;">
+        <!-- Match Odds & Settle buttons load here -->
+    </div>
+</div>
 
             <!-- BROADCAST -->
             <div class="card" style="border-left: 4px solid #ff00ff;">
@@ -230,6 +236,7 @@
                 document.getElementById('rosterTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + opts;
                 document.getElementById('fixTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + opts;
                 document.getElementById('appTourSelect').innerHTML = '<option value="">-- Select --</option>' + opts;
+                document.getElementById('betTourSelect').innerHTML = '<option value="">-- Select Tour --</option>' + opts;
                 loadAdminStore();
             } catch (e) { notify("Sync Failed", "#ff4444"); console.error(e); }
         }
