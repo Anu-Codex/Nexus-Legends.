@@ -329,6 +329,9 @@
                             <div style="display:flex; gap:5px;">
                                 ${m.evidence ? `<i class="fa-solid fa-eye" onclick="window.open('${m.evidence}', '_blank')" style="color:var(--green); cursor:pointer;"></i><i class="fa-solid fa-trash-can" onclick="deleteProof('${stage._id}', '${m._id}')" style="color:var(--red); cursor:pointer;"></i>` : `<i class="fa-solid fa-eye-slash" style="color:#222;"></i>`}
                             </div>
+                            <i class="fa-solid fa-fire-flame-curved" 
+                            onclick="openPrediction('${t._id}', '${m._id}', '${m.p1}', '${m.p2}')" 
+                            style="color:#ff8800; cursor:pointer; font-size:0.9rem;" title="Open community prediction"></i>
                         </div>`).join('')}
                     <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:5px; border-top:1px solid #222; padding-top:10px;">
                         <input type="text" id="p1_${stage._id}" placeholder="T1"><input type="text" id="p2_${stage._id}" placeholder="T2"><button onclick="addMatchToStage('${stage._id}')" style="background:#444; width:40px;">+</button>
@@ -431,6 +434,14 @@
     };
     await fetch(`${API}/update-profile`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, data }) });
     notify("Profile Card Updated!");
+        }
+        async function openPrediction(tourId, matchId, p1, p2) {
+    const res = await fetch(`${API}/predictions/open`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, matchId, p1, p2 })
+    });
+    if(res.ok) notify("Prediction Board Updated!", "#ff8800");
         }
         
 
