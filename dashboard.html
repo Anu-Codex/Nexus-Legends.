@@ -493,6 +493,18 @@
 
             doc.save(`Nexus_${t.title}_Report.pdf`);
         }
+        async function updatePlayerProfile() {
+    const name = document.getElementById('profilePlayerSelect').value;
+    const data = {
+        avatar: document.getElementById('pAvatar').value,
+        playstyle: document.getElementById('pStyle').value,
+        formation: document.getElementById('pForm').value,
+        signaturePlayer: document.getElementById('pSig').value
+    };
+    await fetch(`${API}/update-profile`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, data }) });
+    notify("Profile Card Updated!");
+        }
+        
 
         async function broadcast() { await fetch(`${API}/announcement`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: document.getElementById('annMsg').value }) }); notify("Pushed!"); }
         async function clearAnnouncements() { if(confirm("Wipe?")) { await fetch(`${API}/clear-announcements`, { method: 'POST' }); notify("Wiped!"); } }
