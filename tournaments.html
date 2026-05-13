@@ -132,11 +132,16 @@
                             <div style="text-align:center; background:var(--live-red); border-radius:3px; margin:0 5px;">${m.s1}:${m.s2}</div>
                             <div style="text-align:left;">${m.p2}</div>
                             <div class="upload-proof-btn" style="text-align:right;">
-                                <label style="cursor:pointer;">
-                                    <input type="file" accept="image/*" style="display:none;" onchange="uploadProof('${tourId}', '${stage._id}', '${m._id}', this)">
-                                    <i class="fa-solid fa-cloud-arrow-up" style="color:#555; font-size:0.8rem;" title="Upload Result Proof"></i>
-                                </label>
-                            </div>
+    <label style="cursor:pointer;">
+        ${m.evidence ? `
+            <i class="fa-solid fa-circle-check" style="color:var(--neon-green)" title="Proof Submitted"></i>
+        ` : `
+            <input type="file" accept="image/*" style="display:none;" 
+                   onchange="uploadProof('${tourId}', '${stage._id}', '${m._id}', this)">
+            <i class="fa-solid fa-cloud-arrow-up" style="color:#555; font-size:0.8rem;" title="Upload Result Proof"></i>
+        `}
+    </label>
+</div>
                         </div>`).join('')}
                 </div>`).join('');
             document.getElementById('fixtureOverlay').style.display = 'flex';
