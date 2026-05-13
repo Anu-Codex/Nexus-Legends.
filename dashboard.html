@@ -167,6 +167,12 @@
         <!-- Applicants show here -->
     </div>
             </div>
+            
+            <div class="card" style="border-left: 4px solid #ff8800;">
+    <h3 style="color:#ff8800"><i class="fa-solid fa-coins"></i> NEXUS BOOKMAKER</h3>
+    <select id="betTourSelect" onchange="loadBookmaker()"><option value="">-- Select Tour --</option></select>
+    <div id="bookmakerList" style="margin-top:15px;"></div>
+            </div>
 
             <!-- BROADCAST -->
             <div class="card" style="border-left: 4px solid #ff00ff;">
@@ -549,6 +555,52 @@ async function processApp(tourId, appId, action) {
 }
 // Add 'appTourSelect' sync to your loadEverything() function
 
+async function loadBookmaker() {
+    const id = document.getElementById('betTourSelect').value;
+    const list = document.getElementById('bookmakerList');
+    if(!id) return list.innerHTML = "";
+    
+    const t = toursData.find(x => x._id === id);
+    list.innerHTML = (t.fixtures || []).flatMap(s => s.matches).map(m => `
+        <div style="background:#000; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #222;">
+            <div style="font-size:0.8rem; margin-bottom:8px;">${m.p1} vs ${m.p2}</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-bottom:10px;">
+                <input type="number" id="o1_${m._id}" placeholder="P1 Odds" step="0.1" value="2.0">
+                <input type="number" id="od_${m._id}" placeholder="Draw" step="0.1" value="3.0">
+                <input type="number" id="o2_${m._id}" placeholder="P2 Odds" step="0.1" value="2.0">
+            </div>
+            <div style="display:flex; gap:5px;">
+                <button onclick="openBetting('${t._id}','${m._id}','${m.p1}','${m.p2}')" class="btn-yellow" style="font-size:0.7rem; background:#ff8800;">OPEN BETS</button>
+                <button onclick="settleBets('${m._id}', 'p1')" class="btn-blue" style="font-size:0.7rem;">P1 WIN</button>
+                <button onclick="settleBets('${m._id}', 'draw')" class="btn-outline" style="font-size:0.7rem;">DRAW</button>
+                <button onclick="settleBets('${m._id}', 'p2')" class="btn-red" style="font-size:0.7rem;">P2 WIN</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function openBetting(tourId, matchId, p1, p2) {
+    const odds = {
+        p1: document.getElementById(`o1_${matchId}`).value,
+        draw: document.getElementById(`od_${matchId}`).value,
+        p2: document.getElementById(`o2_${matchId}`).value
+    };
+    await fetch(`${API}/predictions/open`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, matchId, p1, p2, oddsP1: odds.p1, oddsDraw: odds.draw, oddsP2: odds.p2 })
+    });
+    notify("Bets Opened with Multipliers!");
+}
+
+async function settleBets(matchId, result) {
+    if(!confirm(`Confirm ${result} as winner? This will payout all users.`)) return;
+    await fetch(`${API}/bets/settle`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ matchId, result })
+    });
+    notify("Bets Settled & Payments Sent!", "var(--green)");
+}
+        
         async function broadcast() { await fetch(`${API}/announcement`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: document.getElementById('annMsg').value }) }); notify("Pushed!"); }
         async function clearAnnouncements() { if(confirm("Wipe?")) { await fetch(`${API}/clear-announcements`, { method: 'POST' }); notify("Wiped!"); } }
         async function addStoreItem() { await fetch(`${API}/manage-store`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'add', data: { name: document.getElementById('itemName').value, price: document.getElementById('itemPrice').value, image: document.getElementById('itemImg').value, category: document.getElementById('itemCat').value } }) }); loadAdminStore(); }
