@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clip Editor | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- FFmpeg WASM Library -->
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <style>
+        :root { --accent: #E4FF00; --blue: #0041FF; }
+        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; }
+        .editor-wrap { padding: 80px 5% 40px; max-width: 800px; margin: 0 auto; }
+        .glass-card { background: rgba(20,20,20,0.8); border: 1px solid #333; padding: 25px; border-radius: 15px; text-align: center; }
+        
+        .upload-area { border: 2px dashed #444; padding: 40px; border-radius: 12px; cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
+        .upload-area:hover { border-color: var(--accent); background: rgba(228,255,0,0.05); }
+        
+        video { width: 100%; border-radius: 8px; background: #000; margin-top: 15px; display: none; border: 1px solid #222; }
+        
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        input { background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 5px; font-family: inherit; }
+        
+        .process-btn { width: 100%; background: var(--accent); color: black; border: none; padding: 15px; font-weight: 800; border-radius: 8px; cursor: pointer; margin-top: 20px; text-transform: uppercase; font-size: 1rem; }
+        .process-btn:disabled { background: #333; color: #666; cursor: wait; }
+
+        .progress-bar { width: 100%; height: 6px; background: #222; border-radius: 10px; margin-top: 15px; display: none; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: var(--blue); transition: 0.2s; }
+    </style>
+</head>
+<body>
+
+    <header style="display:flex; justify-content:space-between; align-items:center; padding: 15px 5%; background:rgba(0,0,0,0.9); position:fixed; top:0; width:100%; border-bottom: 1px solid #222;">
+        <div class="logo">NEXUS <span>EDITOR</span></div>
+        <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-house"></i> HOME</a>
+    </header>
+
+    <div class="editor-wrap">
+        <h1 style="text-align:center; text-transform:uppercase; letter-spacing:3px;">Clip <span style="color:var(--accent)">Studio</span></h1>
+        
+        <div class="glass-card">
+            <div class="upload-area" onclick="document.getElementById('videoInput').click()">
+                <i class="fa-solid fa-cloud-arrow-up" style="font-size:3rem; color:var(--accent); margin-bottom:15px;"></i>
+                <p id="uploadStatus">TAP TO SELECT MATCH CLIP (MP4)</p>
+                <input type="file" id="videoInput" hidden accept="video/mp4">
+            </div>
+
+            <video id="player" controls></video>
+
+            <div class="controls">
+                <div>
+                    <label style="font-size:0.8rem; color:#888;">START (SEC)</label>
+                    <input type="number" id="startTime" value="0">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#888;">DURATION (SEC)</label>
+                    <input type="number" id="duration" value="10">
+                </div>
+            </div>
+
+            <div class="progress-bar" id="progBar"><div class="progress-fill" id="progFill"></div></div>
+
+            <button id="runBtn" class="process-btn" onclick="processVideo()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> START EDITING
+            </button>
+            
+            <a id="downloadLink" style="display:none; margin-top:20px; color:var(--accent); text-decoration:none; font-weight:bold;">
+                <i class="fa-solid fa-download"></i> DOWNLOAD EDITED CLIP
+            </a>
+        </div>
+
+        <p style="text-align:center; color:#555; font-size:0.8rem; margin-top:20px;">
+            Processed locally on your device. Your data is private.
+        </p>
+    </div>
+
+    <script>
+        const { createFFmpeg, fetchFile } = FFmpeg;
+        const ffmpeg = createFFmpeg({ log: true });
+
+        const videoInput = document.getElementById('videoInput');
+        const player = document.getElementById('player');
+        const runBtn = document.getElementById('runBtn');
+
+        // Monitor upload
+        videoInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            player.src = URL.createObjectURL(file);
+            player.style.display = "block";
+            document.getElementById('uploadStatus').innerText = "Clip: " + file.name;
+        });
+
+        async function processVideo() {
+            const file = videoInput.files[0];
+            if (!file) return alert("Select a video first!");
+
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> INITIALIZING ENGINE...';
+
+            // 1. Load FFmpeg (if not loaded)
+            if (!ffmpeg.isLoaded()) {
+                await ffmpeg.load();
+            }
+
+            const start = document.getElementById('startTime').value;
+            const dur = document.getElementById('duration').value;
+            
+            runBtn.innerHTML = '<i class="fa-solid fa-gear fa-spin"></i> RENDERING CLIP...';
+            document.getElementById('progBar').style.display = "block";
+
+            // Track Progress
+            ffmpeg.setProgress(({ ratio }) => {
+                document.getElementById('progFill').style.width = (ratio * 100) + "%";
+            });
+
+            // 2. Write file to virtual memory
+            ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(file));
+
+            // 3. Run Command (Trim)
+            // -ss: Start time, -t: duration, -c copy: lightning fast processing (no re-encoding)
+            await ffmpeg.run('-i', 'input.mp4', '-ss', start, '-t', dur, '-c', 'copy', 'output.mp4');
+
+            // 4. Read result
+            const data = ffmpeg.FS('readFile', 'output.mp4');
+            const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+
+            // 5. Result UI
+            const dl = document.getElementById('downloadLink');
+            dl.href = url;
+            dl.download = "nexus_edited_clip.mp4";
+            dl.style.display = "block";
+            
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<i class="fa-solid fa-check"></i> EDIT COMPLETE!';
+            notify("Clip Ready for Download!");
+        }
+
+        function notify(msg) {
+            alert(msg); // You can replace this with your existing toast system
+        }
+    </script>
+</body>
+</html>
