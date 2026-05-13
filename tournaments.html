@@ -149,13 +149,36 @@
         // --- LOGIC FUNCTIONS ---
         function shareTour(id, title) { const url = `${window.location.origin}/index.html`; if (navigator.share) { navigator.share({ title, text: `Join ${title}!`, url }); } else { navigator.clipboard.writeText(url); alert("Link Copied!"); } }
         
-        function openApply(id, title) { document.getElementById('applyTourName').innerText = title; window.activeTourId = id; document.getElementById('applyOverlay').style.display = 'flex'; }
+        let activeApplyTourId = ""; // Global variable to store ID
+
+        function openApply(id, title) {
+            activeApplyTourId = id; // FIX: Set the global ID
+            document.getElementById('applyTourName').innerText = title;
+            document.getElementById('applyOverlay').style.display = 'flex';
+}
         
         async function submitApplication() {
-            const name = document.getElementById('appUserName').value, whatsapp = document.getElementById('appUserWA').value;
-            if(!name || !whatsapp) return alert("Fill fields!");
-            const res = await fetch('https://nl-server-k7i9.onrender.com/api/apply-tournament', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: window.activeTourId, name, whatsapp }) });
-            if(res.ok) { alert("Sent!"); closeModal('applyOverlay'); } else { alert("Failed"); }
+    const name = document.getElementById('appUserName').value;
+    const whatsapp = document.getElementById('appUserWA').value;
+    
+    if(!name || !whatsapp) return alert("Fill all fields!");
+
+    const res = await fetch('https://nl-server-k7i9.onrender.com/api/apply-tournament', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ 
+            tourId: activeApplyTourId, // FIX: Use the variable here
+            name: name, 
+            whatsapp: whatsapp 
+        })
+    });
+
+    if(res.ok) {
+        alert("✓ Application Sent!");
+        closeModal('applyOverlay');
+    } else {
+        alert("Submission Failed. Try again.");
+    }
         }
 
         async function uploadProof(tourId, stageId, matchId, input) {
