@@ -143,34 +143,82 @@
                 } else alert(data.error);
             } catch(e) { alert("Server Connection Failed"); }
         }
-
         async function loadPredictions() {
-            try {
-                const res = await fetch(`${API}/predictions`);
-                const data = await res.json();
-                const container = document.getElementById('prediction-list');
+    try {
+        const res = await fetch(`${API}/predictions`);
+        const data = await res.json();
+        const container = document.getElementById('prediction-list');
 
-                if(data.length === 0) {
-                    container.innerHTML = "<p style='text-align:center; color:#444;'>No active predictions. Check back during tournament hours!</p>";
-                    return;
-                }
-
-                container.innerHTML = data.map(p => `
-                    <div class="pred-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                            <div style="text-align:center;"><b style="display:block; font-size:1.1rem;">${p.p1}</b><small style="color:var(--nexus-orange)">${p.oddsP1}x</small></div>
-                            <span class="vs-badge">VS</span>
-                            <div style="text-align:center;"><b style="display:block; font-size:1.1rem;">${p.p2}</b><small style="color:var(--nexus-orange)">${p.oddsP2}x</small></div>
-                        </div>
-                        <div class="vote-btns">
-                            <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn">BET ${p.p1} (100₦)</button>
-                            <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn">BET DRAW (100₦)</button>
-                            <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn">BET ${p.p2} (100₦)</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch(e) { console.error(e); }
+        if (data.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#444;'>No active predictions.</p>";
+            return;
         }
+
+        // FIX 1: Fetch ALL user bets at once (if logged in) to keep it Lightning Fast
+        let allUserBets = [];
+        if (currentUser) {
+            const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`); // You'll need this route on server
+            allUserBets = await betRes.json();
+        }
+
+        // FIX 2: Generate HTML string properly
+        let html = "";
+        
+        data.forEach(p => {
+            // Find slips for this specific match from our pre-fetched list
+            const myMatchSlips = allUserBets.filter(b => b.matchId === p.matchId);
+            const mySlipsCount = myMatchSlips.length;
+            const isClosed = p.status === "Closed";
+
+            html += `
+                <div class="pred-card">
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem; margin-bottom:10px;">
+                        <span style="color:${isClosed ? 'red' : '#0f8'}">● ${p.status.toUpperCase()}</span>
+                        ${mySlipsCount > 0 ? `<span class="slip-badge">${mySlipsCount} SLIPS BOUGHT</span>` : ''}
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin:20px 0;">
+                        <div style="text-align:center;"><b style="display:block;">${p.p1}</b><small style="color:var(--nexus-orange)">${p.oddsP1}x</small></div>
+                        <span class="vs-badge">VS</span>
+                        <div style="text-align:center;"><b style="display:block;">${p.p2}</b><small style="color:var(--nexus-orange)">${p.oddsP2}x</small></div>
+                    </div>
+
+                    <div class="vote-btns">
+                        <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn" ${isClosed ? 'disabled' : ''}>BET P1</button>
+                        <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn" ${isClosed ? 'disabled' : ''}>DRAW</button>
+                        <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn" ${isClosed ? 'disabled' : ''}>BET P2</button>
+                    </div>
+
+                    ${mySlipsCount > 0 && !isClosed ? `
+                        <button onclick="withdrawBet('${p.matchId}')" style="width:100%; margin-top:10px; background:none; border:1px solid #444; color:#666; font-size:0.7rem; padding:8px; cursor:pointer; border-radius:8px;">
+                            WITHDRAW ALL BETS (REFUND ₦)
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+
+    } catch (e) {
+        console.error("Sync Error:", e);
+    }
+        }
+
+        
+        async function withdrawBet(matchId) {
+    if(!confirm("Cancel bets and refund ₦?")) return;
+    const res = await fetch(`${API}/bets/withdraw`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ userId: currentUser._id, matchId })
+    });
+    const data = await res.json();
+    if(res.ok) {
+        currentUser.balance = data.newBalance;
+        localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+        location.reload();
+    }
+}
 
         async function buySlip(matchId, pick, multiplier) {
             if(!currentUser) return toggleAuthModal();
