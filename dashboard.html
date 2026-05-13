@@ -192,7 +192,9 @@
                     fetch(`${API}/player-list`).then(r => r.json()),
                     fetch(`${API}/manage-tournament`).then(r => r.json())
                 ]);
-                document.getElementById('playerSelect').innerHTML = pRes.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+                const pOpts = pRes.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+                document.getElementById('playerSelect').innerHTML = pOpts;
+                document.getElementById('profilePlayerSelect').innerHTML = pOpts; // This line fix the profile manager
                 toursData = tRes;
                 const opts = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
                 document.getElementById('tourSelect').innerHTML = '<option value="">+ CREATE NEW</option>' + opts;
