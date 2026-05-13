@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Market | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --market-green: #00ff88;
+            --signed-red: #ff4444;
+            --bg-dark: #050505;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #001a11 0%, var(--bg-dark) 100%);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding-top: 80px;
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid #1a1a1a;
+            position: fixed;
+            top: 0; width: 100%; z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .market-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 5%;
+        }
+
+        .market-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .market-header h1 {
+            font-size: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin: 0;
+            color: var(--market-green);
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        /* --- Search Bar --- */
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px 15px 45px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #222;
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+        }
+
+        .search-box input:focus {
+            border-color: var(--market-green);
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* --- Agent Grid --- */
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* --- Agent Card --- */
+        .agent-card {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid #222;
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            transition: 0.3s;
+            overflow: hidden;
+        }
+
+        .agent-card:hover {
+            border-color: var(--market-green);
+            transform: translateY(-5px);
+        }
+
+        /* Status Badge */
+        .status-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .tag-available { background: var(--market-green); color: black; }
+        .tag-signed { background: #333; color: #777; }
+
+        .agent-top {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .agent-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #111, #222);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--market-green);
+            border: 1px solid #333;
+        }
+
+        .agent-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            color: #fff;
+        }
+
+        .agent-div {
+            color: #888;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Stats Grid */
+        .agent-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .stat-item span { display: block; font-size: 0.65rem; color: #555; text-transform: uppercase; }
+        .stat-item b { font-size: 1rem; color: #ddd; }
+
+        /* Contact Button */
+        .hire-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: var(--market-green);
+            color: black;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .hire-btn:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .hire-btn.disabled {
+            background: #222;
+            color: #444;
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            .market-header h1 { font-size: 2.2rem; }
+            .agent-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">NEXUS <span>LEGENDS</span></div>
+        <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;">
+            <i class="fa-solid fa-house"></i> HOME
+        </a>
+    </header>
+
+    <div class="market-container">
+        <div class="market-header">
+            <h1>Transfer <span style="color:white">Market</span></h1>
+            <p style="color: #666; letter-spacing: 2px;">SCOUT FREE AGENTS FOR YOUR AUCTION SQUAD</p>
+        </div>
+
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="agentSearch" onkeyup="filterAgents()" placeholder="Search by name, playstyle or division...">
+        </div>
+
+        <div id="agent-display" class="agent-grid">
+            <!-- Loading State -->
+            <p style="text-align:center; width:100%; color:#555;">Opening Market Database...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://nl-server-k7i9.onrender.com/api/free-agents';
+        let allAgents = [];
+
+        async function loadAgents() {
+            try {
+                const res = await fetch(API_URL);
+                allAgents = await res.json();
+                renderAgents(allAgents);
+            } catch (e) {
+                document.getElementById('agent-display').innerHTML = "<p>Market Connection Error.</p>";
+            }
+        }
+
+        function renderAgents(data) {
+            const container = document.getElementById('agent-display');
+            if (data.length === 0) {
+                container.innerHTML = "<p style='text-align:center; width:100%; color:#444;'>No agents found in the database.</p>";
+                return;
+            }
+
+            container.innerHTML = data.map(a => {
+                const isSigned = a.status === 'Signed';
+                
+                return `
+                    <div class="agent-card">
+                        <div class="status-tag ${isSigned ? 'tag-signed' : 'tag-available'}">
+                            ${a.status}
+                        </div>
+                        
+                        <div class="agent-top">
+                            <div class="agent-icon">
+                                <i class="fa-solid fa-user-ninja"></i>
+                            </div>
+                            <div>
+                                <h2 class="agent-name">${a.name}</h2>
+                                <div class="agent-div">${a.division} Player</div>
+                            </div>
+                        </div>
+
+                        <div class="agent-stats">
+                            <div class="stat-item">
+                                <span>Playstyle</span>
+                                <b>${a.playstyle}</b>
+                            </div>
+                            <div class="stat-item">
+                                <span>Base Price</span>
+                                <b style="color:var(--market-green)">${a.basePrice} <small style="font-size:0.6rem;">COINS</small></b>
+                            </div>
+                        </div>
+
+                        <a href="https://wa.me/${a.whatsapp}?text=Hello ${a.name}, I saw your profile on Nexus Legends and want to recruit you!" 
+                           target="_blank" 
+                           class="hire-btn ${isSigned ? 'disabled' : ''}">
+                            <i class="${isSigned ? 'fa-solid fa-lock' : 'fa-brands fa-whatsapp'}"></i> 
+                            ${isSigned ? 'ALREADY SIGNED' : 'CONTACT PLAYER'}
+                        </a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterAgents() {
+            const query = document.getElementById('agentSearch').value.toLowerCase();
+            const filtered = allAgents.filter(a => 
+                a.name.toLowerCase().includes(query) || 
+                a.playstyle.toLowerCase().includes(query) ||
+                a.division.toLowerCase().includes(query)
+            );
+            renderAgents(filtered);
+        }
+
+        window.onload = loadAgents;
+    </script>
+</body>
+</html>
