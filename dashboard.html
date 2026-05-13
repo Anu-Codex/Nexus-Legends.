@@ -159,6 +159,14 @@
         <!-- Agents listed here -->
     </div>
             </div>
+            <div class="card" style="border-left: 4px solid var(--accent);">
+    <h3 style="color:var(--accent)"><i class="fa-solid fa-clipboard-list"></i> APPLICATION MANAGER</h3>
+    <select id="appTourSelect" onchange="loadApplications()"><option value="">-- Select Tournament --</option></select>
+    
+    <div id="pendingList" style="margin-top:15px; max-height:300px; overflow-y:auto;">
+        <!-- Applicants show here -->
+    </div>
+            </div>
 
             <!-- BROADCAST -->
             <div class="card" style="border-left: 4px solid #ff00ff;">
@@ -491,7 +499,54 @@ async function signAgent(id) { await fetch(`${API}/manage-agents`, { method:'POS
 async function deleteAgent(id) { await fetch(`${API}/manage-agents`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'delete', id}) }); loadAdminAgents(); }
 
 // Add loadAdminAgents() to your window.onload
-        
+        async function loadApplications() {
+    const id = document.getElementById('appTourSelect').value;
+    const list = document.getElementById('pendingList');
+    if(!id) { list.innerHTML = ""; return; }
+
+    const t = toursData.find(x => x._id === id);
+    if(!t.pendingApplicants || t.pendingApplicants.length === 0) {
+        list.innerHTML = "<p style='color:#555; text-align:center;'>No pending applications.</p>";
+        return;
+    }
+
+    list.innerHTML = t.pendingApplicants.map(a => `
+        <div style="background:#000; border:1px solid #222; padding:15px; border-radius:10px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <b>${a.name}</b>
+                <a href="https://wa.me/${a.whatsapp}" target="_blank" style="color:var(--green); font-size:0.8rem;">WA: ${a.whatsapp}</a>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:10px;">
+                <input type="text" id="team_${a._id}" placeholder="Team Name" style="margin:0; padding:8px; font-size:0.7rem;">
+                <input type="text" id="group_${a._id}" placeholder="Group" value="Group A" style="margin:0; padding:8px; font-size:0.7rem;">
+            </div>
+            <div style="display:flex; gap:5px;">
+                <button onclick="processApp('${t._id}', '${a._id}', 'approve')" class="btn-blue" style="font-size:0.7rem; padding:8px; background:var(--green); color:black;">APPROVE & ADD</button>
+                <button onclick="processApp('${t._id}', '${a._id}', 'reject')" class="btn-outline" style="font-size:0.7rem; padding:8px; color:red; border-color:red;">REJECT</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function processApp(tourId, appId, action) {
+    const teamName = document.getElementById(`team_${appId}`) ? document.getElementById(`team_${appId}`).value : "";
+    const groupName = document.getElementById(`group_${appId}`) ? document.getElementById(`group_${appId}`).value : "";
+    
+    if(action === 'approve' && !teamName) return alert("Enter a Team Name first!");
+
+    const res = await fetch(`${API}/manage-applications`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, appId, action, teamName, groupName })
+    });
+    
+    if(res.ok) {
+        notify(action === 'approve' ? "Player Roster Updated!" : "Application Removed", action === 'approve' ? "var(--green)" : "red");
+        await loadEverything();
+        loadApplications();
+    }
+}
+// Add 'appTourSelect' sync to your loadEverything() function
 
         async function broadcast() { await fetch(`${API}/announcement`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: document.getElementById('annMsg').value }) }); notify("Pushed!"); }
         async function clearAnnouncements() { if(confirm("Wipe?")) { await fetch(`${API}/clear-announcements`, { method: 'POST' }); notify("Wiped!"); } }
