@@ -390,9 +390,14 @@ async function promptRename(tourId, oldName) {
 
                         <button onclick="updateMatchScore('${stage._id}', '${m._id}')" style="background:var(--green); color:black; padding:5px; width:auto;"><i class="fa-solid fa-save"></i></button>
                         ${m.evidence ? `
-    <i class="fa-solid fa-eye" onclick="window.open('${m.evidence}', '_blank')" 
-       style="color:var(--green); cursor:pointer; font-size:0.9rem;" title="View Match Proof"></i>
-` : `
+    <i class="fa-solid fa-eye" onclick="window.open('${m.evidence ? `
+    <div style="display:flex; gap:8px; align-items:center;">
+        <i class="fa-solid fa-eye" onclick="window.open('${m.evidence}', '_blank')" 
+           style="color:var(--green); cursor:pointer;" title="View Proof"></i>
+        <i class="fa-solid fa-trash-can" onclick="deleteProof('${stage._id}', '${m._id}')" 
+           style="color:var(--red); cursor:pointer; font-size:0.8rem;" title="Delete Proof"></i>
+    </div>
+` : ''}
     <i class="fa-solid fa-eye-slash" style="color:#222; font-size:0.9rem;" title="No proof uploaded"></i>
 `}
                     </div>
@@ -440,6 +445,22 @@ await loadEverything(); loadFixtureManager();
 async function updateMatchScore(stageId, matchId) {
             await fetch(`${API}/update-fixtures`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: document.getElementById('fixTourSelect').value, stageId, matchId, action: 'update-score', matchData: { s1: document.getElementById(`s1_${matchId}`).value, s2: document.getElementById(`s2_${matchId}`).value } }) });
             notify("Saved!");
+        }
+        async function deleteProof(stageId, matchId) {
+    if(!confirm("Delete this match proof? This will allow the player to upload again.")) return;
+    
+    const tourId = document.getElementById('fixTourSelect').value;
+    const res = await fetch(`${API}/delete-evidence`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tourId, stageId, matchId })
+    });
+
+    if (res.ok) {
+        notify("Proof Deleted!", "var(--red)");
+        await loadEverything();
+        loadFixtureManager();
+    }
         }
 
         async function broadcast() { await fetch(`${API}/announcement`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: document.getElementById('annMsg').value }) }); notify("Broadcasted!"); }
