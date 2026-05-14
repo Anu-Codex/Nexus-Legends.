@@ -7,96 +7,145 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
-        :root { --nexus-orange: #ff8800; --nexus-blue: #0041FF; --nexus-yellow: #E4FF00; }
-        body { background: radial-gradient(circle at top, #1a0f00 0%, #050505 100%); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding-top: 130px; }
+        :root { --nexus-orange: #ff8800; --nexus-blue: #0041FF; --nexus-yellow: #E4FF00; --nexus-green: #00ff88; }
+        body { background: radial-gradient(circle at top, #1a0f00 0%, #050505 100%); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding-top: 120px; }
         
-        /* --- USER BAR --- */
-        .user-bar { 
-            background: rgba(0,0,0,0.9); padding: 10px 5%; 
-            display: flex; justify-content: space-between; align-items: center;
-            position: fixed; top: 60px; width: 100%; z-index: 99; 
-            border-bottom: 1px solid #222; box-sizing: border-box;
-            backdrop-filter: blur(10px);
-        }
-        .nexus-currency { color: var(--nexus-yellow); font-weight: 900; font-size: 1.2rem; }
-
+        /* --- UNIFIED PREMIUM HEADER --- */
         header { 
-            display:flex; justify-content:space-between; align-items:center; 
-            padding:15px 5%; background:rgba(0,0,0,1); 
-            position:fixed; top:0; width:100%; z-index:100; 
-            border-bottom:1px solid #222; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px 5%; background: #000; 
+            position: fixed; top: 0; width: 100%; z-index: 1000; 
+            border-bottom: 1px solid #1a1a1a; box-sizing: border-box;
+        }
+        .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; }
+        .logo span { color: var(--nexus-yellow); }
+        .back-link { color: #888; text-decoration: none; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; transition: 0.3s; }
+        .back-link:hover { color: white; }
+
+        /* --- DYNAMIC USER DASHBOARD --- */
+        .user-dashboard {
+            position: fixed; top: 55px; width: 100%; z-index: 999;
+            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid #222; padding: 10px 5%; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .pred-container { padding: 20px 5%; max-width: 800px; margin: 0 auto; }
+        .user-meta { display: flex; flex-direction: column; }
+        #userInfo { font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+        #balanceDisplay { color: var(--nexus-yellow); font-weight: 900; font-size: 1.2rem; text-shadow: 0 0 10px rgba(228, 255, 0, 0.2); }
+
+        .action-tray { display: flex; gap: 8px; align-items: center; }
         
+        /* Reward Buttons */
+        .reward-btn {
+            padding: 6px 12px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;
+            cursor: pointer; border: 1px solid transparent; text-transform: uppercase;
+            transition: 0.3s; display: none; /* Shown via JS */
+        }
+        #dailyBtn { background: #1a1a1a; border-color: var(--nexus-yellow); color: var(--nexus-yellow); }
+        #adBtn { background: #1a1a1a; border-color: var(--nexus-green); color: var(--nexus-green); box-shadow: 0 0 10px rgba(0, 255, 136, 0.1); }
+        
+        .auth-trigger {
+            background: var(--nexus-blue); color: white; padding: 6px 15px;
+            border-radius: 4px; border: none; font-weight: 800; font-size: 0.7rem;
+            cursor: pointer; text-transform: uppercase;
+        }
+
+        /* --- PREDICTIONS UI --- */
+        .pred-container { padding: 20px 5%; max-width: 800px; margin: 0 auto; }
         .pred-card {
             background: rgba(20,20,20,0.8); border: 1px solid #333; border-radius: 20px;
             padding: 25px; margin-bottom: 25px; backdrop-filter: blur(10px);
             position: relative; overflow: hidden;
         }
-
+        .status-tag { position: absolute; top: 15px; left: 20px; font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; }
+        .slip-badge { position: absolute; top: 15px; right: 20px; background: var(--nexus-orange); color: black; padding: 3px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 800; }
+        
         .vs-badge { background: var(--nexus-orange); color: black; font-weight: 900; padding: 5px 12px; border-radius: 4px; font-size: 0.8rem; }
-
         .vote-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
         .v-btn { 
             background: #111; border: 1px solid #333; color: white; padding: 12px; 
             border-radius: 10px; cursor: pointer; font-weight: 700; transition: 0.3s;
             font-family: inherit; font-size: 0.7rem; text-transform: uppercase;
         }
-        .v-btn:hover { border-color: var(--nexus-orange); background: #1a1a1a; }
+        .v-btn:hover:not(:disabled) { border-color: var(--nexus-orange); background: #1a1a1a; }
+        .v-btn:disabled { opacity: 0.3; }
 
-        /* --- MODAL SYSTEM --- */
+        /* MODAL FIX */
         .roster-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
             display: none; align-items: center; justify-content: center; z-index: 9999;
         }
-        .roster-modal {
-            background: #0a0a0a; border: 1px solid var(--nexus-yellow);
-            width: 90%; max-width: 350px; border-radius: 20px; overflow: hidden;
-        }
-        .roster-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .roster-body { padding: 20px; }
-        .roster-body input { 
-            width: 100%; padding: 12px; margin-bottom: 10px; 
-            background: #000; border: 1px solid #333; color: white; 
-            border-radius: 8px; font-family: inherit; box-sizing: border-box;
-        }
+        .roster-modal { background: #0a0a0a; border: 1px solid var(--nexus-yellow); width: 90%; max-width: 350px; border-radius: 20px; overflow: hidden; }
+        .roster-body { padding: 25px; }
+        .roster-body input { width: 100%; padding: 12px; margin-bottom: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 8px; font-family: inherit; }
+        
+        .join-btn { width: 100%; background: var(--nexus-yellow); color: black; border: none; padding: 14px; font-weight: 800; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
 
-        .join-btn { 
-            width: 100%; background: var(--nexus-yellow); color: black; 
-            border: none; padding: 12px; font-weight: 800; border-radius: 8px; cursor: pointer;
+        @media (max-width: 400px) {
+            #userInfo { display: none; } /* Hide text on tiny screens to save space */
+            .user-dashboard { padding: 10px 15px; }
         }
-        .sec-btn { background: #1a1a1a; color: white; border: 1px solid #333; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">NEXUS <span>PREDICTS</span></div>
-        <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-arrow-left"></i> BACK</a>
+        <a href="index.html" class="back-link"><i class="fa-solid fa-chevron-left"></i> Back to Home</a>
     </header>
 
-    <div id="authSection" class="user-bar">
-        <div id="userInfo" style="font-weight:bold; color:#888;">Welcome, Guest Striker</div>
-        <div id="balanceDisplay" class="nexus-currency">₦ 0</div>
-        <button onclick="toggleAuthModal()" id="loginBtn" class="sec-btn" style="padding:5px 15px;">SIGN IN</button>
+    <div class="user-dashboard">
+        <div class="user-meta">
+            <span id="userInfo">Guest Striker</span>
+            <div id="balanceDisplay">₦ 0</div>
+        </div>
+        
+        <div class="action-tray">
+            <!-- These show up only when logged in -->
+            <button id="dailyBtn" onclick="claimDaily()" class="reward-btn">Daily</button>
+            <button id="adBtn" onclick="openAdArea()" class="reward-btn">Free ₦</button>
+            <!-- Sign In / Logout -->
+            <button onclick="toggleAuthModal()" id="loginBtn" class="auth-trigger">Sign In</button>
+        </div>
     </div>
 
-    <!-- SIGNUP/LOGIN MODAL -->
+    <!-- AUTH MODAL -->
     <div id="authOverlay" class="roster-overlay">
         <div class="roster-modal">
-            <div class="roster-header" style="background:var(--nexus-yellow); color:black;">
-                <h2 style="margin:0; font-size:1.1rem;">ARENA AUTHENTICATION</h2>
+            <div style="background:var(--nexus-yellow); padding: 15px 20px; color:black; display:flex; justify-content:space-between; align-items:center;">
+                <b style="letter-spacing:1px;">ARENA AUTH</b>
                 <i class="fa-solid fa-xmark" onclick="toggleAuthModal()" style="cursor:pointer;"></i>
             </div>
-            <div class="roster-body">
-                <input type="text" id="authUser" placeholder="Username">
-                <input type="password" id="authPass" placeholder="Password">
-                <button onclick="handleAuth('signup')" class="join-btn">CREATE & GET ₦10,000</button>
-                <div style="text-align:center; margin:15px 0; font-size:0.7rem; color:#555;">OR</div>
-                <button onclick="handleAuth('login')" style="background:transparent; color:white; border:1px solid #444; width:100%; padding:10px; border-radius:8px; cursor:pointer; font-family:inherit;">SIGN IN TO EXISTING</button>
+            <div class="roster-body" id="otpStep1">
+                <input type="email" id="authEmail" placeholder="Enter Email Address">
+                <button onclick="requestOTP('signup')" id="otpBtn" class="join-btn">Register & Get ₦10k</button>
+                <div style="text-align:center; margin:12px 0; font-size:0.7rem; color:#444; font-weight:bold;">OR</div>
+                <button onclick="requestOTP('login')" style="background:transparent; color:white; border:1px solid #333; width:100%; padding:10px; border-radius:8px; cursor:pointer; font-family:inherit;">Sign In Existing</button>
+            </div>
+            <div class="roster-body" id="otpStep2" style="display:none;">
+                <p style="font-size:0.8rem; color:#888; margin-bottom:10px;">Enter 6-digit code:</p>
+                <input type="number" id="otpCode" placeholder="000000" style="text-align:center; letter-spacing:5px; font-size:1.2rem;">
+                <button onclick="verifyOTP()" id="verifyBtn" class="join-btn">Verify Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AD MODAL -->
+    <div id="adOverlay" class="roster-overlay">
+        <div class="roster-modal" style="border-color:var(--nexus-green);">
+            <div style="background:var(--nexus-green); padding: 15px 20px; color:black; display:flex; justify-content:space-between;">
+                <b>REWARD VAULT</b>
+                <i class="fa-solid fa-xmark" onclick="closeAdArea()" style="cursor:pointer;"></i>
+            </div>
+            <div class="roster-body" style="text-align:center;">
+                <p style="font-size:0.8rem; color:#888; margin-bottom:20px;">Complete the link to find your code.</p>
+                <a href="https://inshorturl.in/9AamdnB" id="adLinkBtn" target="_blank" class="join-btn" style="background:#111; color:var(--nexus-green); border:1px solid var(--nexus-green); display:block; text-decoration:none; margin-bottom:15px;">1. OPEN LINK</a>
+                <input type="text" id="userAdCode" placeholder="Enter Secret Code" style="text-align:center;">
+                <button onclick="claimAdReward()" class="join-btn" style="background:var(--nexus-green);">2. CLAIM ₦ REWARD</button>
             </div>
         </div>
     </div>
@@ -107,154 +156,249 @@
             <p style="text-align:center; color:#555;">Scanning Arena for Active Matchups...</p>
         </div>
     </div>
-
     <script>
-        const API = 'https://nl-server-k7i9.onrender.com/api';
-        let currentUser = JSON.parse(localStorage.getItem('nexus_user'));
-
-        function toggleAuthModal() {
-            const modal = document.getElementById('authOverlay');
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        function updateUI() {
-            if(currentUser) {
-                document.getElementById('userInfo').innerText = currentUser.username.toUpperCase();
-                document.getElementById('balanceDisplay').innerText = `₦ ${currentUser.balance.toLocaleString()}`;
-                document.getElementById('loginBtn').innerText = "LOGOUT";
-                document.getElementById('loginBtn').onclick = () => { localStorage.clear(); location.reload(); };
-            }
-        }
-
-        async function handleAuth(type) {
-            const username = document.getElementById('authUser').value;
-            const password = document.getElementById('authPass').value;
-            if(!username || !password) return alert("Fill all fields");
-
-            try {
-                const res = await fetch(`${API}/auth/${type}`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    localStorage.setItem('nexus_user', JSON.stringify(data.user));
-                    location.reload();
-                } else alert(data.error);
-            } catch(e) { alert("Server Connection Failed"); }
-        }
-        async function loadPredictions() {
+    const API = 'https://nl-server-k7i9.onrender.com/api';
+    
+    // 1. INITIALIZE DATA
+    let currentUser = null;
     try {
-        const res = await fetch(`${API}/predictions`);
-        const data = await res.json();
-        const container = document.getElementById('prediction-list');
-
-        if(data.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color:#555;'>No active matchups found in database.</p>";
-            return;
+        const savedUser = localStorage.getItem('nexus_user');
+        if (savedUser && savedUser !== "undefined") {
+            currentUser = JSON.parse(savedUser);
         }
+    } catch (e) {
+        localStorage.removeItem('nexus_user');
+    }
 
-        // Fetch user bets to show slip count (Safety check for guest)
-        let userBets = [];
-        if(currentUser) {
-            const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`);
-            userBets = await betRes.json();
+    let authType = 'signup'; 
+
+    // --- 2. HEADER & UI DISPLAY ---
+    function updateUI() {
+        const nameEl = document.getElementById('userInfo');
+        const balEl = document.getElementById('balanceDisplay');
+        const loginBtn = document.getElementById('loginBtn');
+        const dailyBtn = document.getElementById('dailyBtn');
+        const adBtn = document.getElementById('adBtn');
+
+        if (currentUser && currentUser.username) {
+            // Display clean name
+            const displayName = currentUser.username.split('@')[0].toUpperCase();
+            if(nameEl) nameEl.innerText = displayName;
+            if(balEl) balEl.innerText = `₦ ${Number(currentUser.balance || 0).toLocaleString()}`;
+            
+            // Toggle Buttons
+            if(loginBtn) {
+                loginBtn.innerText = "LOGOUT";
+                loginBtn.onclick = logout;
+            }
+            if(dailyBtn) dailyBtn.style.display = "block";
+            if(adBtn) adBtn.style.display = "block";
+        } else {
+            if(nameEl) nameEl.innerText = "Guest Striker";
+            if(balEl) balEl.innerText = "₦ 0";
+            if(loginBtn) {
+                loginBtn.innerText = "Sign In";
+                loginBtn.onclick = toggleAuthModal;
+            }
+            if(dailyBtn) dailyBtn.style.display = "none";
+            if(adBtn) adBtn.style.display = "none";
         }
+    }
 
-        container.innerHTML = data.map(p => {
-            // "Closed" or "LOCKED" makes buttons red and disabled
-            const isLocked = (p.status === "Closed" || p.status === "LOCKED");
-            const mySlips = userBets.filter(b => b.matchId === p.matchId).length;
+    function logout() {
+        localStorage.removeItem('nexus_user');
+        location.reload();
+    }
 
-            return `
+    function toggleAuthModal() {
+        const modal = document.getElementById('authOverlay');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    // --- 3. AUTHENTICATION (OTP) ---
+
+    async function requestOTP(type) {
+        authType = type;
+        const email = document.getElementById('authEmail').value.trim();
+        const btn = document.getElementById('otpBtn');
+        if(!email || !email.includes('@')) return alert("Enter a valid email!");
+
+        btn.innerText = "VERIFYING...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`${API}/auth/request-otp`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, type: authType })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                document.getElementById('otpStep1').style.display = 'none';
+                document.getElementById('otpStep2').style.display = 'block';
+            } else {
+                alert(data.error);
+                btn.innerText = "SEND OTP";
+                btn.disabled = false;
+            }
+        } catch (e) { alert("Server starting... try again in 20s"); btn.disabled = false; }
+    }
+
+    async function verifyOTP() {
+        const email = document.getElementById('authEmail').value;
+        const code = document.getElementById('otpCode').value;
+        const btn = document.getElementById('verifyBtn');
+        if(!code) return alert("Enter Code");
+
+        btn.innerText = "SYNCING...";
+        try {
+            const res = await fetch(`${API}/auth/verify-otp`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, code })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                localStorage.setItem('nexus_user', JSON.stringify(data.user));
+                location.reload(); 
+            } else alert(data.error);
+        } catch(e) { alert("Verify failed."); }
+    }
+
+    // --- 4. PREDICTIONS & BETTING ---
+
+    async function loadPredictions() {
+        try {
+            const res = await fetch(`${API}/predictions`);
+            const data = await res.json();
+            const container = document.getElementById('prediction-list');
+
+            if(!data || data.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#555;'>No active matchups.</p>";
+                return;
+            }
+
+            let userBets = [];
+            if(currentUser && currentUser._id) {
+                const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`);
+                userBets = await betRes.json();
+            }
+
+            container.innerHTML = data.map(p => {
+                const isLocked = (p.status === "Closed" || p.status === "LOCKED");
+                const mySlips = userBets.filter(b => b.matchId === p.matchId).length;
+
+                return `
                 <div class="pred-card">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <span style="color:${isLocked ? '#ff4444' : '#00ff88'}; font-weight:bold; font-size:0.7rem;">
-                            ● ${p.status.toUpperCase()}
-                        </span>
-                        ${mySlips > 0 ? `<span class="slip-badge">${mySlips} SLIPS BOUGHT</span>` : ''}
-                    </div>
+                    <div class="status-tag" style="color:${isLocked ? '#ff4444' : '#00ff88'};">● ${p.status.toUpperCase()}</div>
+                    ${mySlips > 0 ? `<div class="slip-badge">${mySlips} SLIPS</div>` : ''}
                     
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin: 20px 0;">
                         <div style="text-align:center;"><b style="display:block;">${p.p1}</b><small style="color:var(--nexus-orange)">${p.oddsP1}x</small></div>
                         <span class="vs-badge">VS</span>
                         <div style="text-align:center;"><b style="display:block;">${p.p2}</b><small style="color:var(--nexus-orange)">${p.oddsP2}x</small></div>
                     </div>
-
                     <div class="vote-btns">
                         <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p1}</button>
                         <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn" ${isLocked ? 'disabled' : ''}>DRAW</button>
                         <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p2}</button>
                     </div>
-
                     ${mySlips > 0 && !isLocked ? `
-                        <button onclick="withdrawBet('${p.matchId}')" style="width:100%; margin-top:10px; background:none; border:1px solid #444; color:#666; font-size:0.7rem; padding:8px; cursor:pointer; border-radius:8px;">
-                            WITHDRAW & REFUND ₦
-                        </button>
+                    <button onclick="withdrawBet('${p.matchId}')" style="width:100%; margin-top:10px; background:none; border:1px solid #333; color:#666; font-size:0.7rem; padding:8px; border-radius:8px; cursor:pointer;">WITHDRAW REFUND</button>
                     ` : ''}
-                </div>
-            `;
-        }).join('');
-    } catch(e) { console.error("Sync Error"); }
-        }
+                </div>`;
+            }).join('');
+        } catch(e) { console.log("Load Error", e); }
+    }
 
-        
-        async function withdrawBet(matchId) {
-    if (!currentUser) return alert("Please login first");
-    
-    if (!confirm("Are you sure? All slips for this match will be deleted and ₦ refunded to your balance.")) return;
+    async function buySlip(matchId, pick, multiplier) {
+        if(!currentUser) return toggleAuthModal();
+        try {
+            const res = await fetch(`${API}/bets/place`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId: currentUser._id, matchId, pick, slips: 1, multiplier })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                currentUser.balance = data.newBalance;
+                localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+                updateUI(); loadPredictions();
+                alert("✓ Slip Purchased!");
+            } else alert(data.error);
+        } catch(e) { alert("Error."); }
+    }
 
-    try {
-        const res = await fetch(`${API}/bets/withdraw`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                userId: currentUser._id, 
-                matchId: matchId 
-            })
+    async function withdrawBet(matchId) {
+        if(!confirm("Withdraw all bets on this match for a refund?")) return;
+        try {
+            const res = await fetch(`${API}/bets/withdraw`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId: currentUser._id, matchId })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                currentUser.balance = data.newBalance;
+                localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+                updateUI(); loadPredictions();
+                alert("✓ ₦ Credits Refunded!");
+            } else alert(data.error);
+        } catch(e) { alert("Withdraw failed."); }
+    }
+
+    // --- 5. REWARDS (DAILY & AD) ---
+
+    async function claimDaily() {
+        if(!currentUser) return;
+        try {
+            const res = await fetch(`${API}/auth/claim-daily`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId: currentUser._id })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                currentUser.balance = data.newBalance;
+                localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+                updateUI(); alert("✓ +500 ₦ Received!");
+            } else alert(data.error);
+        } catch(e) { alert("Server busy."); }
+    }
+
+    async function openAdArea() {
+        if(!currentUser) return toggleAuthModal();
+        const setRes = await fetch(`${API}/admin/ad-settings`);
+        const settings = await setRes.json();
+        document.getElementById('adLinkBtn').href = settings.link;
+        document.getElementById('adLinkBtn').innerText = `1. OPEN LINK (+${settings.reward}₦)`;
+        await fetch(`${API}/ad/generate-code/${currentUser._id}`);
+        document.getElementById('adOverlay').style.display = 'flex';
+    }
+
+    function closeAdArea() { document.getElementById('adOverlay').style.display = 'none'; }
+
+    async function claimAdReward() {
+        const userCode = document.getElementById('userAdCode').value;
+        if(!userCode) return alert("Enter code!");
+        const res = await fetch(`${API}/auth/verify-ad-code`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ userId: currentUser._id, userCode })
         });
-
         const data = await res.json();
-
-        if (res.ok) {
-            // Update local storage and UI instantly
+        if(res.ok) {
             currentUser.balance = data.newBalance;
             localStorage.setItem('nexus_user', JSON.stringify(currentUser));
-            
-            alert(`✓ Refund Success! ₦${data.newBalance.toLocaleString()} is your new balance.`);
-            
-            // Refresh the list to show 0 slips and remove the withdraw button
-            location.reload(); 
-        } else {
-            alert("Withdraw Denied: " + data.error);
-        }
-    } catch (e) {
-        alert("Connection Error. Try again.");
+            updateUI(); closeAdArea();
+            alert(`✓ +${data.rewardGiven} ₦ Added!`);
+        } else alert(data.error);
     }
-        }
 
-        async function buySlip(matchId, pick, multiplier) {
-            if(!currentUser) return toggleAuthModal();
-            
-            try {
-                const res = await fetch(`${API}/bets/place`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ userId: currentUser._id, matchId, pick, slips: 1, multiplier })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    currentUser.balance = data.newBalance;
-                    localStorage.setItem('nexus_user', JSON.stringify(currentUser));
-                    updateUI();
-                    alert(`✓ Slip Purchased! Multiplier: ${multiplier}x`);
-                } else alert(data.error);
-            } catch(e) { alert("Betting currently unavailable"); }
-        }
+    // --- 6. INITIALIZE ---
+    document.addEventListener('DOMContentLoaded', () => {
+        updateUI(); 
+        loadPredictions();
+    });
+                </script>
 
-        window.onload = () => {
-            updateUI();
-            loadPredictions();
-        };
-    </script>
+    
+                        
 </body>
 </html>
