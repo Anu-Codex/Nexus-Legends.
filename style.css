@@ -564,3 +564,47 @@ body.ann-open {
     color: black !important;
     box-shadow: 0 0 20px rgba(255, 136, 0, 0.4);
 }
+/* --- LIVE TICKER SYSTEM --- */
+.ticker-wrap {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    overflow: hidden;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-bottom: 1px solid #333;
+    z-index: 2000; /* Highest priority */
+    display: flex;
+    align-items: center;
+}
+
+.ticker-move {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker-scroll 30s linear infinite;
+}
+
+.ticker-item {
+    display: inline-block;
+    padding: 0 50px;
+    font-size: 0.75rem;
+    color: var(--accent-yellow);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ticker-item span {
+    color: #00ff88; /* Success green for the action */
+    margin-right: 5px;
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Adjust Header Position */
+header { top: 30px !important; }
+.user-dashboard { top: 85px !important; }
+body { padding-top: 150px !important; }
