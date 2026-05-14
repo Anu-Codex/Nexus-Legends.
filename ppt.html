@@ -78,9 +78,15 @@
     </header>
 
     <div id="authSection" class="user-bar">
-        <div id="userInfo" style="font-weight:bold; color:#888;">Welcome, Guest Striker</div>
+    <div id="userInfo" style="font-weight:bold; color:#888;">Welcome, Guest Striker</div>
+    
+    <!-- Updated Center Area -->
+    <div style="display:flex; align-items:center; gap:15px;">
         <div id="balanceDisplay" class="nexus-currency">₦ 0</div>
-        <button onclick="toggleAuthModal()" id="loginBtn" class="sec-btn" style="padding:5px 15px;">SIGN IN</button>
+        <button id="dailyBtn" onclick="claimDaily()" class="sec-btn" style="display:none; background:var(--nexus-yellow); color:black; font-size:0.6rem; border:none; padding:4px 8px;">CLAIM 500₦</button>
+    </div>
+
+    <button onclick="toggleAuthModal()" id="loginBtn" class="sec-btn" style="padding:5px 15px;">SIGN IN</button>
     </div>
 
     <!-- AUTH MODAL -->
@@ -234,6 +240,47 @@
                 }).join('');
             } catch(e) { console.error("Sync Error"); }
         }
+        // --- DAILY REWARD LOGIC ---
+async function claimDaily() {
+    if(!currentUser) return toggleAuthModal();
+    
+    const btn = document.getElementById('dailyBtn');
+    btn.disabled = true;
+    btn.innerText = "WAIT...";
+
+    try {
+        const res = await fetch(`${API}/auth/claim-daily`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ userId: currentUser._id })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            currentUser.balance = data.newBalance;
+            localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+            updateUI();
+            alert("✓ Success! 500 ₦ added to your balance. Come back tomorrow!");
+        } else {
+            alert(data.error);
+        }
+    } catch (e) { alert("Arena server busy."); }
+    
+    btn.disabled = false;
+    btn.innerText = "CLAIM 500₦";
+}
+
+// Update your existing updateUI() to show the Claim button
+function updateUI() {
+    if(currentUser) {
+        document.getElementById('userInfo').innerText = currentUser.username.toUpperCase();
+        document.getElementById('balanceDisplay').innerText = `₦ ${currentUser.balance.toLocaleString()}`;
+        document.getElementById('dailyBtn').style.display = "block"; // Show claim button
+        document.getElementById('loginBtn').innerText = "LOGOUT";
+        document.getElementById('loginBtn').onclick = () => { localStorage.clear(); location.reload(); };
+    }
+}
 
         async function buySlip(matchId, pick, multiplier) {
             if(!currentUser) return toggleAuthModal();
