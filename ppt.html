@@ -167,14 +167,7 @@
             modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
         }
 
-        function updateUI() {
-            if(currentUser) {
-                document.getElementById('userInfo').innerText = currentUser.username.toUpperCase();
-                document.getElementById('balanceDisplay').innerText = `₦ ${currentUser.balance.toLocaleString()}`;
-                document.getElementById('loginBtn').innerText = "LOGOUT";
-                document.getElementById('loginBtn').onclick = () => { localStorage.clear(); location.reload(); };
-            }
-        }
+        
 
         async function requestOTP(type) {
             authType = type;
@@ -240,10 +233,12 @@
                 }
 
                 let userBets = [];
-                if(currentUser) {
-                    const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`);
-                    userBets = await betRes.json();
-                }
+        if(currentUser && currentUser._id) {
+            try {
+                const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`);
+                userBets = await betRes.json();
+            } catch(e) { console.log("Guest mode or bet fetch failed"); }
+        }
 
                 container.innerHTML = data.map(p => {
                     const isLocked = (p.status === "Closed" || p.status === "LOCKED");
@@ -312,12 +307,37 @@ async function claimDaily() {
 }
 // Update your existing updateUI() to show the Claim button
 function updateUI() {
-    if(currentUser) {
-        document.getElementById('userInfo').innerText = currentUser.username.toUpperCase();
-        document.getElementById('balanceDisplay').innerText = `₦ ${currentUser.balance.toLocaleString()}`;
-        document.getElementById('dailyBtn').style.display = "block"; // Show claim button
-        document.getElementById('loginBtn').innerText = "LOGOUT";
-        document.getElementById('loginBtn').onclick = () => { localStorage.clear(); location.reload(); };
+    const nameEl = document.getElementById('userInfo');
+    const balEl = document.getElementById('balanceDisplay');
+    const loginBtn = document.getElementById('loginBtn');
+    const dailyBtn = document.getElementById('dailyBtn');
+    const adBtn = document.getElementById('adBtn');
+
+    if (currentUser) {
+        // Show only the name part before @ if it's an email
+        const displayName = currentUser.username.includes('@') ? 
+                           currentUser.username.split('@')[0] : currentUser.username;
+        
+        nameEl.innerText = displayName.toUpperCase();
+        balEl.innerText = `₦ ${Number(currentUser.balance).toLocaleString()}`;
+        
+        // Change Sign In to Logout
+        loginBtn.innerText = "LOGOUT";
+        loginBtn.style.background = "#222"; // Darker color for logout
+        loginBtn.onclick = () => {
+            localStorage.removeItem('nexus_user');
+            location.reload();
+        };
+
+        // Show reward buttons only when logged in
+        if(dailyBtn) dailyBtn.style.display = "block";
+        if(adBtn) adBtn.style.display = "block";
+    } else {
+        nameEl.innerText = "Guest Striker";
+        balEl.innerText = "₦ 0";
+        loginBtn.innerText = "Sign In";
+        if(dailyBtn) dailyBtn.style.display = "none";
+        if(adBtn) adBtn.style.display = "none";
     }
 }
 
