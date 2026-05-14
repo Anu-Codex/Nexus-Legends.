@@ -650,23 +650,28 @@ window.addEventListener('DOMContentLoaded', loadTop5Results);
 });
         async function updateTicker() {
     const tickerContainer = document.getElementById('activityTicker');
+    if(!tickerContainer) return;
+
     try {
         const res = await fetch('https://nl-server-k7i9.onrender.com/api/activities');
         const logs = await res.json();
 
         if (logs.length > 0) {
+            // Join all activities with a spacer icon
             tickerContainer.innerHTML = logs.map(log => `
                 <div class="ticker-item">
-                    <span>● EVENT:</span> ${log.text}
+                    <span>● ARENA NEWS:</span> ${log.text}
                 </div>
-            `).join('') + tickerContainer.innerHTML; // Keeps it looping
+            `).join('');
         }
-    } catch (e) { console.log("Ticker sync paused"); }
+    } catch (e) { 
+        tickerContainer.innerHTML = '<div class="ticker-item"><span>●</span> SAT-LINK OFFLINE</div>';
+    }
 }
 
-// Update ticker every 60 seconds to get fresh news
-setInterval(updateTicker, 60000);
+// Start immediately and check for new news every 30 seconds
 updateTicker();
+setInterval(updateTicker, 30000);
 
 
 </script>
