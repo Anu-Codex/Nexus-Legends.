@@ -180,12 +180,19 @@
     </div>
 </div>
 
-            <div class="card" style="border-left: 4px solid #00ff88;">
-    <h3><i class="fa-solid fa-ad"></i> AD-REWARD MANAGER</h3>
-    <p style="font-size:0.7rem; color:#888;">Set the code that users find at the end of your shortlink.</p>
-    <input type="text" id="newAdCode" placeholder="Current Secret Code">
-    <button onclick="updateAdCode()" class="btn-blue" style="background:#00ff88; color:black;">UPDATE CODE</button>
-            </div>
+            <!-- UPDATED AD SYSTEM CONTROLLER -->
+<div class="card" style="border-left: 4px solid #00ff88;">
+    <h3 style="color:#00ff88"><i class="fa-solid fa-gauge-high"></i> AD SYSTEM CONFIG</h3>
+    <p style="font-size:0.7rem; color:#888;">Control the rewards and links for the Ad system.</p>
+    
+    <label style="font-size:0.7rem; color:#555;">REWARD AMOUNT (₦)</label>
+    <input type="number" id="adRewardVal" placeholder="e.g. 100">
+    
+    <label style="font-size:0.7rem; color:#555;">SHORTLINK URL</label>
+    <input type="text" id="adLinkVal" placeholder="https://inshorturl.in/...">
+    
+    <button onclick="updateAdSettings()" class="btn-blue" style="background:#00ff88; color:black;">SAVE CONFIGURATION</button>
+</div>
 
             <!-- BROADCAST -->
             <div class="card" style="border-left: 4px solid #ff00ff;">
@@ -626,15 +633,26 @@ async function settleBets(matchId, result) {
         loadBookmaker(); 
     }
         }
-        async function updateAdCode() {
-    const code = document.getElementById('newAdCode').value;
-    const res = await fetch(`${API}/admin/set-ad-code`, {
+        async function updateAdSettings() {
+    const reward = document.getElementById('adRewardVal').value;
+    const link = document.getElementById('adLinkVal').value;
+    
+    const res = await fetch(`${API}/admin/ad-settings`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ reward, link })
     });
-    if(res.ok) notify("Ad System Updated!", "#00ff88");
-        }
+    
+    if(res.ok) notify("Ad Config Saved!", "#00ff88");
+}
+
+// Add this to your loadEverything() to show current values
+async function loadAdConfig() {
+    const res = await fetch(`${API}/admin/ad-settings`);
+    const data = await res.json();
+    document.getElementById('adRewardVal').value = data.reward;
+    document.getElementById('adLinkVal').value = data.link;
+}
         
         
         async function broadcast() { await fetch(`${API}/announcement`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: document.getElementById('annMsg').value }) }); notify("Pushed!"); }
