@@ -242,7 +242,7 @@
         }
         // --- DAILY REWARD LOGIC ---
 async function claimDaily() {
-    if(!currentUser) return toggleAuthModal();
+    if(!currentUser || !currentUser._id) return toggleAuthModal();
     
     const btn = document.getElementById('dailyBtn');
     btn.disabled = true;
@@ -252,25 +252,29 @@ async function claimDaily() {
         const res = await fetch(`${API}/auth/claim-daily`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId: currentUser._id })
+            body: JSON.stringify({ userId: currentUser._id }) // Ensure ID is sent
         });
 
         const data = await res.json();
 
         if (res.ok) {
+            // Update local storage so the UI updates
             currentUser.balance = data.newBalance;
             localStorage.setItem('nexus_user', JSON.stringify(currentUser));
             updateUI();
-            alert("✓ Success! 500 ₦ added to your balance. Come back tomorrow!");
+            alert("✓ Nexus Credits Received! +500₦ added to your balance.");
         } else {
-            alert(data.error);
+            // Show the actual error (e.g., "Try again in 12 hours")
+            alert(data.error || "Claim failed.");
         }
-    } catch (e) { alert("Arena server busy."); }
+    } catch (e) { 
+        console.error(e);
+        alert("Connection Lost. Check your internet or refresh."); 
+    }
     
     btn.disabled = false;
     btn.innerText = "CLAIM 500₦";
 }
-
 // Update your existing updateUI() to show the Claim button
 function updateUI() {
     if(currentUser) {
