@@ -71,6 +71,12 @@
             </div>
         </div>
     </div>
+    <!-- LIVE ACTIVITY TICKER -->
+<div class="ticker-wrap">
+    <div class="ticker-move" id="activityTicker">
+        <div class="ticker-item"><span>LIVE:</span> Synchronizing with Arena Satellites...</div>
+    </div>
+</div>
 
     <!-- Rest of your content (Hero, Recent Events, etc.) stays exactly the same -->
 
@@ -642,6 +648,25 @@ window.addEventListener('DOMContentLoaded', loadTop5Results);
         btn.disabled = false;
     }
 });
+        async function updateTicker() {
+    const tickerContainer = document.getElementById('activityTicker');
+    try {
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/activities');
+        const logs = await res.json();
+
+        if (logs.length > 0) {
+            tickerContainer.innerHTML = logs.map(log => `
+                <div class="ticker-item">
+                    <span>● EVENT:</span> ${log.text}
+                </div>
+            `).join('') + tickerContainer.innerHTML; // Keeps it looping
+        }
+    } catch (e) { console.log("Ticker sync paused"); }
+}
+
+// Update ticker every 60 seconds to get fresh news
+setInterval(updateTicker, 60000);
+updateTicker();
 
 
 </script>
