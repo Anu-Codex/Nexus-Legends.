@@ -572,7 +572,7 @@ body.ann-open {
     top: 60px; /* Starts exactly where header ends */
     left: 0;
     width: 100%;
-    height: 30px;
+    height: 40px;
     background: rgba(10, 10, 10, 0.95);
     border-bottom: 1px solid #333;
     z-index: 1000; /* Just below header */
