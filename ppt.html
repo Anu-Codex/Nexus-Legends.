@@ -342,7 +342,15 @@ function updateUI() {
                 } else alert(data.error);
             } catch (e) { alert("Withdraw failed"); }
         }
-        function openAdArea() { document.getElementById('adOverlay').style.display = 'flex'; }
+        
+        async function openAdArea() {
+    if(!currentUser) return toggleAuthModal();
+    
+    // Tell the server to prepare a unique code for this user session
+    await fetch(`${API}/ad/generate-code/${currentUser._id}`);
+    
+    document.getElementById('adOverlay').style.display = 'flex';
+        }
 function closeAdArea() { document.getElementById('adOverlay').style.display = 'none'; }
 
 async function claimAdReward() {
