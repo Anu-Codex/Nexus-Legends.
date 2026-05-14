@@ -11,7 +11,6 @@
         :root { --nexus-orange: #ff8800; --nexus-blue: #0041FF; --nexus-yellow: #E4FF00; }
         body { background: radial-gradient(circle at top, #1a0f00 0%, #050505 100%); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding-top: 130px; }
         
-        /* --- USER BAR --- */
         .user-bar { 
             background: rgba(0,0,0,0.9); padding: 10px 5%; 
             display: flex; justify-content: space-between; align-items: center;
@@ -45,8 +44,8 @@
             font-family: inherit; font-size: 0.7rem; text-transform: uppercase;
         }
         .v-btn:hover { border-color: var(--nexus-orange); background: #1a1a1a; }
+        .slip-badge { background: var(--nexus-orange); color: black; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; }
 
-        /* --- MODAL SYSTEM --- */
         .roster-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
@@ -84,7 +83,7 @@
         <button onclick="toggleAuthModal()" id="loginBtn" class="sec-btn" style="padding:5px 15px;">SIGN IN</button>
     </div>
 
-    <!-- SIGNUP/LOGIN MODAL -->
+    <!-- AUTH MODAL -->
     <div id="authOverlay" class="roster-overlay">
         <div class="roster-modal">
             <div class="roster-header" style="background:var(--nexus-yellow); color:black;">
@@ -92,14 +91,21 @@
                 <i class="fa-solid fa-xmark" onclick="toggleAuthModal()" style="cursor:pointer;"></i>
             </div>
 
-<div class="roster-body" id="otpStep1">
-    <input type="email" id="authEmail" placeholder="Email Address">
-    <!-- Blue Sign up button -->
-    <button onclick="requestOTP('signup')" id="otpBtn" class="join-btn">SIGN UP & GET ₦10,000</button>
-    <p style="text-align:center; margin:10px 0; font-size:0.7rem; color:#555;">OR</p>
-    <!-- Outline Sign in button -->
-    <button onclick="requestOTP('login')" style="background:transparent; color:white; border:1px solid #444; width:100%; padding:10px; border-radius:8px; cursor:pointer; font-family:inherit;">SIGN IN (EXISTING USER)</button>
-</div>
+            <!-- STEP 1: Email Entry -->
+            <div class="roster-body" id="otpStep1">
+                <input type="email" id="authEmail" placeholder="Enter your email address">
+                <button onclick="requestOTP('signup')" id="otpBtn" class="join-btn">SIGN UP & GET ₦10,000</button>
+                <p style="text-align:center; margin:10px 0; font-size:0.7rem; color:#555;">OR</p>
+                <button onclick="requestOTP('login')" class="sec-btn" style="width:100%; padding:10px; border-radius:8px;">SIGN IN (EXISTING USER)</button>
+            </div>
+
+            <!-- STEP 2: Code Entry -->
+            <div class="roster-body" id="otpStep2" style="display:none;">
+                <p style="font-size:0.8rem; color:#888; margin-bottom:10px;">Enter the code sent to your email:</p>
+                <input type="number" id="otpCode" placeholder="000000" style="text-align:center; letter-spacing:5px;">
+                <button onclick="verifyOTP()" id="verifyBtn" class="join-btn">VERIFY & ENTER ARENA</button>
+                <button onclick="location.reload()" style="background:none; border:none; color:#444; width:100%; margin-top:10px; cursor:pointer;">Change Email</button>
+            </div>
         </div>
     </div>
 
@@ -113,6 +119,7 @@
     <script>
         const API = 'https://nl-server-k7i9.onrender.com/api';
         let currentUser = JSON.parse(localStorage.getItem('nexus_user'));
+        let authType = 'signup'; 
 
         function toggleAuthModal() {
             const modal = document.getElementById('authOverlay');
@@ -128,116 +135,108 @@
             }
         }
 
-        async function handleAuth(type) {
-            const username = document.getElementById('authUser').value;
-            const password = document.getElementById('authPass').value;
-            if(!username || !password) return alert("Fill all fields");
+        async function requestOTP(type) {
+            authType = type;
+            const email = document.getElementById('authEmail').value.trim();
+            const btn = document.getElementById('otpBtn');
+            
+            if(!email || !email.includes('@')) return alert("Enter a valid email address!");
+
+            btn.innerText = "VERIFYING...";
+            btn.disabled = true;
 
             try {
-                const res = await fetch(`${API}/auth/${type}`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ username, password })
+                const res = await fetch(`${API}/auth/request-otp`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, type: authType })
                 });
+
+                const data = await res.json();
+                if(res.ok) {
+                    document.getElementById('otpStep1').style.display = 'none';
+                    document.getElementById('otpStep2').style.display = 'block';
+                } else {
+                    alert(data.error);
+                    btn.innerText = "SEND OTP";
+                    btn.disabled = false;
+                }
+            } catch (e) { alert("Server offline or waking up. Retry in 20s."); btn.disabled = false; btn.innerText = "SEND OTP"; }
+        }
+
+        async function verifyOTP() {
+            const email = document.getElementById('authEmail').value;
+            const code = document.getElementById('otpCode').value;
+            const btn = document.getElementById('verifyBtn');
+
+            if(!code) return alert("Enter the code!");
+            btn.innerText = "SYNCING...";
+
+            try {
+                const res = await fetch(`${API}/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, code })
+                });
+
                 const data = await res.json();
                 if(res.ok) {
                     localStorage.setItem('nexus_user', JSON.stringify(data.user));
                     location.reload();
                 } else alert(data.error);
-            } catch(e) { alert("Server Connection Failed"); }
+            } catch(e) { alert("Verification failed"); }
         }
+
         async function loadPredictions() {
-    try {
-        const res = await fetch(`${API}/predictions`);
-        const data = await res.json();
-        const container = document.getElementById('prediction-list');
+            try {
+                const res = await fetch(`${API}/predictions`);
+                const data = await res.json();
+                const container = document.getElementById('prediction-list');
 
-        if(data.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color:#555;'>No active matchups found in database.</p>";
-            return;
-        }
+                if(data.length === 0) {
+                    container.innerHTML = "<p style='text-align:center; color:#555;'>No active predictions.</p>";
+                    return;
+                }
 
-        // Fetch user bets to show slip count (Safety check for guest)
-        let userBets = [];
-        if(currentUser) {
-            const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`);
-            userBets = await betRes.json();
-        }
+                let userBets = [];
+                if(currentUser) {
+                    const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`);
+                    userBets = await betRes.json();
+                }
 
-        container.innerHTML = data.map(p => {
-            // "Closed" or "LOCKED" makes buttons red and disabled
-            const isLocked = (p.status === "Closed" || p.status === "LOCKED");
-            const mySlips = userBets.filter(b => b.matchId === p.matchId).length;
+                container.innerHTML = data.map(p => {
+                    const isLocked = (p.status === "Closed" || p.status === "LOCKED");
+                    const mySlips = userBets.filter(b => b.matchId === p.matchId).length;
 
-            return `
-                <div class="pred-card">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <span style="color:${isLocked ? '#ff4444' : '#00ff88'}; font-weight:bold; font-size:0.7rem;">
-                            ● ${p.status.toUpperCase()}
-                        </span>
-                        ${mySlips > 0 ? `<span class="slip-badge">${mySlips} SLIPS BOUGHT</span>` : ''}
-                    </div>
-                    
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <div style="text-align:center;"><b style="display:block;">${p.p1}</b><small style="color:var(--nexus-orange)">${p.oddsP1}x</small></div>
-                        <span class="vs-badge">VS</span>
-                        <div style="text-align:center;"><b style="display:block;">${p.p2}</b><small style="color:var(--nexus-orange)">${p.oddsP2}x</small></div>
-                    </div>
-
-                    <div class="vote-btns">
-                        <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p1}</button>
-                        <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn" ${isLocked ? 'disabled' : ''}>DRAW</button>
-                        <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p2}</button>
-                    </div>
-
-                    ${mySlips > 0 && !isLocked ? `
-                        <button onclick="withdrawBet('${p.matchId}')" style="width:100%; margin-top:10px; background:none; border:1px solid #444; color:#666; font-size:0.7rem; padding:8px; cursor:pointer; border-radius:8px;">
-                            WITHDRAW & REFUND ₦
-                        </button>
-                    ` : ''}
-                </div>
-            `;
-        }).join('');
-    } catch(e) { console.error("Sync Error"); }
-        }
-
-        
-        async function withdrawBet(matchId) {
-    if (!currentUser) return alert("Please login first");
-    
-    if (!confirm("Are you sure? All slips for this match will be deleted and ₦ refunded to your balance.")) return;
-
-    try {
-        const res = await fetch(`${API}/bets/withdraw`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                userId: currentUser._id, 
-                matchId: matchId 
-            })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            // Update local storage and UI instantly
-            currentUser.balance = data.newBalance;
-            localStorage.setItem('nexus_user', JSON.stringify(currentUser));
-            
-            alert(`✓ Refund Success! ₦${data.newBalance.toLocaleString()} is your new balance.`);
-            
-            // Refresh the list to show 0 slips and remove the withdraw button
-            location.reload(); 
-        } else {
-            alert("Withdraw Denied: " + data.error);
-        }
-    } catch (e) {
-        alert("Connection Error. Try again.");
-    }
+                    return `
+                        <div class="pred-card">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span style="color:${isLocked ? '#ff4444' : '#00ff88'}; font-weight:bold; font-size:0.7rem;">
+                                    ● ${p.status.toUpperCase()}
+                                </span>
+                                ${mySlips > 0 ? `<span class="slip-badge">${mySlips} SLIPS BOUGHT</span>` : ''}
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                                <div style="text-align:center;"><b style="display:block;">${p.p1}</b><small style="color:var(--nexus-orange)">${p.oddsP1}x</small></div>
+                                <span class="vs-badge">VS</span>
+                                <div style="text-align:center;"><b style="display:block;">${p.p2}</b><small style="color:var(--nexus-orange)">${p.oddsP2}x</small></div>
+                            </div>
+                            <div class="vote-btns">
+                                <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p1}</button>
+                                <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn" ${isLocked ? 'disabled' : ''}>DRAW</button>
+                                <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p2}</button>
+                            </div>
+                            ${mySlips > 0 && !isLocked ? `
+                                <button onclick="withdrawBet('${p.matchId}')" style="width:100%; margin-top:10px; background:none; border:1px solid #444; color:#666; font-size:0.7rem; padding:8px; cursor:pointer; border-radius:8px;">
+                                    WITHDRAW & REFUND ₦
+                                </button>` : ''}
+                        </div>`;
+                }).join('');
+            } catch(e) { console.error("Sync Error"); }
         }
 
         async function buySlip(matchId, pick, multiplier) {
             if(!currentUser) return toggleAuthModal();
-            
             try {
                 const res = await fetch(`${API}/bets/place`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -248,109 +247,29 @@
                     currentUser.balance = data.newBalance;
                     localStorage.setItem('nexus_user', JSON.stringify(currentUser));
                     updateUI();
-                    alert(`✓ Slip Purchased! Multiplier: ${multiplier}x`);
+                    loadPredictions(); // Refresh slip count immediately
+                    alert(`✓ Slip Purchased! ₦100 Deducted.`);
                 } else alert(data.error);
-            } catch(e) { alert("Betting currently unavailable"); }
+            } catch(e) { alert("Error placing bet."); }
         }
 
-        window.onload = () => {
-            updateUI();
-            loadPredictions();
-        };
-        async function requestOTP() {
-    const emailInput = document.getElementById('authEmail');
-    const btn = document.getElementById('otpBtn');
-    const email = emailInput.value.trim();
-    
-    if(!email || !email.includes('@')) return alert("Enter a valid email address!");
-
-    // Set UI to Sending state
-    btn.innerText = "SENDING...";
-    btn.disabled = true;
-
-    console.log("Connecting to:", `${API}/auth/request-otp`);
-
-    try {
-        const res = await fetch(`${API}/auth/request-otp`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email })
-        });
-
-        const data = await res.json();
-
-        if(res.ok) {
-            alert("Code sent to " + email);
-            document.getElementById('otpStep1').style.display = 'none';
-            document.getElementById('otpStep2').style.display = 'block';
-        } else {
-            // THE SERVER SENT AN ERROR (e.g. 500 or 400)
-            alert("Error: " + data.error);
-            btn.innerText = "SEND OTP";
-            btn.disabled = false;
-        }
-    } catch (e) {
-        // THE SERVER IS DOWN OR URL IS WRONG
-        console.error("Fetch Error:", e);
-        alert("Server not responding. This usually happens if Render is sleeping. Try again in 30 seconds.");
-        btn.innerText = "SEND OTP";
-        btn.disabled = false;
-    }
+        async function withdrawBet(matchId) {
+            if (!confirm("Refund these slips?")) return;
+            try {
+                const res = await fetch(`${API}/bets/withdraw`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser._id, matchId })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    currentUser.balance = data.newBalance;
+                    localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+                    location.reload(); 
+                } else alert(data.error);
+            } catch (e) { alert("Withdraw failed"); }
         }
 
-async function verifyOTP() {
-    const email = document.getElementById('authEmail').value;
-    const code = document.getElementById('otpCode').value;
-    const btn = document.getElementById('verifyBtn');
-
-    btn.innerText = "VERIFYING...";
-
-    const res = await fetch(`${API}/auth/verify-otp`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email, code })
-    });
-
-    const data = await res.json();
-    if(res.ok) {
-        localStorage.setItem('nexus_user', JSON.stringify(data.user));
-        location.reload();
-    } else {
-        alert(data.error);
-        btn.innerText = "VERIFY & ENTER ARENA";
-    }
-}
-        // Step 1: Track if user is trying to login or signup
-let authType = 'signup'; 
-
-async function requestOTP(type) {
-    authType = type; // Set global type
-    const email = document.getElementById('authEmail').value.trim();
-    const btn = document.getElementById('otpBtn');
-    
-    if(!email || !email.includes('@')) return alert("Enter a valid email!");
-
-    btn.innerText = "VERIFYING...";
-    btn.disabled = true;
-
-    try {
-        const res = await fetch(`${API}/auth/request-otp`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email, type: authType }) // Sends 'signup' or 'login'
-        });
-
-        const data = await res.json();
-
-        if(res.ok) {
-            document.getElementById('otpStep1').style.display = 'none';
-            document.getElementById('otpStep2').style.display = 'block';
-        } else {
-            alert(data.error); // This shows "Email already registered" etc.
-            btn.innerText = "SEND OTP";
-            btn.disabled = false;
-        }
-    } catch (e) { alert("Server offline"); }
-}
+        window.onload = () => { updateUI(); loadPredictions(); };
     </script>
 </body>
 </html>
