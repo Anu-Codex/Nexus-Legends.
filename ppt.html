@@ -88,6 +88,29 @@
 
     <button onclick="toggleAuthModal()" id="loginBtn" class="sec-btn" style="padding:5px 15px;">SIGN IN</button>
     </div>
+        <!-- AD BUTTON -->
+        <button id="adBtn" onclick="openAdArea()" class="sec-btn" style="display:none; border-color:#00ff88; color:#00ff88; font-size:0.6rem;">FREE 100₦</button>
+    </div>
+</div>
+
+<!-- AD MODAL -->
+<div id="adOverlay" class="roster-overlay">
+    <div class="roster-modal" style="max-width:350px; border-color:#00ff88;">
+        <div class="roster-header" style="background:#00ff88; color:black;">
+            <h2 style="margin:0; font-size:1.1rem;">AD REWARD CENTER</h2>
+            <i class="fa-solid fa-xmark" onclick="closeAdArea()" style="cursor:pointer;"></i>
+        </div>
+        <div class="roster-body" style="text-align:center;">
+            <p style="font-size:0.8rem; color:#888;">Complete the link to find the <b>Secret Code</b>.</p>
+            
+            <!-- Replace with your actual shortlink from inshorturl.in -->
+            <a href="https://shrinkme.click/kk11PbZ8" target="_blank" class="join-btn" style="background:#111; color:#00ff88; border:1px solid #00ff88; margin-bottom:20px; display:block; text-decoration:none;">1. OPEN AD LINK</a>
+            
+            <input type="text" id="userAdCode" placeholder="Enter Secret Code Here" style="text-align:center;">
+            <button onclick="claimAdReward()" class="join-btn" style="background:#00ff88; color:black;">2. CLAIM 100 ₦</button>
+        </div>
+    </div>
+</div>
 
     <!-- AUTH MODAL -->
     <div id="authOverlay" class="roster-overlay">
@@ -319,6 +342,38 @@ function updateUI() {
                 } else alert(data.error);
             } catch (e) { alert("Withdraw failed"); }
         }
+        function openAdArea() { document.getElementById('adOverlay').style.display = 'flex'; }
+function closeAdArea() { document.getElementById('adOverlay').style.display = 'none'; }
+
+async function claimAdReward() {
+    const userCode = document.getElementById('userAdCode').value;
+    if(!userCode) return alert("Enter the code from the link first!");
+
+    const res = await fetch(`${API}/auth/verify-ad-code`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ userId: currentUser._id, userCode })
+    });
+
+    const data = await res.json();
+    if(res.ok) {
+        currentUser.balance = data.newBalance;
+        localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+        updateUI();
+        alert("✓ +100 ₦ Added to your balance!");
+        closeAdArea();
+    } else {
+        alert(data.error);
+    }
+}
+
+// Ensure adBtn shows in updateUI()
+function updateUI() {
+    if(currentUser) {
+        document.getElementById('adBtn').style.display = "block";
+        // ... rest of your existing updateUI ...
+    }
+}
 
         window.onload = () => { updateUI(); loadPredictions(); };
     </script>
