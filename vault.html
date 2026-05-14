@@ -125,16 +125,47 @@
             }
         }, 1000);
 
+        async function openAdArea() {
+    if(!currentUser) return toggleAuthModal();
+    
+    // 1. Fetch current settings (To get the link)
+    const setRes = await fetch(`${API}/admin/ad-settings`);
+    const settings = await setRes.json();
+    
+    // 2. Update the link in the UI
+    const linkBtn = document.querySelector('#adOverlay .join-btn[target="_blank"]');
+    linkBtn.href = settings.link;
+    linkBtn.innerText = `1. OPEN LINK (FOR ${settings.reward}₦)`;
+
+    // 3. Generate the unique code
+    await fetch(`${API}/ad/generate-code/${currentUser._id}`);
+    
+    document.getElementById('adOverlay').style.display = 'flex';
+        }
+
         // Fetch current code from your server if you want it to be fully automatic
         async function fetchLiveCode() {
-            try {
-                // We create a simple public route on your server to get the current code
-                const res = await fetch('https://nl-server-k7i9.onrender.com/api/public/ad-code');
-                const data = await res.json();
-                if(data.code) document.getElementById('finalCode').innerText = data.code;
-            } catch(e) { 
-                console.log("Using default code.");
-            }
+    // Get the user from localStorage (since vault is on the same domain)
+    const user = JSON.parse(localStorage.getItem('nexus_user'));
+    
+    if(!user) {
+        document.getElementById('finalCode').innerText = "LOGIN REQUIRED";
+        return;
+    }
+
+    try {
+        // Ask the server for THIS specific user's code
+        const res = await fetch(`https://nl-server-k7i9.onrender.com/api/ad/get-my-code/${user._id}`);
+        const data = await res.json();
+        
+        if(data.code) {
+            document.getElementById('finalCode').innerText = data.code;
+        } else {
+            document.getElementById('finalCode').innerText = "EXPIRED";
+        }
+    } catch(e) { 
+        document.getElementById('finalCode').innerText = "ERROR";
+    }
         }
         fetchLiveCode();
     </script>
