@@ -156,275 +156,249 @@
             <p style="text-align:center; color:#555;">Scanning Arena for Active Matchups...</p>
         </div>
     </div>
-
     <script>
-        const API = 'https://nl-server-k7i9.onrender.com/api';
-        let currentUser = JSON.parse(localStorage.getItem('nexus_user'));
-        let authType = 'signup'; 
-
-        function toggleAuthModal() {
-            const modal = document.getElementById('authOverlay');
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    const API = 'https://nl-server-k7i9.onrender.com/api';
+    
+    // 1. INITIALIZE DATA
+    let currentUser = null;
+    try {
+        const savedUser = localStorage.getItem('nexus_user');
+        if (savedUser && savedUser !== "undefined") {
+            currentUser = JSON.parse(savedUser);
         }
+    } catch (e) {
+        localStorage.removeItem('nexus_user');
+    }
 
-        
+    let authType = 'signup'; 
 
-        async function requestOTP(type) {
-            authType = type;
-            const email = document.getElementById('authEmail').value.trim();
-            const btn = document.getElementById('otpBtn');
+    // --- 2. HEADER & UI DISPLAY ---
+    function updateUI() {
+        const nameEl = document.getElementById('userInfo');
+        const balEl = document.getElementById('balanceDisplay');
+        const loginBtn = document.getElementById('loginBtn');
+        const dailyBtn = document.getElementById('dailyBtn');
+        const adBtn = document.getElementById('adBtn');
+
+        if (currentUser && currentUser.username) {
+            // Display clean name
+            const displayName = currentUser.username.split('@')[0].toUpperCase();
+            if(nameEl) nameEl.innerText = displayName;
+            if(balEl) balEl.innerText = `₦ ${Number(currentUser.balance || 0).toLocaleString()}`;
             
-            if(!email || !email.includes('@')) return alert("Enter a valid email address!");
-
-            btn.innerText = "VERIFYING...";
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(`${API}/auth/request-otp`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email, type: authType })
-                });
-
-                const data = await res.json();
-                if(res.ok) {
-                    document.getElementById('otpStep1').style.display = 'none';
-                    document.getElementById('otpStep2').style.display = 'block';
-                } else {
-                    alert(data.error);
-                    btn.innerText = "SEND OTP";
-                    btn.disabled = false;
-                }
-            } catch (e) { alert("Server offline or waking up. Retry in 20s."); btn.disabled = false; btn.innerText = "SEND OTP"; }
+            // Toggle Buttons
+            if(loginBtn) {
+                loginBtn.innerText = "LOGOUT";
+                loginBtn.onclick = logout;
+            }
+            if(dailyBtn) dailyBtn.style.display = "block";
+            if(adBtn) adBtn.style.display = "block";
+        } else {
+            if(nameEl) nameEl.innerText = "Guest Striker";
+            if(balEl) balEl.innerText = "₦ 0";
+            if(loginBtn) {
+                loginBtn.innerText = "Sign In";
+                loginBtn.onclick = toggleAuthModal;
+            }
+            if(dailyBtn) dailyBtn.style.display = "none";
+            if(adBtn) adBtn.style.display = "none";
         }
+    }
 
-        async function verifyOTP() {
-            const email = document.getElementById('authEmail').value;
-            const code = document.getElementById('otpCode').value;
-            const btn = document.getElementById('verifyBtn');
+    function logout() {
+        localStorage.removeItem('nexus_user');
+        location.reload();
+    }
 
-            if(!code) return alert("Enter the code!");
-            btn.innerText = "SYNCING...";
+    function toggleAuthModal() {
+        const modal = document.getElementById('authOverlay');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    }
 
-            try {
-                const res = await fetch(`${API}/auth/verify-otp`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email, code })
-                });
+    // --- 3. AUTHENTICATION (OTP) ---
 
-                const data = await res.json();
-                if(res.ok) {
-                    localStorage.setItem('nexus_user', JSON.stringify(data.user));
-                    location.reload();
-                } else alert(data.error);
-            } catch(e) { alert("Verification failed"); }
-        }
+    async function requestOTP(type) {
+        authType = type;
+        const email = document.getElementById('authEmail').value.trim();
+        const btn = document.getElementById('otpBtn');
+        if(!email || !email.includes('@')) return alert("Enter a valid email!");
 
-        async function loadPredictions() {
-            try {
-                const res = await fetch(`${API}/predictions`);
-                const data = await res.json();
-                const container = document.getElementById('prediction-list');
+        btn.innerText = "VERIFYING...";
+        btn.disabled = true;
 
-                if(data.length === 0) {
-                    container.innerHTML = "<p style='text-align:center; color:#555;'>No active predictions.</p>";
-                    return;
-                }
+        try {
+            const res = await fetch(`${API}/auth/request-otp`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, type: authType })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                document.getElementById('otpStep1').style.display = 'none';
+                document.getElementById('otpStep2').style.display = 'block';
+            } else {
+                alert(data.error);
+                btn.innerText = "SEND OTP";
+                btn.disabled = false;
+            }
+        } catch (e) { alert("Server starting... try again in 20s"); btn.disabled = false; }
+    }
 
-                let userBets = [];
-        if(currentUser && currentUser._id) {
-            try {
+    async function verifyOTP() {
+        const email = document.getElementById('authEmail').value;
+        const code = document.getElementById('otpCode').value;
+        const btn = document.getElementById('verifyBtn');
+        if(!code) return alert("Enter Code");
+
+        btn.innerText = "SYNCING...";
+        try {
+            const res = await fetch(`${API}/auth/verify-otp`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, code })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                localStorage.setItem('nexus_user', JSON.stringify(data.user));
+                location.reload(); 
+            } else alert(data.error);
+        } catch(e) { alert("Verify failed."); }
+    }
+
+    // --- 4. PREDICTIONS & BETTING ---
+
+    async function loadPredictions() {
+        try {
+            const res = await fetch(`${API}/predictions`);
+            const data = await res.json();
+            const container = document.getElementById('prediction-list');
+
+            if(!data || data.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#555;'>No active matchups.</p>";
+                return;
+            }
+
+            let userBets = [];
+            if(currentUser && currentUser._id) {
                 const betRes = await fetch(`${API}/user-bets-all/${currentUser._id}`);
                 userBets = await betRes.json();
-            } catch(e) { console.log("Guest mode or bet fetch failed"); }
-        }
+            }
 
-                container.innerHTML = data.map(p => {
-                    const isLocked = (p.status === "Closed" || p.status === "LOCKED");
-                    const mySlips = userBets.filter(b => b.matchId === p.matchId).length;
+            container.innerHTML = data.map(p => {
+                const isLocked = (p.status === "Closed" || p.status === "LOCKED");
+                const mySlips = userBets.filter(b => b.matchId === p.matchId).length;
 
-                    return `
-                        <div class="pred-card">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                                <span style="color:${isLocked ? '#ff4444' : '#00ff88'}; font-weight:bold; font-size:0.7rem;">
-                                    ● ${p.status.toUpperCase()}
-                                </span>
-                                ${mySlips > 0 ? `<span class="slip-badge">${mySlips} SLIPS BOUGHT</span>` : ''}
-                            </div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                                <div style="text-align:center;"><b style="display:block;">${p.p1}</b><small style="color:var(--nexus-orange)">${p.oddsP1}x</small></div>
-                                <span class="vs-badge">VS</span>
-                                <div style="text-align:center;"><b style="display:block;">${p.p2}</b><small style="color:var(--nexus-orange)">${p.oddsP2}x</small></div>
-                            </div>
-                            <div class="vote-btns">
-                                <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p1}</button>
-                                <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn" ${isLocked ? 'disabled' : ''}>DRAW</button>
-                                <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p2}</button>
-                            </div>
-                            ${mySlips > 0 && !isLocked ? `
-                                <button onclick="withdrawBet('${p.matchId}')" style="width:100%; margin-top:10px; background:none; border:1px solid #444; color:#666; font-size:0.7rem; padding:8px; cursor:pointer; border-radius:8px;">
-                                    WITHDRAW & REFUND ₦
-                                </button>` : ''}
-                        </div>`;
-                }).join('');
-            } catch(e) { console.error("Sync Error"); }
-        }
-        // --- DAILY REWARD LOGIC ---
-async function claimDaily() {
-    if(!currentUser || !currentUser._id) return toggleAuthModal();
-    
-    const btn = document.getElementById('dailyBtn');
-    btn.disabled = true;
-    btn.innerText = "WAIT...";
+                return `
+                <div class="pred-card">
+                    <div class="status-tag" style="color:${isLocked ? '#ff4444' : '#00ff88'};">● ${p.status.toUpperCase()}</div>
+                    ${mySlips > 0 ? `<div class="slip-badge">${mySlips} SLIPS</div>` : ''}
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin: 20px 0;">
+                        <div style="text-align:center;"><b style="display:block;">${p.p1}</b><small style="color:var(--nexus-orange)">${p.oddsP1}x</small></div>
+                        <span class="vs-badge">VS</span>
+                        <div style="text-align:center;"><b style="display:block;">${p.p2}</b><small style="color:var(--nexus-orange)">${p.oddsP2}x</small></div>
+                    </div>
+                    <div class="vote-btns">
+                        <button onclick="buySlip('${p.matchId}', 'p1', ${p.oddsP1})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p1}</button>
+                        <button onclick="buySlip('${p.matchId}', 'draw', ${p.oddsDraw})" class="v-btn" ${isLocked ? 'disabled' : ''}>DRAW</button>
+                        <button onclick="buySlip('${p.matchId}', 'p2', ${p.oddsP2})" class="v-btn" ${isLocked ? 'disabled' : ''}>BET ${p.p2}</button>
+                    </div>
+                    ${mySlips > 0 && !isLocked ? `
+                    <button onclick="withdrawBet('${p.matchId}')" style="width:100%; margin-top:10px; background:none; border:1px solid #333; color:#666; font-size:0.7rem; padding:8px; border-radius:8px; cursor:pointer;">WITHDRAW REFUND</button>
+                    ` : ''}
+                </div>`;
+            }).join('');
+        } catch(e) { console.log("Load Error", e); }
+    }
 
-    try {
-        const res = await fetch(`${API}/auth/claim-daily`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId: currentUser._id }) // Ensure ID is sent
+    async function buySlip(matchId, pick, multiplier) {
+        if(!currentUser) return toggleAuthModal();
+        try {
+            const res = await fetch(`${API}/bets/place`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId: currentUser._id, matchId, pick, slips: 1, multiplier })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                currentUser.balance = data.newBalance;
+                localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+                updateUI(); loadPredictions();
+                alert("✓ Slip Purchased!");
+            } else alert(data.error);
+        } catch(e) { alert("Error."); }
+    }
+
+    async function withdrawBet(matchId) {
+        if(!confirm("Withdraw all bets on this match for a refund?")) return;
+        try {
+            const res = await fetch(`${API}/bets/withdraw`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId: currentUser._id, matchId })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                currentUser.balance = data.newBalance;
+                localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+                updateUI(); loadPredictions();
+                alert("✓ ₦ Credits Refunded!");
+            } else alert(data.error);
+        } catch(e) { alert("Withdraw failed."); }
+    }
+
+    // --- 5. REWARDS (DAILY & AD) ---
+
+    async function claimDaily() {
+        if(!currentUser) return;
+        try {
+            const res = await fetch(`${API}/auth/claim-daily`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId: currentUser._id })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                currentUser.balance = data.newBalance;
+                localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+                updateUI(); alert("✓ +500 ₦ Received!");
+            } else alert(data.error);
+        } catch(e) { alert("Server busy."); }
+    }
+
+    async function openAdArea() {
+        if(!currentUser) return toggleAuthModal();
+        const setRes = await fetch(`${API}/admin/ad-settings`);
+        const settings = await setRes.json();
+        document.getElementById('adLinkBtn').href = settings.link;
+        document.getElementById('adLinkBtn').innerText = `1. OPEN LINK (+${settings.reward}₦)`;
+        await fetch(`${API}/ad/generate-code/${currentUser._id}`);
+        document.getElementById('adOverlay').style.display = 'flex';
+    }
+
+    function closeAdArea() { document.getElementById('adOverlay').style.display = 'none'; }
+
+    async function claimAdReward() {
+        const userCode = document.getElementById('userAdCode').value;
+        if(!userCode) return alert("Enter code!");
+        const res = await fetch(`${API}/auth/verify-ad-code`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ userId: currentUser._id, userCode })
         });
-
         const data = await res.json();
-
-        if (res.ok) {
-            // Update local storage so the UI updates
+        if(res.ok) {
             currentUser.balance = data.newBalance;
             localStorage.setItem('nexus_user', JSON.stringify(currentUser));
-            updateUI();
-            alert("✓ Nexus Credits Received! +500₦ added to your balance.");
-        } else {
-            // Show the actual error (e.g., "Try again in 12 hours")
-            alert(data.error || "Claim failed.");
-        }
-    } catch (e) { 
-        console.error(e);
-        alert("Connection Lost. Check your internet or refresh."); 
+            updateUI(); closeAdArea();
+            alert(`✓ +${data.rewardGiven} ₦ Added!`);
+        } else alert(data.error);
     }
-    
-    btn.disabled = false;
-    btn.innerText = "CLAIM 500₦";
-}
-// Update your existing updateUI() to show the Claim button
-function updateUI() {
-    const nameEl = document.getElementById('userInfo');
-    const balEl = document.getElementById('balanceDisplay');
-    const loginBtn = document.getElementById('loginBtn');
-    const dailyBtn = document.getElementById('dailyBtn');
-    const adBtn = document.getElementById('adBtn');
 
-    if (currentUser) {
-        // Show only the name part before @ if it's an email
-        const displayName = currentUser.username.includes('@') ? 
-                           currentUser.username.split('@')[0] : currentUser.username;
-        
-        nameEl.innerText = displayName.toUpperCase();
-        balEl.innerText = `₦ ${Number(currentUser.balance).toLocaleString()}`;
-        
-        // Change Sign In to Logout
-        loginBtn.innerText = "LOGOUT";
-        loginBtn.style.background = "#222"; // Darker color for logout
-        loginBtn.onclick = () => {
-            localStorage.removeItem('nexus_user');
-            location.reload();
-        };
-
-        // Show reward buttons only when logged in
-        if(dailyBtn) dailyBtn.style.display = "block";
-        if(adBtn) adBtn.style.display = "block";
-    } else {
-        nameEl.innerText = "Guest Striker";
-        balEl.innerText = "₦ 0";
-        loginBtn.innerText = "Sign In";
-        if(dailyBtn) dailyBtn.style.display = "none";
-        if(adBtn) adBtn.style.display = "none";
-    }
-}
-
-        async function buySlip(matchId, pick, multiplier) {
-            if(!currentUser) return toggleAuthModal();
-            try {
-                const res = await fetch(`${API}/bets/place`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ userId: currentUser._id, matchId, pick, slips: 1, multiplier })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    currentUser.balance = data.newBalance;
-                    localStorage.setItem('nexus_user', JSON.stringify(currentUser));
-                    updateUI();
-                    loadPredictions(); // Refresh slip count immediately
-                    alert(`✓ Slip Purchased! ₦100 Deducted.`);
-                } else alert(data.error);
-            } catch(e) { alert("Error placing bet."); }
-        }
-
-        async function withdrawBet(matchId) {
-            if (!confirm("Refund these slips?")) return;
-            try {
-                const res = await fetch(`${API}/bets/withdraw`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: currentUser._id, matchId })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    currentUser.balance = data.newBalance;
-                    localStorage.setItem('nexus_user', JSON.stringify(currentUser));
-                    location.reload(); 
-                } else alert(data.error);
-            } catch (e) { alert("Withdraw failed"); }
-        }
-        
-        async function openAdArea() {
-    if(!currentUser) return toggleAuthModal();
-    
-    // 1. Fetch current settings (To get the link)
-    const setRes = await fetch(`${API}/admin/ad-settings`);
-    const settings = await setRes.json();
-    
-    // 2. Update the link in the UI
-    const linkBtn = document.querySelector('#adOverlay .join-btn[target="_blank"]');
-    linkBtn.href = settings.link;
-    linkBtn.innerText = `1. OPEN LINK (FOR ${settings.reward}₦)`;
-
-    // 3. Generate the unique code
-    await fetch(`${API}/ad/generate-code/${currentUser._id}`);
-    
-    document.getElementById('adOverlay').style.display = 'flex';
-        }
-function closeAdArea() { document.getElementById('adOverlay').style.display = 'none'; }
-
-async function claimAdReward() {
-    const userCode = document.getElementById('userAdCode').value;
-    if(!userCode) return alert("Enter the code from the link first!");
-
-    const res = await fetch(`${API}/auth/verify-ad-code`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ userId: currentUser._id, userCode })
+    // --- 6. INITIALIZE ---
+    document.addEventListener('DOMContentLoaded', () => {
+        updateUI(); 
+        loadPredictions();
     });
+                </script>
 
-    const data = await res.json();
-    if(res.ok) {
-        currentUser.balance = data.newBalance;
-        localStorage.setItem('nexus_user', JSON.stringify(currentUser));
-        updateUI();
-        alert("✓ +100 ₦ Added to your balance!");
-        closeAdArea();
-    } else {
-        alert(data.error);
-    }
-}
-
-// Ensure adBtn shows in updateUI()
-function updateUI() {
-    if(currentUser) {
-        document.getElementById('adBtn').style.display = "block";
-        // ... rest of your existing updateUI ...
-    }
-}
-
-        window.onload = () => { updateUI(); loadPredictions(); };
-    </script>
+    
+                        
 </body>
 </html>
