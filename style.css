@@ -564,47 +564,59 @@ body.ann-open {
     color: black !important;
     box-shadow: 0 0 20px rgba(255, 136, 0, 0.4);
 }
-/* --- LIVE TICKER SYSTEM --- */
+
+
+/* --- 2. LIVE TICKER (MOVED BELOW HEADER) --- */
 .ticker-wrap {
     position: fixed;
-    top: 0;
+    top: 60px; /* Starts exactly where header ends */
+    left: 0;
     width: 100%;
-    overflow: hidden;
     height: 30px;
-    background-color: rgba(0, 0, 0, 0.9);
+    background: rgba(10, 10, 10, 0.95);
     border-bottom: 1px solid #333;
-    z-index: 2000; /* Highest priority */
+    z-index: 1000; /* Just below header */
     display: flex;
     align-items: center;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
 }
 
+/* --- 3. PREDICTIONS USER BAR (IF APPLICABLE) --- */
+.user-dashboard {
+    top: 90px !important; /* Header (60) + Ticker (30) */
+    position: fixed;
+    z-index: 999;
+}
+
+/* --- 4. BODY PADDING (PREVENT OVERLAP) --- */
+body {
+    padding-top: 100px !important; /* Room for Header + Ticker */
+}
+
+/* On prediction page, body needs more room for the user bar */
+body.pred-page {
+    padding-top: 150px !important;
+}
+
+/* Ticker Animation */
 .ticker-move {
     display: flex;
     white-space: nowrap;
-    animation: ticker-scroll 30s linear infinite;
+    animation: ticker-scroll 25s linear infinite;
 }
 
 .ticker-item {
-    display: inline-block;
-    padding: 0 50px;
-    font-size: 0.75rem;
-    color: var(--accent-yellow);
+    padding: 0 40px;
+    color: #fff;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-.ticker-item span {
-    color: #00ff88; /* Success green for the action */
-    margin-right: 5px;
-}
+.ticker-item span { color: var(--accent-yellow); margin-right: 8px; }
 
 @keyframes ticker-scroll {
-    0% { transform: translateX(100%); }
+    0% { transform: translateX(100vw); }
     100% { transform: translateX(-100%); }
 }
-
-/* Adjust Header Position */
-header { top: 30px !important; }
-.user-dashboard { top: 85px !important; }
-body { padding-top: 150px !important; }
