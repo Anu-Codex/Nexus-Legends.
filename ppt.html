@@ -261,14 +261,17 @@
             loadPredictions();
         };
         async function requestOTP() {
-    const email = document.getElementById('authEmail').value;
+    const emailInput = document.getElementById('authEmail');
     const btn = document.getElementById('otpBtn');
+    const email = emailInput.value.trim();
     
     if(!email || !email.includes('@')) return alert("Enter a valid email address!");
 
-    // UI Change
+    // Set UI to Sending state
     btn.innerText = "SENDING...";
     btn.disabled = true;
+
+    console.log("Connecting to:", `${API}/auth/request-otp`);
 
     try {
         const res = await fetch(`${API}/auth/request-otp`, {
@@ -280,16 +283,19 @@
         const data = await res.json();
 
         if(res.ok) {
-            // Switch to Step 2 (Code Entry)
+            alert("Code sent to " + email);
             document.getElementById('otpStep1').style.display = 'none';
             document.getElementById('otpStep2').style.display = 'block';
         } else {
-            alert(data.error || "Failed to send code.");
+            // THE SERVER SENT AN ERROR (e.g. 500 or 400)
+            alert("Error: " + data.error);
             btn.innerText = "SEND OTP";
             btn.disabled = false;
         }
     } catch (e) {
-        alert("Server is offline or waking up. Please try again in 20 seconds.");
+        // THE SERVER IS DOWN OR URL IS WRONG
+        console.error("Fetch Error:", e);
+        alert("Server not responding. This usually happens if Render is sleeping. Try again in 30 seconds.");
         btn.innerText = "SEND OTP";
         btn.disabled = false;
     }
