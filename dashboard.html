@@ -180,6 +180,13 @@
     </div>
 </div>
 
+            <div class="card" style="border-left: 4px solid #00ff88;">
+    <h3><i class="fa-solid fa-ad"></i> AD-REWARD MANAGER</h3>
+    <p style="font-size:0.7rem; color:#888;">Set the code that users find at the end of your shortlink.</p>
+    <input type="text" id="newAdCode" placeholder="Current Secret Code">
+    <button onclick="updateAdCode()" class="btn-blue" style="background:#00ff88; color:black;">UPDATE CODE</button>
+            </div>
+
             <!-- BROADCAST -->
             <div class="card" style="border-left: 4px solid #ff00ff;">
                 <h3><i class="fa-solid fa-bullhorn"></i> Broadcast Center</h3>
@@ -618,6 +625,15 @@ async function settleBets(matchId, result) {
         // We don't need to refresh the whole page, just reload the bookmaker list
         loadBookmaker(); 
     }
+        }
+        async function updateAdCode() {
+    const code = document.getElementById('newAdCode').value;
+    const res = await fetch(`${API}/admin/set-ad-code`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ code })
+    });
+    if(res.ok) notify("Ad System Updated!", "#00ff88");
         }
         
         
