@@ -7,133 +7,145 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
-        :root { --nexus-orange: #ff8800; --nexus-blue: #0041FF; --nexus-yellow: #E4FF00; }
-        body { background: radial-gradient(circle at top, #1a0f00 0%, #050505 100%); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding-top: 130px; }
+        :root { --nexus-orange: #ff8800; --nexus-blue: #0041FF; --nexus-yellow: #E4FF00; --nexus-green: #00ff88; }
+        body { background: radial-gradient(circle at top, #1a0f00 0%, #050505 100%); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding-top: 120px; }
         
-        .user-bar { 
-            background: rgba(0,0,0,0.9); padding: 10px 5%; 
-            display: flex; justify-content: space-between; align-items: center;
-            position: fixed; top: 60px; width: 100%; z-index: 99; 
-            border-bottom: 1px solid #222; box-sizing: border-box;
-            backdrop-filter: blur(10px);
-        }
-        .nexus-currency { color: var(--nexus-yellow); font-weight: 900; font-size: 1.2rem; }
-
+        /* --- UNIFIED PREMIUM HEADER --- */
         header { 
-            display:flex; justify-content:space-between; align-items:center; 
-            padding:15px 5%; background:rgba(0,0,0,1); 
-            position:fixed; top:0; width:100%; z-index:100; 
-            border-bottom:1px solid #222; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px 5%; background: #000; 
+            position: fixed; top: 0; width: 100%; z-index: 1000; 
+            border-bottom: 1px solid #1a1a1a; box-sizing: border-box;
+        }
+        .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; }
+        .logo span { color: var(--nexus-yellow); }
+        .back-link { color: #888; text-decoration: none; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; transition: 0.3s; }
+        .back-link:hover { color: white; }
+
+        /* --- DYNAMIC USER DASHBOARD --- */
+        .user-dashboard {
+            position: fixed; top: 55px; width: 100%; z-index: 999;
+            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid #222; padding: 10px 5%; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .pred-container { padding: 20px 5%; max-width: 800px; margin: 0 auto; }
+        .user-meta { display: flex; flex-direction: column; }
+        #userInfo { font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+        #balanceDisplay { color: var(--nexus-yellow); font-weight: 900; font-size: 1.2rem; text-shadow: 0 0 10px rgba(228, 255, 0, 0.2); }
+
+        .action-tray { display: flex; gap: 8px; align-items: center; }
         
+        /* Reward Buttons */
+        .reward-btn {
+            padding: 6px 12px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;
+            cursor: pointer; border: 1px solid transparent; text-transform: uppercase;
+            transition: 0.3s; display: none; /* Shown via JS */
+        }
+        #dailyBtn { background: #1a1a1a; border-color: var(--nexus-yellow); color: var(--nexus-yellow); }
+        #adBtn { background: #1a1a1a; border-color: var(--nexus-green); color: var(--nexus-green); box-shadow: 0 0 10px rgba(0, 255, 136, 0.1); }
+        
+        .auth-trigger {
+            background: var(--nexus-blue); color: white; padding: 6px 15px;
+            border-radius: 4px; border: none; font-weight: 800; font-size: 0.7rem;
+            cursor: pointer; text-transform: uppercase;
+        }
+
+        /* --- PREDICTIONS UI --- */
+        .pred-container { padding: 20px 5%; max-width: 800px; margin: 0 auto; }
         .pred-card {
             background: rgba(20,20,20,0.8); border: 1px solid #333; border-radius: 20px;
             padding: 25px; margin-bottom: 25px; backdrop-filter: blur(10px);
             position: relative; overflow: hidden;
         }
-
+        .status-tag { position: absolute; top: 15px; left: 20px; font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; }
+        .slip-badge { position: absolute; top: 15px; right: 20px; background: var(--nexus-orange); color: black; padding: 3px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 800; }
+        
         .vs-badge { background: var(--nexus-orange); color: black; font-weight: 900; padding: 5px 12px; border-radius: 4px; font-size: 0.8rem; }
-
         .vote-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
         .v-btn { 
             background: #111; border: 1px solid #333; color: white; padding: 12px; 
             border-radius: 10px; cursor: pointer; font-weight: 700; transition: 0.3s;
             font-family: inherit; font-size: 0.7rem; text-transform: uppercase;
         }
-        .v-btn:hover { border-color: var(--nexus-orange); background: #1a1a1a; }
-        .slip-badge { background: var(--nexus-orange); color: black; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; }
+        .v-btn:hover:not(:disabled) { border-color: var(--nexus-orange); background: #1a1a1a; }
+        .v-btn:disabled { opacity: 0.3; }
 
+        /* MODAL FIX */
         .roster-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
             display: none; align-items: center; justify-content: center; z-index: 9999;
         }
-        .roster-modal {
-            background: #0a0a0a; border: 1px solid var(--nexus-yellow);
-            width: 90%; max-width: 350px; border-radius: 20px; overflow: hidden;
-        }
-        .roster-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .roster-body { padding: 20px; }
-        .roster-body input { 
-            width: 100%; padding: 12px; margin-bottom: 10px; 
-            background: #000; border: 1px solid #333; color: white; 
-            border-radius: 8px; font-family: inherit; box-sizing: border-box;
-        }
+        .roster-modal { background: #0a0a0a; border: 1px solid var(--nexus-yellow); width: 90%; max-width: 350px; border-radius: 20px; overflow: hidden; }
+        .roster-body { padding: 25px; }
+        .roster-body input { width: 100%; padding: 12px; margin-bottom: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 8px; font-family: inherit; }
+        
+        .join-btn { width: 100%; background: var(--nexus-yellow); color: black; border: none; padding: 14px; font-weight: 800; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
 
-        .join-btn { 
-            width: 100%; background: var(--nexus-yellow); color: black; 
-            border: none; padding: 12px; font-weight: 800; border-radius: 8px; cursor: pointer;
+        @media (max-width: 400px) {
+            #userInfo { display: none; } /* Hide text on tiny screens to save space */
+            .user-dashboard { padding: 10px 15px; }
         }
-        .sec-btn { background: #1a1a1a; color: white; border: 1px solid #333; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">NEXUS <span>PREDICTS</span></div>
-        <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-arrow-left"></i> BACK</a>
+        <a href="index.html" class="back-link"><i class="fa-solid fa-chevron-left"></i> Back to Home</a>
     </header>
 
-    <div id="authSection" class="user-bar">
-    <div id="userInfo" style="font-weight:bold; color:#888;">Welcome, Guest Striker</div>
-    
-    <!-- Updated Center Area -->
-    <div style="display:flex; align-items:center; gap:15px;">
-        <div id="balanceDisplay" class="nexus-currency">₦ 0</div>
-        <button id="dailyBtn" onclick="claimDaily()" class="sec-btn" style="display:none; background:var(--nexus-yellow); color:black; font-size:0.6rem; border:none; padding:4px 8px;">CLAIM 500₦</button>
-    </div>
-
-    <button onclick="toggleAuthModal()" id="loginBtn" class="sec-btn" style="padding:5px 15px;">SIGN IN</button>
-    </div>
-        <!-- AD BUTTON -->
-        <button id="adBtn" onclick="openAdArea()" class="sec-btn" style="display:none; border-color:#00ff88; color:#00ff88; font-size:0.6rem;">FREE 100₦</button>
-    </div>
-</div>
-
-<!-- AD MODAL -->
-<div id="adOverlay" class="roster-overlay">
-    <div class="roster-modal" style="max-width:350px; border-color:#00ff88;">
-        <div class="roster-header" style="background:#00ff88; color:black;">
-            <h2 style="margin:0; font-size:1.1rem;">AD REWARD CENTER</h2>
-            <i class="fa-solid fa-xmark" onclick="closeAdArea()" style="cursor:pointer;"></i>
+    <div class="user-dashboard">
+        <div class="user-meta">
+            <span id="userInfo">Guest Striker</span>
+            <div id="balanceDisplay">₦ 0</div>
         </div>
-        <div class="roster-body" style="text-align:center;">
-            <p style="font-size:0.8rem; color:#888;">Complete the link to find the <b>Secret Code</b>.</p>
-            
-            <!-- Replace with your actual shortlink from inshorturl.in -->
-            <a href="https://shrinkme.click/kk11PbZ8" target="_blank" class="join-btn" style="background:#111; color:#00ff88; border:1px solid #00ff88; margin-bottom:20px; display:block; text-decoration:none;">1. OPEN AD LINK</a>
-            
-            <input type="text" id="userAdCode" placeholder="Enter Secret Code Here" style="text-align:center;">
-            <button onclick="claimAdReward()" class="join-btn" style="background:#00ff88; color:black;">2. CLAIM 100 ₦</button>
+        
+        <div class="action-tray">
+            <!-- These show up only when logged in -->
+            <button id="dailyBtn" onclick="claimDaily()" class="reward-btn">Daily</button>
+            <button id="adBtn" onclick="openAdArea()" class="reward-btn">Free ₦</button>
+            <!-- Sign In / Logout -->
+            <button onclick="toggleAuthModal()" id="loginBtn" class="auth-trigger">Sign In</button>
         </div>
     </div>
-</div>
 
     <!-- AUTH MODAL -->
     <div id="authOverlay" class="roster-overlay">
         <div class="roster-modal">
-            <div class="roster-header" style="background:var(--nexus-yellow); color:black;">
-                <h2 style="margin:0; font-size:1.1rem;">ARENA AUTHENTICATION</h2>
+            <div style="background:var(--nexus-yellow); padding: 15px 20px; color:black; display:flex; justify-content:space-between; align-items:center;">
+                <b style="letter-spacing:1px;">ARENA AUTH</b>
                 <i class="fa-solid fa-xmark" onclick="toggleAuthModal()" style="cursor:pointer;"></i>
             </div>
-
-            <!-- STEP 1: Email Entry -->
             <div class="roster-body" id="otpStep1">
-                <input type="email" id="authEmail" placeholder="Enter your email address">
-                <button onclick="requestOTP('signup')" id="otpBtn" class="join-btn">SIGN UP & GET ₦10,000</button>
-                <p style="text-align:center; margin:10px 0; font-size:0.7rem; color:#555;">OR</p>
-                <button onclick="requestOTP('login')" class="sec-btn" style="width:100%; padding:10px; border-radius:8px;">SIGN IN (EXISTING USER)</button>
+                <input type="email" id="authEmail" placeholder="Enter Email Address">
+                <button onclick="requestOTP('signup')" id="otpBtn" class="join-btn">Register & Get ₦10k</button>
+                <div style="text-align:center; margin:12px 0; font-size:0.7rem; color:#444; font-weight:bold;">OR</div>
+                <button onclick="requestOTP('login')" style="background:transparent; color:white; border:1px solid #333; width:100%; padding:10px; border-radius:8px; cursor:pointer; font-family:inherit;">Sign In Existing</button>
             </div>
-
-            <!-- STEP 2: Code Entry -->
             <div class="roster-body" id="otpStep2" style="display:none;">
-                <p style="font-size:0.8rem; color:#888; margin-bottom:10px;">Enter the code sent to your email:</p>
-                <input type="number" id="otpCode" placeholder="000000" style="text-align:center; letter-spacing:5px;">
-                <button onclick="verifyOTP()" id="verifyBtn" class="join-btn">VERIFY & ENTER ARENA</button>
-                <button onclick="location.reload()" style="background:none; border:none; color:#444; width:100%; margin-top:10px; cursor:pointer;">Change Email</button>
+                <p style="font-size:0.8rem; color:#888; margin-bottom:10px;">Enter 6-digit code:</p>
+                <input type="number" id="otpCode" placeholder="000000" style="text-align:center; letter-spacing:5px; font-size:1.2rem;">
+                <button onclick="verifyOTP()" id="verifyBtn" class="join-btn">Verify Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AD MODAL -->
+    <div id="adOverlay" class="roster-overlay">
+        <div class="roster-modal" style="border-color:var(--nexus-green);">
+            <div style="background:var(--nexus-green); padding: 15px 20px; color:black; display:flex; justify-content:space-between;">
+                <b>REWARD VAULT</b>
+                <i class="fa-solid fa-xmark" onclick="closeAdArea()" style="cursor:pointer;"></i>
+            </div>
+            <div class="roster-body" style="text-align:center;">
+                <p style="font-size:0.8rem; color:#888; margin-bottom:20px;">Complete the link to find your code.</p>
+                <a href="https://inshorturl.in/9AamdnB" id="adLinkBtn" target="_blank" class="join-btn" style="background:#111; color:var(--nexus-green); border:1px solid var(--nexus-green); display:block; text-decoration:none; margin-bottom:15px;">1. OPEN LINK</a>
+                <input type="text" id="userAdCode" placeholder="Enter Secret Code" style="text-align:center;">
+                <button onclick="claimAdReward()" class="join-btn" style="background:var(--nexus-green);">2. CLAIM ₦ REWARD</button>
             </div>
         </div>
     </div>
