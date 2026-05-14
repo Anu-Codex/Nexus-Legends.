@@ -653,24 +653,30 @@ window.addEventListener('DOMContentLoaded', loadTop5Results);
     if(!tickerContainer) return;
 
     try {
+        // Use the exact link to your Render server
         const res = await fetch('https://nl-server-k7i9.onrender.com/api/activities');
+        
+        if (!res.ok) throw new Error("Server error");
+        
         const logs = await res.json();
 
-        if (logs.length > 0) {
-            // Join all activities with a spacer icon
+        if (logs && logs.length > 0) {
             tickerContainer.innerHTML = logs.map(log => `
                 <div class="ticker-item">
                     <span>● ARENA NEWS:</span> ${log.text}
                 </div>
             `).join('');
         }
-    } catch (e) { 
-        tickerContainer.innerHTML = '<div class="ticker-item"><span>●</span> SAT-LINK OFFLINE</div>';
+    } catch (e) {
+        console.log("Ticker sync error:", e);
+        // This only shows if the server is literally DOWN (sleeping)
+        tickerContainer.innerHTML = '<div class="ticker-item"><span>●</span> SAT-LINK INITIALIZING... PLEASE WAIT</div>';
     }
 }
 
-// Start immediately and check for new news every 30 seconds
+// Start immediately
 updateTicker();
+// Check for new activity every 30 seconds
 setInterval(updateTicker, 30000);
 
 
