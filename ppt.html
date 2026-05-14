@@ -262,26 +262,38 @@
         };
         async function requestOTP() {
     const email = document.getElementById('authEmail').value;
-    if(!email.includes('@')) return alert("Enter a valid email");
-
     const btn = document.getElementById('otpBtn');
+    
+    if(!email || !email.includes('@')) return alert("Enter a valid email address!");
+
+    // UI Change
     btn.innerText = "SENDING...";
     btn.disabled = true;
 
-    const res = await fetch(`${API}/auth/request-otp`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email })
-    });
+    try {
+        const res = await fetch(`${API}/auth/request-otp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email })
+        });
 
-    if(res.ok) {
-        document.getElementById('otpStep1').style.display = 'none';
-        document.getElementById('otpStep2').style.display = 'block';
-    } else {
-        alert("Error sending OTP");
-        btn.disabled = false;
+        const data = await res.json();
+
+        if(res.ok) {
+            // Switch to Step 2 (Code Entry)
+            document.getElementById('otpStep1').style.display = 'none';
+            document.getElementById('otpStep2').style.display = 'block';
+        } else {
+            alert(data.error || "Failed to send code.");
+            btn.innerText = "SEND OTP";
+            btn.disabled = false;
+        }
+    } catch (e) {
+        alert("Server is offline or waking up. Please try again in 20 seconds.");
         btn.innerText = "SEND OTP";
+        btn.disabled = false;
     }
-}
+        }
 
 async function verifyOTP() {
     const email = document.getElementById('authEmail').value;
