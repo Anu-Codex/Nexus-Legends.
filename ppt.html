@@ -346,7 +346,16 @@ function updateUI() {
         async function openAdArea() {
     if(!currentUser) return toggleAuthModal();
     
-    // Tell the server to prepare a unique code for this user session
+    // 1. Fetch current settings (To get the link)
+    const setRes = await fetch(`${API}/admin/ad-settings`);
+    const settings = await setRes.json();
+    
+    // 2. Update the link in the UI
+    const linkBtn = document.querySelector('#adOverlay .join-btn[target="_blank"]');
+    linkBtn.href = settings.link;
+    linkBtn.innerText = `1. OPEN LINK (FOR ${settings.reward}₦)`;
+
+    // 3. Generate the unique code
     await fetch(`${API}/ad/generate-code/${currentUser._id}`);
     
     document.getElementById('adOverlay').style.display = 'flex';
