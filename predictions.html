@@ -158,7 +158,14 @@
     </div>
     <script>
     const API = 'https://nl-server-k7i9.onrender.com/api';
-    
+
+        // CATCH REFERRAL ID ON ARRIVAL
+const urlParams = new URLSearchParams(window.location.search);
+const refId = urlParams.get('ref');
+if (refId) {
+    localStorage.setItem('pending_referral', refId);
+    console.log("Referral ID Captured:", refId);
+}
     // 1. INITIALIZE DATA
     let currentUser = null;
     try {
@@ -245,24 +252,37 @@
     }
 
     async function verifyOTP() {
-        const email = document.getElementById('authEmail').value;
-        const code = document.getElementById('otpCode').value;
-        const btn = document.getElementById('verifyBtn');
-        if(!code) return alert("Enter Code");
+    const email = document.getElementById('authEmail').value;
+    const code = document.getElementById('otpCode').value;
+    const btn = document.getElementById('verifyBtn');
+    
+    if(!code) return alert("Enter Code");
 
-        btn.innerText = "SYNCING...";
-        try {
-            const res = await fetch(`${API}/auth/verify-otp`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, code })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                localStorage.setItem('nexus_user', JSON.stringify(data.user));
-                location.reload(); 
-            } else alert(data.error);
-        } catch(e) { alert("Verify failed."); }
+    // GET THE CAPTURED REFERRAL ID FROM MEMORY
+    const inviteCode = localStorage.getItem('pending_referral');
+
+    btn.innerText = "SYNCING...";
+    try {
+        const res = await fetch(`${API}/auth/verify-otp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ 
+                email, 
+                code, 
+                inviteCode: inviteCode // This sends the recruiter ID to the server
+            })
+        });
+        const data = await res.json();
+        if(res.ok) {
+            localStorage.setItem('nexus_user', JSON.stringify(data.user));
+            // CLEAN UP STORAGE AFTER SUCCESS
+            localStorage.removeItem('pending_referral');
+            location.reload(); 
+        } else {
+            alert(data.error);
+            btn.innerText = "VERIFY ACCOUNT";
+        }
+    } catch(e) { alert("Verify failed."); }
     }
 
     // --- 4. PREDICTIONS & BETTING ---
