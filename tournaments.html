@@ -147,7 +147,16 @@
         }
 
         // --- LOGIC FUNCTIONS ---
-        function shareTour(id, title) { const url = `${window.location.origin}/index.html`; if (navigator.share) { navigator.share({ title, text: `Join ${title}!`, url }); } else { navigator.clipboard.writeText(url); alert("Link Copied!"); } }
+        // --- SHARE LOGIC ---
+        function shareTour(id, title) {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: `Join ${title}`, text: `Check out this eFootball tournament on Nexus Legends!`, url });
+            } else {
+                navigator.clipboard.writeText(url);
+                alert("Link Copied to Clipboard!");
+            }
+        }
         
         let activeApplyTourId = ""; // Global variable to store ID
 
