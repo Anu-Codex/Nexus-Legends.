@@ -147,17 +147,23 @@
         }
 
         // --- LOGIC FUNCTIONS ---
-        // --- SHARE LOGIC ---
-        function shareTour(id, title) {
-            const url = window.location.href;
-            if (navigator.share) {
-                navigator.share({ title: `Join ${title}`, text: `Check out this eFootball tournament on Nexus Legends!`, url });
-            } else {
-                navigator.clipboard.writeText(url);
-                alert("Link Copied to Clipboard!");
-            }
-        }
-        
+        // --- CORRECTED SHARE LOGIC ---
+function shareTour(id, title) {
+    // This line creates the link: https://yourdomain.com/view-tournament.html?id=12345
+    const url = window.location.origin + '/view-tournament.html?id=' + id;
+    
+    if (navigator.share) {
+        navigator.share({ 
+            title: `Nexus Legends: ${title}`, 
+            text: `Check out the details for the ${title} Tournament!`, 
+            url: url 
+        }).catch(err => console.log("Share cancelled"));
+    } else {
+        // Fallback: Copy to clipboard if the browser doesn't support native share
+        navigator.clipboard.writeText(url);
+        alert("Tournament View Link Copied to Clipboard!");
+    }
+}
         let activeApplyTourId = ""; // Global variable to store ID
 
         function openApply(id, title) {
