@@ -13,20 +13,16 @@
         
         .detail-container { max-width: 800px; margin: 20px auto; background: rgba(20, 20, 20, 0.9); border: 1px solid #333; border-radius: 20px; overflow: hidden; backdrop-filter: blur(10px); border-top: 4px solid var(--accent-yellow); }
         
-        /* Header Info */
         .tour-header { padding: 30px; border-bottom: 1px solid #222; text-align: center; }
         .prize-badge { background: var(--accent-yellow); color: black; padding: 5px 15px; border-radius: 5px; font-weight: 800; display: inline-block; margin: 15px 0; }
         
-        /* Tabs Navigation */
         .tab-nav { display: grid; grid-template-columns: repeat(4, 1fr); background: #111; border-bottom: 1px solid #222; }
         .tab-btn { padding: 15px 5px; border: none; background: none; color: #888; font-family: inherit; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; }
         .tab-btn.active { color: var(--accent-yellow); background: rgba(228, 255, 0, 0.05); border-bottom: 2px solid var(--accent-yellow); }
 
-        /* Content Areas */
         .tab-content { padding: 25px; display: none; min-height: 300px; }
         .tab-content.active { display: block; }
 
-        /* Reusing your Table & List Styles */
         table { width: 100%; text-align: center; font-size: 0.8rem; border-collapse: collapse; background: #000; margin-top: 10px; }
         th { background: #222; color: #888; padding: 10px; }
         td { padding: 10px; border-bottom: 1px solid #111; }
@@ -40,19 +36,17 @@
 <body>
 
     <div id="loader" style="text-align: center; margin-top: 100px;">
-        <h2 style="color:var(--accent-yellow);">CONNECTING TO ARENA...</h2>
+        <h2 id="loadStatus" style="color:var(--accent-yellow);">CONNECTING TO ARENA...</h2>
     </div>
 
     <div id="mainUI" class="detail-container" style="display: none;">
-        <!-- Header -->
         <div class="tour-header">
-            <a href="index.html" style="color:#555; text-decoration: none; float: left;"><i class="fa-solid fa-house"></i></a>
+            <a href="tournaments.html" style="color:#555; text-decoration: none; float: left;"><i class="fa-solid fa-arrow-left"></i></a>
             <h1 id="tTitle" style="margin: 0; font-size: 2rem; color: white;"></h1>
             <div id="tStatus" style="font-weight: 800; letter-spacing: 2px; margin-top: 5px;"></div>
             <div class="prize-badge">PRIZE: <span id="tPrize"></span></div>
         </div>
 
-        <!-- Navigation Tabs -->
         <div class="tab-nav">
             <button class="tab-btn active" onclick="openTab(event, 'tab-info')">Info</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-roster')">Roster</button>
@@ -60,7 +54,6 @@
             <button class="tab-btn" onclick="openTab(event, 'tab-fixtures')">Brackets</button>
         </div>
 
-        <!-- Tab: Info -->
         <div id="tab-info" class="tab-content active">
             <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 10px;">
                 <p><i class="fa-solid fa-users" style="color:var(--accent-blue)"></i> Total Teams: <strong id="tTeams"></strong></p>
@@ -69,23 +62,12 @@
                     🏆 CHAMPION: <span id="tWinner"></span>
                 </p>
             </div>
-            <a href="#" id="tLink" class="btn-join">JOIN WHATSAPP GROUP</a>
+            <a href="#" id="tLink" target="_blank" class="btn-join">JOIN WHATSAPP GROUP</a>
         </div>
 
-        <!-- Tab: Roster -->
-        <div id="tab-roster" class="tab-content">
-            <div id="rosterList"></div>
-        </div>
-
-        <!-- Tab: Standings -->
-        <div id="tab-standings" class="tab-content">
-            <div id="standingsTable"></div>
-        </div>
-
-        <!-- Tab: Fixtures -->
-        <div id="tab-fixtures" class="tab-content">
-            <div id="fixtureList"></div>
-        </div>
+        <div id="tab-roster" class="tab-content"><div id="rosterList"></div></div>
+        <div id="tab-standings" class="tab-content"><div id="standingsTable"></div></div>
+        <div id="tab-fixtures" class="tab-content"><div id="fixtureList"></div></div>
     </div>
 
     <script>
@@ -109,8 +91,13 @@
                     
                     document.getElementById('loader').style.display = 'none';
                     document.getElementById('mainUI').style.display = 'block';
+                } else {
+                    document.getElementById('loadStatus').innerText = "Tournament Not Found";
                 }
-            } catch(e) { document.getElementById('loader').innerText = "Arena Connection Lost"; }
+            } catch(e) { 
+                document.getElementById('loadStatus').innerText = "Arena Connection Lost";
+                console.error(e);
+            }
         }
 
         function renderGeneralInfo() {
@@ -120,7 +107,7 @@
             document.getElementById('tPrize').innerText = tour.prize || 'Trophy';
             document.getElementById('tTeams').innerText = tour.totalTeams;
             document.getElementById('tDate').innerText = tour.date;
-            document.getElementById('tLink').href = tour.joinLink;
+            document.getElementById('tLink').href = tour.joinLink || "#";
             if(tour.status === 'Ended') {
                 document.getElementById('winnerBox').style.display = 'block';
                 document.getElementById('tWinner').innerText = tour.winner || 'TBD';
@@ -138,98 +125,34 @@
         }
 
         function renderStandings() {
-    const container = document.getElementById('standingsTable');
-    if (!tour.roster || tour.roster.length === 0) {
-        container.innerHTML = "Standings not available.";
-        return;
-    }
-
-    let stats = {};
-
-    // 1. Initialize stats for all teams in roster (Trim names to prevent errors)
-    (tour.roster || []).forEach(tm => {
-        const cleanName = tm.teamName.trim();
-        stats[cleanName] = { 
-            name: cleanName, 
-            group: tm.groupName || "Group A", 
-            p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 
-        };
-    });
-
-    // 2. Process all fixture matches to calculate points
-    (tour.fixtures || []).forEach(stg => {
-        stg.matches.forEach(m => {
-            const p1 = m.p1.trim();
-            const p2 = m.p2.trim();
-
-            if (m.s1 !== "-" && m.s2 !== "-" && stats[p1] && stats[p2]) {
-                const s1 = parseInt(m.s1);
-                const s2 = parseInt(m.s2);
-                
-                stats[p1].p++; stats[p2].p++;
-                stats[p1].gf += s1; stats[p1].ga += s2;
-                stats[p2].gf += s2; stats[p2].ga += s1;
-
-                if (s1 > s2) { 
-                    stats[p1].w++; stats[p1].pts += 3; stats[p2].l++; 
-                } else if (s2 > s1) { 
-                    stats[p2].w++; stats[p2].pts += 3; stats[p1].l++; 
-                } else { 
-                    stats[p1].d++; stats[p2].d++; stats[p1].pts += 1; stats[p2].pts += 1; 
-                }
+            const container = document.getElementById('standingsTable');
+            if (!tour.roster || tour.roster.length === 0) {
+                container.innerHTML = "Standings not available.";
+                return;
             }
-        });
-    });
-
-    // 3. Grouping logic
-    const groups = {};
-    Object.values(stats).forEach(s => { 
-        let gName = tour.tableType === "Normal" ? "Tournament Standings" : s.group; 
-        if(!groups[gName]) groups[gName]=[]; 
-        groups[gName].push(s); 
-    });
-    
-    // 4. Sort and Generate Table
-    container.innerHTML = Object.keys(groups).map(gName => {
-        // Sort by Points > GD > GF
-        groups[gName].sort((a,b) => (b.pts - a.pts) || ((b.gf - b.ga) - (a.gf - a.ga)) || (b.gf - a.gf));
-        
-        return `
-        <h3 style="color:var(--accent-yellow); font-size:0.9rem; margin-bottom:5px; text-transform:uppercase;">${gName}</h3>
-        <table style="margin-bottom:25px;">
-            <tr>
-                <th style="text-align:left;">TEAM</th>
-                <th>P</th><th>W</th><th>D</th><th>L</th>
-                <th style="color:#00ff88">GF</th>
-                <th style="color:#ff003c">GA</th>
-                <th>GD</th>
-                <th style="color:var(--accent-yellow)">PTS</th>
-            </tr>
-            ${groups[gName].map((s, i) => `
-                <tr>
-                    <td style="text-align:left; font-weight:bold;">${i+1}. ${s.name}</td>
-                    <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
-                    <td style="color:#00ff88">${s.gf}</td>
-                    <td style="color:#ff003c">${s.ga}</td>
-                    <td>${s.gf - s.ga}</td>
-                    <td style="color:var(--accent-yellow); font-weight:900;">${s.pts}</td>
-                </tr>
-            `).join('')}
-        </table>`;
-    }).join('') || "Standings being calculated...";
-        }
+            let stats = {};
+            tour.roster.forEach(tm => {
+                const name = tm.teamName.trim();
+                stats[name] = { name, g: tm.groupName || "Group A", p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 };
+            });
+            (tour.fixtures || []).forEach(stg => stg.matches.forEach(m => {
+                const p1 = m.p1.trim(), p2 = m.p2.trim();
+                if(m.s1 !== "-" && m.s2 !== "-" && stats[p1] && stats[p2]){
+                    let s1 = parseInt(m.s1), s2 = parseInt(m.s2);
+                    stats[p1].p++; stats[p2].p++; stats[p1].gf += s1; stats[p1].ga += s2; stats[m.p2.trim()].gf += s2; stats[m.p2.trim()].ga += s1;
+                    if(s1 > s2){ stats[p1].w++; stats[p1].pts += 3; stats[p2].l++; } 
+                    else if(s2 > s1){ stats[p2].w++; stats[p2].pts += 3; stats[p1].l++; } 
+                    else { stats[p1].d++; stats[p2].d++; stats[p1].pts += 1; stats[p2].pts += 1; }
+                }
+            }));
             const groups = {};
-            Object.values(stats).forEach(s => { let g = tour.tableType === "Normal" ? "Standings" : s.group; if(!groups[g]) groups[g]=[]; groups[g].push(s); });
-            
-            container.innerHTML = Object.keys(groups).map(gName => {
-                groups[gName].sort((a,b) => (b.pts - a.pts) || ((b.gf-b.ga)-(a.gf-a.ga)) || (b.gf-a.gf));
-                return `
-                <h3 style="color:var(--accent-yellow); font-size:0.9rem; margin-bottom:5px;">${gName}</h3>
-                <table>
-                    <tr><th>TEAM</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr>
-                    ${groups[gName].map((s,i) => `<tr><td style="text-align:left;">${i+1}. ${s.name}</td><td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf-s.ga}</td><td style="color:var(--accent-yellow)">${s.pts}</td></tr>`).join('')}
-                </table>`;
-            }).join('') || "Standings not available.";
+            Object.values(stats).forEach(s => { let gn = tour.tableType === "Normal" ? "Standings" : s.g; if(!groups[gn]) groups[gn]=[]; groups[gn].push(s); });
+            container.innerHTML = Object.keys(groups).map(gn => {
+                groups[gn].sort((a,b) => (b.pts - a.pts) || ((b.gf-b.ga)-(a.gf-a.ga)));
+                return `<h3 style="color:var(--accent-yellow); font-size:0.8rem; margin:10px 0;">${gn}</h3>
+                <table><tr><th>TEAM</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr>
+                ${groups[gn].map((s,i) => `<tr><td style="text-align:left;">${i+1}. ${s.name}</td><td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf-s.ga}</td><td style="color:var(--accent-yellow)">${s.pts}</td></tr>`).join('')}</table>`;
+            }).join('');
         }
 
         function renderFixtures() {
@@ -237,15 +160,13 @@
             container.innerHTML = (tour.fixtures || []).map(s => `
                 <div style="margin-bottom:20px;">
                     <div style="color:var(--live-red); font-weight:800; border-bottom:1px solid #333; margin-bottom:10px; font-size:0.9rem;">${s.stageName}</div>
-                    ${s.matches.map(m => `
-                        <div class="match-row">
-                            <div style="text-align:right;">${m.p1}</div>
-                            <div style="background:var(--live-red); border-radius:3px; margin:0 5px; font-size:0.8rem; font-weight:bold;">${m.s1}:${m.s2}</div>
-                            <div style="text-align:left;">${m.p2}</div>
-                        </div>
-                    `).join('')}
+                    ${s.matches.map(m => `<div class="match-row">
+                        <div style="text-align:right;">${m.p1}</div>
+                        <div style="background:var(--live-red); border-radius:3px; margin:0 5px; font-size:0.8rem; font-weight:bold;">${m.s1}:${m.s2}</div>
+                        <div style="text-align:left;">${m.p2}</div>
+                    </div>`).join('')}
                 </div>
-            `).join('') || "Brackets not generated yet.";
+            `).join('') || "Brackets not generated.";
         }
 
         function openTab(evt, tabId) {
