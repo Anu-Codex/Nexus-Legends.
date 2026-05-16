@@ -66,211 +66,167 @@
             </div>
         </div>
     </div>
-
     <script>
-        const API_URL = 'https://nl-server-k7i9.onrender.com/api/manage-tournament';
-        let allToursData = [];
+    // 1. Configuration
+    const API_URL = 'https://nl-server-k7i9.onrender.com/api/manage-tournament';
+    let allToursData = [];
+    let activeApplyTourId = ""; 
 
-        async function loadTournaments() {
-            try {
-                const res = await fetch(API_URL);
-                allToursData = await res.json();
-                document.getElementById('tour-display').innerHTML = allToursData.map(t => {
-                    let sClass = t.status === 'Live' ? 'badge-live' : (t.status === 'Ended' ? 'badge-ended' : 'badge-upcoming');
-                    let actionBtn = t.status === 'Ended' ? `<div class="winner-display">🏆 WINNER: ${t.winner || 'TBD'}</div>` : (t.status === 'Upcoming' ? `<button onclick="openApply('${t._id}', '${t.title}')" class="join-btn">APPLY FOR SLOT</button>` : `<a href="${t.joinLink || '#'}" target="_blank" class="join-btn">JOIN WHATSAPP</a>`);
-                    return `
-                        <div class="tour-card">
-                            <div class="status-badge ${sClass}">${t.status}</div>
-                            <h2 class="tour-title">${t.title}</h2>
-                            <div class="tour-meta"><i class="fa-solid fa-users"></i> ${t.totalTeams} Teams</div>
-                            ${actionBtn}
-                            <div class="info-row"><div style="text-align:center;"><span>Prize</span><strong>${t.prize}</strong></div><div style="text-align:center;"><span>Date</span><strong>${t.date}</strong></div></div>
-                            <div class="footer-btns">
-                                <button onclick="openFixture('${t._id}')" class="sec-btn"><i class="fa-solid fa-sitemap"></i></button>
-                                <button onclick="openStandings('${t._id}')" class="sec-btn"><i class="fa-solid fa-table-list"></i></button>
-                                <button onclick="openRoster('${t._id}')" class="sec-btn"><i class="fa-solid fa-list-ul"></i></button>
-                                <button onclick="shareTour('${t._id}', '${t.title}')" class="sec-btn"><i class="fa-solid fa-share-nodes"></i></button>
-                            </div>
-                        </div>`;
-                }).join('');
-            } catch (e) { document.getElementById('tour-display').innerHTML = "Offline"; }
-        }
+    // 2. Main Loader
+    async function loadTournaments() {
+        const container = document.getElementById('tour-display');
+        try {
+            console.log("Attempting to connect to Arena server...");
+            const res = await fetch(API_URL);
+            
+            if (!res.ok) throw new Error("Server Response Error");
+            
+            allToursData = await res.json();
+            console.log("Data received:", allToursData);
 
-        // --- MODAL FUNCTIONS ---
-        function openRoster(id) {
-            const t = allToursData.find(x => x._id === id);
-            document.getElementById('modalTitle').innerText = t.title + " Roster";
-            document.getElementById('modalBody').innerHTML = (t.roster || []).map(tm => `
-                <div class="team-accordion"><div class="team-trigger" onclick="toggleAccordion(this)"><span><i class="fa-solid fa-shield-halved" style="color:var(--accent-yellow)"></i> ${tm.teamName}</span><i class="fa-solid fa-chevron-down"></i></div>
-                <div class="player-list">${tm.players.map(p => `<div class="player-item"><i class="fa-solid fa-user-ninja"></i> ${p}</div>`).join('')}</div></div>`).join('');
-            document.getElementById('rosterOverlay').style.display = 'flex';
-        }
-
-        function openStandings(id) {
-    const t = allToursData.find(x => x._id === id);
-    let stats = {};
-
-    // 1. Initialize stats (Trimming names to prevent mismatches)
-    (t.roster || []).forEach(tm => {
-        const cleanName = tm.teamName.trim();
-        stats[cleanName] = { 
-            name: cleanName, 
-            g: tm.groupName || "Group A", 
-            p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 
-        };
-    });
-
-    // 2. Automated Score Processing
-    (t.fixtures || []).forEach(stg => {
-        stg.matches.forEach(m => {
-            const p1Name = m.p1.trim();
-            const p2Name = m.p2.trim();
-
-            // Check if match is finished and both teams exist in the roster stats
-            if (m.s1 !== "-" && m.s2 !== "-" && stats[p1Name] && stats[p2Name]) {
-                let s1 = parseInt(m.s1);
-                let s2 = parseInt(m.s2);
-
-                // Update Played, GF, GA
-                stats[p1Name].p++; stats[p2Name].p++;
-                stats[p1Name].gf += s1; stats[p1Name].ga += s2;
-                stats[p2Name].gf += s2; stats[p2Name].ga += s1;
-
-                // Win/Draw/Loss logic
-                if (s1 > s2) {
-                    stats[p1Name].w++; stats[p1Name].pts += 3;
-                    stats[p2Name].l++;
-                } else if (s2 > s1) {
-                    stats[p2Name].w++; stats[p2Name].pts += 3;
-                    stats[p1Name].l++;
-                } else {
-                    stats[p1Name].d++; stats[p2Name].d++;
-                    stats[p1Name].pts += 1; stats[p2Name].pts += 1;
-                }
+            if (!allToursData || allToursData.length === 0) {
+                container.innerHTML = "<p style='text-align:center; width:100%; color:#555;'>No tournaments found in the Arena.</p>";
+                return;
             }
-        });
-    });
 
-    const groups = {};
-    Object.values(stats).forEach(s => { 
-        let gn = t.tableType === "Normal" ? "Tournament Table" : s.g; 
-        if(!groups[gn]) groups[gn]=[]; 
-        groups[gn].push(s); 
-    });
+            container.innerHTML = allToursData.map(t => {
+                let sClass = t.status === 'Live' ? 'badge-live' : (t.status === 'Ended' ? 'badge-ended' : 'badge-upcoming');
+                
+                // Logic for Button display based on status
+                let actionBtn = "";
+                if(t.status === 'Ended') {
+                    actionBtn = `<div class="winner-display">🏆 WINNER: ${t.winner || 'TBD'}</div>`;
+                } else if(t.status === 'Upcoming') {
+                    actionBtn = `<button onclick="openApply('${t._id}', '${t.title}')" class="join-btn">APPLY FOR SLOT</button>`;
+                } else {
+                    actionBtn = `<a href="${t.joinLink || '#'}" target="_blank" class="join-btn">JOIN WHATSAPP</a>`;
+                }
 
-    document.getElementById('standingsBody').innerHTML = Object.keys(groups).map(gn => {
-        // Tie-breaker logic: Points > GD > GF
-        groups[gn].sort((a,b) => (b.pts - a.pts) || ((b.gf - b.ga) - (a.gf - a.ga)) || (b.gf - a.gf));
-        
-        return `<h3 style="color:var(--accent-yellow); font-size:0.8rem; margin:10px 0;">${gn}</h3>
-        <table style="width:100%; text-align:center; font-size:0.7rem; border-collapse:collapse; margin-bottom:15px; background:#111;">
-        <tr style="background:#222; color:#888;"><th>TEAM</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th></tr>
-        ${groups[gn].map((s,i) => `
-            <tr style="border-bottom: 1px solid #222;">
-                <td style="text-align:left; padding:10px;">${i+1}. ${s.name}</td>
-                <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
-                <td style="color:#0f8">${s.gf}</td><td style="color:#f44">${s.ga}</td>
-                <td>${s.gf - s.ga}</td><td style="color:var(--accent-yellow); font-weight:bold;">${s.pts}</td>
-            </tr>`).join('')}
-        </table>`;
-    }).join('');
-    
-    document.getElementById('standingsOverlay').style.display = 'flex';
-        }
-            const groups = {};
-            Object.values(stats).forEach(s => { let gn = t.tableType === "Normal" ? "Tournament Table" : s.g; if(!groups[gn]) groups[gn]=[]; groups[gn].push(s); });
-            document.getElementById('standingsBody').innerHTML = Object.keys(groups).map(gn => {
-                groups[gn].sort((a,b) => (b.pts - a.pts) || ((b.gf-b.ga)-(a.gf-a.ga)));
-                return `<h3 style="color:var(--accent-yellow); font-size:0.8rem;">${gn}</h3>
-                <table style="width:100%; text-align:center; font-size:0.7rem; border-collapse:collapse; margin-bottom:15px; background:#111;">
-                <tr style="background:#222; color:#888;"><th>TEAM</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th></tr>
-                ${groups[gn].map((s,i) => `<tr><td style="text-align:left; padding:8px;">${i+1}. ${s.name}</td><td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gf-s.ga}</td><td style="color:var(--accent-yellow)">${s.pts}</td></tr>`).join('')}</table>`;
-            }).join('');
-            document.getElementById('standingsOverlay').style.display = 'flex';
-        }
-
-        function openFixture(tourId) {
-            const t = allToursData.find(x => x._id === tourId);
-            document.getElementById('fixtureTitle').innerText = t.title + " Brackets";
-            document.getElementById('fixtureBody').innerHTML = (t.fixtures || []).map(stage => `
-                <div style="margin-bottom:20px;"><div style="color:var(--live-red); font-weight:800; border-bottom:1px solid #333; margin-bottom:10px;">${stage.stageName}</div>
-                ${stage.matches.map(m => `
-                    <div style="display:grid; grid-template-columns: 1fr 50px 1fr 30px; align-items:center; background:#111; padding:8px; border-radius:5px; margin-bottom:5px; font-size:0.8rem;">
-                        <div style="text-align:right;">${m.p1}</div><div style="text-align:center; background:var(--live-red); border-radius:3px; margin:0 5px;">${m.s1}:${m.s2}</div><div>${m.p2}</div>
-                        <div style="text-align:right;">
-                            <label style="cursor:pointer;">
-                                ${m.evidence ? `<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>` : `<input type="file" accept="image/*" style="display:none;" onchange="uploadProof('${tourId}', '${stage._id}', '${m._id}', this)"><i class="fa-solid fa-cloud-arrow-up" style="color:#555;"></i>`}
-                            </label>
+                return `
+                    <div class="tour-card">
+                        <div class="status-badge ${sClass}">${t.status}</div>
+                        <h2 class="tour-title">${t.title}</h2>
+                        <div class="tour-meta"><i class="fa-solid fa-users"></i> ${t.totalTeams} Teams</div>
+                        ${actionBtn}
+                        <div class="info-row">
+                            <div style="text-align:center;"><span>Prize</span><strong>${t.prize}</strong></div>
+                            <div style="text-align:center;"><span>Date</span><strong>${t.date}</strong></div>
                         </div>
-                    </div>`).join('')}</div>`).join('');
-            document.getElementById('fixtureOverlay').style.display = 'flex';
-        }
+                        <div class="footer-btns">
+                            <button onclick="openFixture('${t._id}')" class="sec-btn" title="Brackets"><i class="fa-solid fa-sitemap"></i></button>
+                            <button onclick="openStandings('${t._id}')" class="sec-btn" title="Points"><i class="fa-solid fa-table-list"></i></button>
+                            <button onclick="openRoster('${t._id}')" class="sec-btn" title="Roster"><i class="fa-solid fa-list-ul"></i></button>
+                            <button onclick="shareTour('${t._id}', '${t.title}')" class="sec-btn" title="Share" style="color:var(--accent-yellow);"><i class="fa-solid fa-share-nodes"></i></button>
+                        </div>
+                    </div>`;
+            }).join('');
 
-        // --- LOGIC FUNCTIONS ---
-        // --- CORRECTED SHARE LOGIC ---
-function shareTour(id, title) {
-    // This line creates the link: https://yourdomain.com/view-tournament.html?id=12345
-    const url = window.location.origin + '/view-tournament.html?id=' + id;
-    
-    if (navigator.share) {
-        navigator.share({ 
-            title: `Nexus Legends: ${title}`, 
-            text: `Check out the details for the ${title} Tournament!`, 
-            url: url 
-        }).catch(err => console.log("Share cancelled"));
-    } else {
-        // Fallback: Copy to clipboard if the browser doesn't support native share
-        navigator.clipboard.writeText(url);
-        alert("Tournament View Link Copied to Clipboard!");
+        } catch (e) { 
+            console.error("Connection Failed:", e);
+            container.innerHTML = `<div style="text-align:center; width:100%;">
+                <p style="color:#ff4444;">Arena Sat-Link Offline</p>
+                <small style="color:#555;">Server is waking up (Render Free Tier). Please wait 30 seconds and refresh.</small><br><br>
+                <button onclick="loadTournaments()" style="background:#222; color:white; border:1px solid #444; padding:5px 15px; cursor:pointer; border-radius:5px;">Retry Connection</button>
+            </div>`; 
+        }
     }
-}
-        let activeApplyTourId = ""; // Global variable to store ID
 
-        function openApply(id, title) {
-            activeApplyTourId = id; // FIX: Set the global ID
-            document.getElementById('applyTourName').innerText = title;
-            document.getElementById('applyOverlay').style.display = 'flex';
-}
-        
-        async function submitApplication() {
-    const name = document.getElementById('appUserName').value;
-    const whatsapp = document.getElementById('appUserWA').value;
-    
-    if(!name || !whatsapp) return alert("Fill all fields!");
+    // --- MODAL FUNCTIONS ---
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function toggleAccordion(el) { let list = el.nextElementSibling; list.style.maxHeight = list.style.maxHeight ? null : list.scrollHeight + "px"; }
 
-    const res = await fetch('https://nl-server-k7i9.onrender.com/api/apply-tournament', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-            tourId: activeApplyTourId, // FIX: Use the variable here
-            name: name, 
-            whatsapp: whatsapp 
-        })
-    });
-
-    if(res.ok) {
-        alert("✓ Application Sent!");
-        closeModal('applyOverlay');
-    } else {
-        alert("Submission Failed. Try again.");
+    function openRoster(id) {
+        const t = allToursData.find(x => x._id === id);
+        if(!t) return;
+        document.getElementById('modalTitle').innerText = t.title + " Roster";
+        document.getElementById('modalBody').innerHTML = (t.roster || []).map(tm => `
+            <div class="team-accordion"><div class="team-trigger" onclick="toggleAccordion(this)"><span><i class="fa-solid fa-shield-halved" style="color:var(--accent-yellow)"></i> ${tm.teamName}</span><i class="fa-solid fa-chevron-down"></i></div>
+            <div class="player-list">${tm.players.map(p => `<div class="player-item"><i class="fa-solid fa-user-ninja"></i> ${p}</div>`).join('')}</div></div>`).join('') || "Roster empty.";
+        document.getElementById('rosterOverlay').style.display = 'flex';
     }
-        }
 
-        async function uploadProof(tourId, stageId, matchId, input) {
-            const file = input.files[0]; if(!file) return;
-            const label = input.parentElement; label.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            const fd = new FormData(); fd.append("image", file);
-            try {
-                const imgRes = await fetch("https://api.imgbb.com/1/upload?key=adfb1275c3b21edbcf5a5a778719cc28", { method: "POST", body: fd });
-                const imgData = await imgRes.json();
-                await fetch('https://nl-server-k7i9.onrender.com/api/save-evidence', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId, stageId, matchId, evidenceUrl: imgData.data.url }) });
-                label.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>';
-            } catch (e) { label.innerHTML = '<i class="fa-solid fa-cloud-arrow-up" style="color:red;"></i>'; }
-        }
+    function openStandings(id) {
+        const t = allToursData.find(x => x._id === id);
+        if(!t) return;
+        let stats = {};
+        (t.roster || []).forEach(tm => {
+            const name = tm.teamName.trim();
+            stats[name] = { name: name, g: tm.groupName || "Group A", p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 };
+        });
+        (t.fixtures || []).forEach(stg => stg.matches.forEach(m => {
+            const p1 = m.p1.trim(), p2 = m.p2.trim();
+            if(m.s1 !== "-" && m.s2 !== "-" && stats[p1] && stats[p2]){
+                let s1 = parseInt(m.s1), s2 = parseInt(m.s2);
+                stats[p1].p++; stats[p2].p++; stats[p1].gf += s1; stats[p1].ga += s2; stats[p2].gf += s2; stats[p2].ga += s1;
+                if(s1 > s2){ stats[p1].w++; stats[p1].pts += 3; stats[p2].l++; } 
+                else if(s2 > s1){ stats[p2].w++; stats[p2].pts += 3; stats[p1].l++; } 
+                else { stats[p1].d++; stats[p2].d++; stats[p1].pts += 1; stats[p2].pts += 1; }
+            }
+        }));
+        const groups = {};
+        Object.values(stats).forEach(s => { let gn = t.tableType === "Normal" ? "Standings" : s.g; if(!groups[gn]) groups[gn]=[]; groups[gn].push(s); });
+        document.getElementById('standingsBody').innerHTML = Object.keys(groups).map(gn => {
+            groups[gn].sort((a,b) => (b.pts - a.pts) || ((b.gf-b.ga)-(a.gf-a.ga)));
+            return `<h3 style="color:var(--accent-yellow); font-size:0.8rem;">${gn}</h3>
+            <table style="width:100%; text-align:center; font-size:0.7rem; border-collapse:collapse; margin-bottom:15px; background:#111;">
+            <tr style="background:#222; color:#888;"><th>TEAM</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th></tr>
+            ${groups[gn].map((s,i) => `<tr><td style="text-align:left; padding:8px;">${i+1}. ${s.name}</td><td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gf-s.ga}</td><td style="color:var(--accent-yellow)">${s.pts}</td></tr>`).join('')}</table>`;
+        }).join('') || "Standings not available.";
+        document.getElementById('standingsOverlay').style.display = 'flex';
+    }
 
-        function toggleAccordion(el) { let list = el.nextElementSibling; list.style.maxHeight = list.style.maxHeight ? null : list.scrollHeight + "px"; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        window.onload = loadTournaments;
+    function openFixture(id) {
+        const t = allToursData.find(x => x._id === id);
+        if(!t) return;
+        document.getElementById('fixtureTitle').innerText = t.title + " Brackets";
+        document.getElementById('fixtureBody').innerHTML = (t.fixtures || []).map(stage => `
+            <div style="margin-bottom:20px;"><div style="color:var(--live-red); font-weight:800; border-bottom:1px solid #333; margin-bottom:10px;">${stage.stageName}</div>
+            ${stage.matches.map(m => `
+                <div style="display:grid; grid-template-columns: 1fr 50px 1fr 30px; align-items:center; background:#111; padding:8px; border-radius:5px; margin-bottom:5px; font-size:0.8rem;">
+                    <div style="text-align:right;">${m.p1}</div><div style="text-align:center; background:var(--live-red); border-radius:3px; margin:0 5px;">${m.s1}:${m.s2}</div><div>${m.p2}</div>
+                    <div style="text-align:right;">
+                        <label style="cursor:pointer;">
+                            ${m.evidence ? `<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>` : `<input type="file" accept="image/*" style="display:none;" onchange="uploadProof('${id}', '${stage._id}', '${m._id}', this)"><i class="fa-solid fa-cloud-arrow-up" style="color:#555;"></i>`}
+                        </label>
+                    </div>
+                </div>`).join('')}</div>`).join('') || "No fixtures generated.";
+        document.getElementById('fixtureOverlay').style.display = 'flex';
+    }
+
+    // --- LOGIC FUNCTIONS ---
+    function shareTour(id, title) {
+        const url = window.location.origin + '/view-tournament.html?id=' + id;
+        if (navigator.share) {
+            navigator.share({ title: `Nexus Legends: ${title}`, text: `Join ${title}!`, url });
+        } else {
+            navigator.clipboard.writeText(url); alert("Link Copied!");
+        }
+    }
+    
+    function openApply(id, title) { activeApplyTourId = id; document.getElementById('applyTourName').innerText = title; document.getElementById('applyOverlay').style.display = 'flex'; }
+    
+    async function submitApplication() {
+        const name = document.getElementById('appUserName').value, whatsapp = document.getElementById('appUserWA').value;
+        if(!name || !whatsapp) return alert("Fill fields!");
+        const res = await fetch('https://nl-server-k7i9.onrender.com/api/apply-tournament', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId: activeApplyTourId, name, whatsapp }) });
+        if(res.ok) { alert("✓ Sent!"); closeModal('applyOverlay'); } else { alert("Submission Failed."); }
+    }
+
+    async function uploadProof(tourId, stageId, matchId, input) {
+        const file = input.files[0]; if(!file) return;
+        const label = input.parentElement; label.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        const fd = new FormData(); fd.append("image", file);
+        try {
+            const imgRes = await fetch("https://api.imgbb.com/1/upload?key=adfb1275c3b21edbcf5a5a778719cc28", { method: "POST", body: fd });
+            const imgData = await imgRes.json();
+            await fetch('https://nl-server-k7i9.onrender.com/api/save-evidence', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tourId, stageId, matchId, evidenceUrl: imgData.data.url }) });
+            label.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>';
+        } catch (e) { label.innerHTML = '<i class="fa-solid fa-cloud-arrow-up" style="color:red;"></i>'; }
+    }
+
+    window.onload = loadTournaments;
     </script>
+
+
 </body>
 </html>
