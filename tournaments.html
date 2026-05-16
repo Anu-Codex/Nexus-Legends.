@@ -107,16 +107,76 @@
         }
 
         function openStandings(id) {
-            const t = allToursData.find(x => x._id === id);
-            let stats = {};
-            (t.roster || []).forEach(tm => stats[tm.teamName] = { name: tm.teamName, g: tm.groupName || "Group A", p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 });
-            (t.fixtures || []).forEach(stg => stg.matches.forEach(m => {
-                if(m.s1 !== "-" && m.s2 !== "-" && stats[m.p1] && stats[m.p2]){
-                    let s1 = parseInt(m.s1), s2 = parseInt(m.s2);
-                    stats[m.p1].p++; stats[m.p2].p++; stats[m.p1].gf += s1; stats[m.p1].ga += s2; stats[m.p2].gf += s2; stats[m.p2].ga += s1;
-                    if(s1 > s2){ stats[m.p1].w++; stats[m.p1].pts += 3; stats[m.p2].l++; } else if(s2 > s1){ stats[m.p2].w++; stats[m.p2].pts += 3; stats[m.p1].l++; } else { stats[m.p1].d++; stats[m.p2].d++; stats[m.p1].pts += 1; stats[m.p2].pts += 1; }
+    const t = allToursData.find(x => x._id === id);
+    let stats = {};
+
+    // 1. Initialize stats (Trimming names to prevent mismatches)
+    (t.roster || []).forEach(tm => {
+        const cleanName = tm.teamName.trim();
+        stats[cleanName] = { 
+            name: cleanName, 
+            g: tm.groupName || "Group A", 
+            p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 
+        };
+    });
+
+    // 2. Automated Score Processing
+    (t.fixtures || []).forEach(stg => {
+        stg.matches.forEach(m => {
+            const p1Name = m.p1.trim();
+            const p2Name = m.p2.trim();
+
+            // Check if match is finished and both teams exist in the roster stats
+            if (m.s1 !== "-" && m.s2 !== "-" && stats[p1Name] && stats[p2Name]) {
+                let s1 = parseInt(m.s1);
+                let s2 = parseInt(m.s2);
+
+                // Update Played, GF, GA
+                stats[p1Name].p++; stats[p2Name].p++;
+                stats[p1Name].gf += s1; stats[p1Name].ga += s2;
+                stats[p2Name].gf += s2; stats[p2Name].ga += s1;
+
+                // Win/Draw/Loss logic
+                if (s1 > s2) {
+                    stats[p1Name].w++; stats[p1Name].pts += 3;
+                    stats[p2Name].l++;
+                } else if (s2 > s1) {
+                    stats[p2Name].w++; stats[p2Name].pts += 3;
+                    stats[p1Name].l++;
+                } else {
+                    stats[p1Name].d++; stats[p2Name].d++;
+                    stats[p1Name].pts += 1; stats[p2Name].pts += 1;
                 }
-            }));
+            }
+        });
+    });
+
+    const groups = {};
+    Object.values(stats).forEach(s => { 
+        let gn = t.tableType === "Normal" ? "Tournament Table" : s.g; 
+        if(!groups[gn]) groups[gn]=[]; 
+        groups[gn].push(s); 
+    });
+
+    document.getElementById('standingsBody').innerHTML = Object.keys(groups).map(gn => {
+        // Tie-breaker logic: Points > GD > GF
+        groups[gn].sort((a,b) => (b.pts - a.pts) || ((b.gf - b.ga) - (a.gf - a.ga)) || (b.gf - a.gf));
+        
+        return `<h3 style="color:var(--accent-yellow); font-size:0.8rem; margin:10px 0;">${gn}</h3>
+        <table style="width:100%; text-align:center; font-size:0.7rem; border-collapse:collapse; margin-bottom:15px; background:#111;">
+        <tr style="background:#222; color:#888;"><th>TEAM</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th></tr>
+        ${groups[gn].map((s,i) => `
+            <tr style="border-bottom: 1px solid #222;">
+                <td style="text-align:left; padding:10px;">${i+1}. ${s.name}</td>
+                <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
+                <td style="color:#0f8">${s.gf}</td><td style="color:#f44">${s.ga}</td>
+                <td>${s.gf - s.ga}</td><td style="color:var(--accent-yellow); font-weight:bold;">${s.pts}</td>
+            </tr>`).join('')}
+        </table>`;
+    }).join('');
+    
+    document.getElementById('standingsOverlay').style.display = 'flex';
+        }
             const groups = {};
             Object.values(stats).forEach(s => { let gn = t.tableType === "Normal" ? "Tournament Table" : s.g; if(!groups[gn]) groups[gn]=[]; groups[gn].push(s); });
             document.getElementById('standingsBody').innerHTML = Object.keys(groups).map(gn => {
