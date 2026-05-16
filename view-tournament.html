@@ -138,18 +138,86 @@
         }
 
         function renderStandings() {
-            const container = document.getElementById('standingsTable');
-            let stats = {};
-            (tour.roster || []).forEach(tm => stats[tm.teamName] = { name: tm.teamName, group: tm.groupName || "Group A", p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 });
-            (tour.fixtures || []).forEach(stg => stg.matches.forEach(m => {
-                if(m.s1 !== "-" && m.s2 !== "-" && stats[m.p1] && stats[m.p2]){
-                    let s1 = parseInt(m.s1), s2 = parseInt(m.s2);
-                    stats[m.p1].p++; stats[m.p2].p++; stats[m.p1].gf += s1; stats[m.p1].ga += s2; stats[m.p2].gf += s2; stats[m.p2].ga += s1;
-                    if(s1 > s2){ stats[m.p1].w++; stats[m.p1].pts += 3; stats[m.p2].l++; }
-                    else if(s2 > s1){ stats[m.p2].w++; stats[m.p2].pts += 3; stats[m.p1].l++; }
-                    else { stats[m.p1].d++; stats[m.p2].d++; stats[m.p1].pts += 1; stats[m.p2].pts += 1; }
+    const container = document.getElementById('standingsTable');
+    if (!tour.roster || tour.roster.length === 0) {
+        container.innerHTML = "Standings not available.";
+        return;
+    }
+
+    let stats = {};
+
+    // 1. Initialize stats for all teams in roster (Trim names to prevent errors)
+    (tour.roster || []).forEach(tm => {
+        const cleanName = tm.teamName.trim();
+        stats[cleanName] = { 
+            name: cleanName, 
+            group: tm.groupName || "Group A", 
+            p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 
+        };
+    });
+
+    // 2. Process all fixture matches to calculate points
+    (tour.fixtures || []).forEach(stg => {
+        stg.matches.forEach(m => {
+            const p1 = m.p1.trim();
+            const p2 = m.p2.trim();
+
+            if (m.s1 !== "-" && m.s2 !== "-" && stats[p1] && stats[p2]) {
+                const s1 = parseInt(m.s1);
+                const s2 = parseInt(m.s2);
+                
+                stats[p1].p++; stats[p2].p++;
+                stats[p1].gf += s1; stats[p1].ga += s2;
+                stats[p2].gf += s2; stats[p2].ga += s1;
+
+                if (s1 > s2) { 
+                    stats[p1].w++; stats[p1].pts += 3; stats[p2].l++; 
+                } else if (s2 > s1) { 
+                    stats[p2].w++; stats[p2].pts += 3; stats[p1].l++; 
+                } else { 
+                    stats[p1].d++; stats[p2].d++; stats[p1].pts += 1; stats[p2].pts += 1; 
                 }
-            }));
+            }
+        });
+    });
+
+    // 3. Grouping logic
+    const groups = {};
+    Object.values(stats).forEach(s => { 
+        let gName = tour.tableType === "Normal" ? "Tournament Standings" : s.group; 
+        if(!groups[gName]) groups[gName]=[]; 
+        groups[gName].push(s); 
+    });
+    
+    // 4. Sort and Generate Table
+    container.innerHTML = Object.keys(groups).map(gName => {
+        // Sort by Points > GD > GF
+        groups[gName].sort((a,b) => (b.pts - a.pts) || ((b.gf - b.ga) - (a.gf - a.ga)) || (b.gf - a.gf));
+        
+        return `
+        <h3 style="color:var(--accent-yellow); font-size:0.9rem; margin-bottom:5px; text-transform:uppercase;">${gName}</h3>
+        <table style="margin-bottom:25px;">
+            <tr>
+                <th style="text-align:left;">TEAM</th>
+                <th>P</th><th>W</th><th>D</th><th>L</th>
+                <th style="color:#00ff88">GF</th>
+                <th style="color:#ff003c">GA</th>
+                <th>GD</th>
+                <th style="color:var(--accent-yellow)">PTS</th>
+            </tr>
+            ${groups[gName].map((s, i) => `
+                <tr>
+                    <td style="text-align:left; font-weight:bold;">${i+1}. ${s.name}</td>
+                    <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
+                    <td style="color:#00ff88">${s.gf}</td>
+                    <td style="color:#ff003c">${s.ga}</td>
+                    <td>${s.gf - s.ga}</td>
+                    <td style="color:var(--accent-yellow); font-weight:900;">${s.pts}</td>
+                </tr>
+            `).join('')}
+        </table>`;
+    }).join('') || "Standings being calculated...";
+        }
             const groups = {};
             Object.values(stats).forEach(s => { let g = tour.tableType === "Normal" ? "Standings" : s.group; if(!groups[g]) groups[g]=[]; groups[g].push(s); });
             
