@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1024">
     <title>Global Rankings | Nexus Legends</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
@@ -11,17 +11,58 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root { --accent-yellow: #E4FF00; --green: #00ff88; --red: #ff4444; --nexus-blue: #0041FF; }
-        body { background: #050505; color: white; padding-top: 100px; font-family: 'Rajdhani', sans-serif; }
-        .ranking-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        body { background: #050505; color: white; padding-top: 80px; font-family: 'Rajdhani', sans-serif; margin: 0; }
         
-        /* Table Styles */
-        .leaderboard-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; background: rgba(255, 255, 255, 0.02); border-radius: 15px; padding: 10px; }
-        .leaderboard-table th { text-transform: uppercase; color: var(--accent-yellow); padding: 15px; text-align: left; border-bottom: 2px solid #222; font-size: 0.8rem; }
-        .player-row { background: rgba(255, 255, 255, 0.05); transition: 0.2s; cursor: pointer; }
-        .player-row:hover { background: rgba(0, 65, 255, 0.1); transform: scale(1.01); }
-        .player-row td { padding: 15px; font-weight: 700; font-size: 1.1rem; }
-        .rank-num { font-style: italic; color: #888; }
-        .pts-cell { color: #E4FF00; font-size: 1.3rem; }
+        .ranking-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        
+        /* CLEAN HEADER AREA */
+        .rank-header-box { text-align: center; margin-bottom: 30px; }
+        .rank-header-box h1 { font-size: 2.5rem; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+        .home-btn { color: #888; text-decoration: none; font-weight: 700; display: inline-block; margin-top: 10px; transition: 0.3s; }
+        .home-btn:hover { color: white; }
+
+        /* SEARCH BAR STYLING */
+        .search-wrapper { margin-bottom: 25px; position: relative; }
+        #rankSearch { 
+            width: 100%; padding: 15px 15px 15px 45px; background: #111; 
+            border: 1px solid #222; color: white; border-radius: 12px; 
+            font-family: inherit; outline: none; transition: 0.3s;
+        }
+        #rankSearch:focus { border-color: var(--accent-yellow); box-shadow: 0 0 15px rgba(228, 255, 0, 0.1); }
+        .search-wrapper i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #555; }
+
+        /* TABLE RESPONSIVE WRAPPER (Fixes "Gathering") */
+        .table-scroll { 
+            width: 100%; overflow-x: auto; 
+            background: rgba(255, 255, 255, 0.02); 
+            border-radius: 15px; border: 1px solid #1a1a1a; 
+        }
+
+        .leaderboard-table { width: 100%; border-collapse: collapse; min-width: 700px; /* Forces Desktop-like width */ }
+        .leaderboard-table th { 
+            text-transform: uppercase; color: #555; padding: 20px 15px; 
+            text-align: left; border-bottom: 1px solid #1a1a1a; font-size: 0.75rem; letter-spacing: 1px;
+        }
+
+        .player-row { border-bottom: 1px solid #111; transition: 0.2s; cursor: pointer; }
+        .player-row:hover { background: rgba(0, 65, 255, 0.05); }
+        .player-row td { padding: 18px 15px; font-weight: 700; font-size: 1.1rem; }
+
+        /* COLUMN SPECIFICS */
+        .col-rank { width: 60px; color: #444; font-style: italic; }
+        .col-name { min-width: 200px; }
+        .col-stat { width: 80px; text-align: center !important; }
+        .col-perf { min-width: 150px; color: var(--accent-yellow); font-size: 0.85rem !important; }
+        .col-pts { width: 80px; text-align: right !important; color: var(--accent-yellow); font-size: 1.3rem !important; }
+
+        /* BUTTON DESIGN */
+        .export-area { display: flex; justify-content: flex-end; margin-bottom: 15px; }
+        .pdf-btn { 
+            background: var(--accent-yellow); color: black; padding: 10px 20px; 
+            font-weight: 800; border: none; cursor: pointer; 
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); transition: 0.3s;
+        }
+        .pdf-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(228, 255, 0, 0.3); }
 
         /* --- PLAYER CARD MODAL --- */
         .roster-overlay {
@@ -29,52 +70,17 @@
             background: rgba(0,0,0,0.95); backdrop-filter: blur(15px);
             display: none; align-items: center; justify-content: center; z-index: 99999;
         }
-
         .efootball-card {
-            width: 320px;
-            height: 460px;
-            position: relative;
-            border-radius: 25px;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,1), 0 0 20px rgba(0, 65, 255, 0.2);
-            background: #000;
-            border: 1px solid #333;
+            width: 320px; height: 460px; position: relative; border-radius: 25px;
+            overflow: hidden; box-shadow: 0 0 50px #000; background: #000; border: 1px solid #333;
         }
-
-        /* The Frame Layer */
-        .card-frame {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            z-index: 1;
-        }
-
-        /* The Player Layer */
-        .card-avatar {
-            position: absolute; top: 35px; left: 50%;
-            transform: translateX(-50%);
-            width: 280px; height: 280px;
-            object-fit: contain;
-            z-index: 2;
-        }
-
-        /* The Text Layer */
-        .card-data {
-            position: absolute; bottom: 65px;
-            width: 100%; text-align: center;
-            z-index: 3;
-            pointer-events: none;
-        }
-
-        .card-name {
-            font-size: 1.8rem; font-weight: 700; color: white;
-            text-transform: uppercase; text-shadow: 0 2px 10px #000;
-            margin: 0 0 10px 0; letter-spacing: 1px;
-        }
-
+        .card-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+        .card-avatar { position: absolute; top: 35px; left: 50%; transform: translateX(-50%); width: 280px; height: 280px; object-fit: contain; z-index: 2; }
+        .card-data { position: absolute; bottom: 65px; width: 100%; text-align: center; z-index: 3; pointer-events: none; }
+        .card-name { font-size: 1.8rem; font-weight: 700; color: white; text-transform: uppercase; text-shadow: 0 2px 10px #000; margin: 0 0 10px 0; }
         .card-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 0 20px; }
         .stat-item small { display: block; font-size: 0.55rem; color: var(--accent-yellow); font-weight: bold; }
-        .stat-item b { font-size: 0.9rem; color: white; text-shadow: 0 2px 5px #000; }
+        .stat-item b { font-size: 0.9rem; color: white; }
 
         .status-msg { text-align: center; padding: 40px; font-weight: bold; color: #555; }
     </style>
@@ -82,43 +88,43 @@
 <body>
 
     <div class="ranking-container">
-        <h1 style="text-align:center;">TOP <span style="color:var(--accent-yellow)">STRIKERS</span></h1>
-        
-        <div style="text-align:center; margin-bottom: 20px;">
-            <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-house"></i> HOME</a>
+        <div class="rank-header-box">
+            <h1>TOP <span style="color:var(--accent-yellow)">STRIKERS</span></h1>
+            <a href="index.html" class="home-btn"><i class="fa-solid fa-house"></i> RETURN HOME</a>
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <input type="text" id="rankSearch" onkeyup="filterRankings()" placeholder="🔍 Search Strikers by name..." style="width:100%; padding:15px; background:#111; border:1px solid #333; color:white; border-radius:10px; font-family:inherit; outline:none;">
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="rankSearch" onkeyup="filterRankings()" placeholder="Search Strikers by name...">
         </div>
         
-        <div style="text-align: right; margin-bottom: 20px;">
-            <button onclick="exportToPDF()" style="background:var(--accent-yellow); color:black; padding:10px 20px; font-weight:bold; border:none; cursor:pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);">
+        <div class="export-area">
+            <button onclick="exportToPDF()" class="pdf-btn">
                 <i class="fa-solid fa-file-pdf"></i> EXPORT PDF
             </button>
         </div>
 
-        <table class="leaderboard-table">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Player Name</th>
-                    <th style="text-align:center;">GS</th>
-                    <th style="text-align:center;">GA</th>
-                    <th>Performance</th>
-                    <th style="text-align:right;">Pts</th>
-                </tr>
-            </thead>
-            <tbody id="ranking-body">
-                <tr><td colspan="6" class="status-msg">Loading Strikers...</td></tr>
-            </tbody>
-        </table>
+        <div class="table-scroll">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th class="col-rank">Rank</th>
+                        <th class="col-name">Player Name</th>
+                        <th class="col-stat">GS</th>
+                        <th class="col-stat">GA</th>
+                        <th class="col-perf">Performance</th>
+                        <th class="col-pts">Total Pts</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body">
+                    <tr><td colspan="6" class="status-msg">Initializing Arena Servers...</td></tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- MODAL POPUP -->
         <div id="playerCardOverlay" class="roster-overlay" onclick="closePlayerCard()">
-            <div id="cardContent" onclick="event.stopPropagation()">
-                <!-- JS will inject efootball-card here -->
-            </div>
+            <div id="cardContent" onclick="event.stopPropagation()"></div>
         </div>
     </div>
 
@@ -133,7 +139,7 @@ async function loadRankings() {
         allPlayers = await response.json();
         renderTable(allPlayers);
     } catch (error) {
-        tbody.innerHTML = '<tr><td colspan="6" class="status-msg">Database connection paused.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="status-msg">Database Sync Paused.</td></tr>';
     }
 }
 
@@ -144,17 +150,17 @@ function renderTable(data) {
         const oldRank = player.previousRank || 0;
         let trendIcon = '';
         if (oldRank !== 0) {
-            if (oldRank > currentRank) trendIcon = '<i class="fa-solid fa-caret-up" style="color:var(--green); margin-left:8px;"></i>';
-            else if (oldRank < currentRank) trendIcon = '<i class="fa-solid fa-caret-down" style="color:var(--red); margin-left:8px;"></i>';
+            if (oldRank > currentRank) trendIcon = '<i class="fa-solid fa-caret-up" style="color:var(--green); margin-left:5px;"></i>';
+            else if (oldRank < currentRank) trendIcon = '<i class="fa-solid fa-caret-down" style="color:var(--red); margin-left:5px;"></i>';
         }
         return `
         <tr class="player-row" onclick="viewPlayerCard('${player.name}')">
-            <td class="rank-num">#${currentRank}</td>
-            <td>${player.name} ${trendIcon} <i class="fa-solid fa-id-badge" style="font-size:0.7rem; color:#444; margin-left:5px;"></i></td>
-            <td style="text-align:center; color:var(--green);">${player.goalsFor || 0}</td>
-            <td style="text-align:center; color:var(--red);">${player.goalsAgainst || 0}</td>
-            <td style="font-size:0.8rem; color:var(--accent-yellow);">${player.trophies || '-'}</td>
-            <td class="pts-cell" style="text-align:right;">${player.points || 0}</td>
+            <td class="col-rank">#${currentRank}</td>
+            <td class="col-name">${player.name} ${trendIcon} <i class="fa-solid fa-id-badge" style="font-size:0.7rem; color:#222; margin-left:5px;"></i></td>
+            <td class="col-stat" style="color:var(--green);">${player.goalsFor || 0}</td>
+            <td class="col-stat" style="color:var(--red);">${player.goalsAgainst || 0}</td>
+            <td class="col-perf">${player.trophies || '-'}</td>
+            <td class="col-pts">${player.points || 0}</td>
         </tr>`;
     }).join('');
 }
@@ -168,17 +174,12 @@ function filterRankings() {
 function viewPlayerCard(name) {
     const p = allPlayers.find(x => x.name === name);
     const container = document.getElementById('cardContent');
-    
+    const avatarUrl = p.avatar ? `${p.avatar}?t=${Date.now()}` : 'https://i.postimg.cc/85zXY7mB/default-avatar.png';
+
     container.innerHTML = `
         <div class="efootball-card">
-            <!-- BACKGROUND FRAME: Hosting locally for speed -->
             <img src="card.jpg" class="card-frame" onerror="this.src='https://i.ibb.co/3ykSDRN/F5k-IL2UWUAAw-C8g.jpg'">
-            
-            <!-- PLAYER AVATAR -->
-            <img src="${p.avatar || 'https://i.postimg.cc/85zXY7mB/default-avatar.png'}" 
-                 class="card-avatar" 
-                 onerror="this.src='https://i.postimg.cc/85zXY7mB/default-avatar.png'">
-            
+            <img src="${avatarUrl}" class="card-avatar" onerror="this.src='https://i.postimg.cc/85zXY7mB/default-avatar.png'">
             <div class="card-data">
                 <h2 class="card-name">${p.name}</h2>
                 <div class="card-stats">
@@ -187,8 +188,7 @@ function viewPlayerCard(name) {
                     <div class="stat-item"><small>POINTS</small><b>${p.points}</b></div>
                 </div>
             </div>
-        </div>
-    `;
+        </div>`;
     document.getElementById('playerCardOverlay').style.display = 'flex';
 }
 
