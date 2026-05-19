@@ -87,23 +87,30 @@
     <input type="text" id="pSig" placeholder="Signature Player">
     <button onclick="updatePlayerProfile()" class="btn-yellow">Update Card</button>
 </div>
-            <!-- GS & GA MANUAL MANAGER -->
+            <!-- GS & GA DUEL MANAGER -->
 <div class="card" style="border-left: 4px solid var(--blue);">
-    <h3 style="color:var(--blue)"><i class="fa-solid fa-futbol"></i> Manage GS & GA</h3>
-    <p style="font-size:0.7rem; color:#555;">Manually set total goals for global rankings.</p>
-    <select id="gsgaPlayerSelect"><option>Select Player</option></select>
+    <h3 style="color:var(--blue)"><i class="fa-solid fa-right-left"></i> Match Stats Manager</h3>
+    <p style="font-size:0.7rem; color:#555;">Update goals for a specific match-up instantly.</p>
     
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+    <div style="display:grid; grid-template-columns: 1fr 30px 1fr; gap:10px; align-items: center;">
+        <select id="p1Select"><option>Player 1</option></select>
+        <span style="text-align:center; font-weight:bold; color:#444;">VS</span>
+        <select id="p2Select"><option>Player 2</option></select>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px; background: rgba(0,0,0,0.3); padding:15px; border-radius:8px;">
         <div>
-            <label style="font-size:0.6rem; color:#888;">GOALS SCORED (GS)</label>
-            <input type="number" id="manualGS" placeholder="Total GS">
+            <label style="font-size:0.6rem; color:var(--green); font-weight:bold;">P1 GOALS SCORED</label>
+            <input type="number" id="p1gs" placeholder="P1 Scored" style="border-color:var(--green);">
         </div>
         <div>
-            <label style="font-size:0.6rem; color:#888;">GOALS AGAINST (GA)</label>
-            <input type="number" id="manualGA" placeholder="Total GA">
+            <label style="font-size:0.6rem; color:var(--red); font-weight:bold;">P1 GOALS AGAINST</label>
+            <input type="number" id="p1ga" placeholder="P1 Conceded" style="border-color:var(--red);">
         </div>
     </div>
-    <button onclick="updateGSGA()" class="btn-blue">Overwrite Stats</button>
+    
+    <p style="font-size:0.6rem; color:#555; margin:10px 0;">* Player 2 stats will be calculated automatically based on P1 inputs.</p>
+    <button onclick="updateDuelStats()" class="btn-blue">Update Arena Database</button>
 </div>
 
             <!-- TOURNAMENT CONTROLLER -->
@@ -262,7 +269,8 @@
                 const pOpts = pRes.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
                 document.getElementById('playerSelect').innerHTML = pOpts;
                 document.getElementById('profilePlayerSelect').innerHTML = pOpts;// This line fix the profile manager
-                document.getElementById('gsgaPlayerSelect').innerHTML = pOpts;
+                document.getElementById('p1Select').innerHTML = pOpts; // New
+                document.getElementById('p2Select').innerHTML = pOpts;
                 toursData = tRes;
                 const opts = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
                 document.getElementById('tourSelect').innerHTML = '<option value="">+ CREATE NEW</option>' + opts;
@@ -505,30 +513,30 @@
     await fetch(`${API}/update-profile`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, data }) });
     notify("Profile Card Updated!");
         }
-        async function updateGSGA() {
-    const name = document.getElementById('gsgaPlayerSelect').value;
-    const gs = document.getElementById('manualGS').value;
-    const ga = document.getElementById('manualGA').value;
+        
+        async function updateDuelStats() {
+    const p1Name = document.getElementById('p1Select').value;
+    const p2Name = document.getElementById('p2Select').value;
+    const p1gs = document.getElementById('p1gs').value;
+    const p1ga = document.getElementById('p1ga').value;
 
-    if(!name || name === "Select Player") return alert("Select a striker first!");
+    if (p1Name === p2Name) return alert("Select two different players!");
+    if (!p1gs && !p1ga) return alert("Enter goals first!");
 
-    const res = await fetch(`${API}/update-gs-ga`, {
+    const res = await fetch(`${API}/update-gs-ga-duel`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-            name, 
-            goalsFor: gs, 
-            goalsAgainst: ga 
-        })
+        body: JSON.stringify({ p1Name, p2Name, p1gs, p1ga })
     });
 
-    if(res.ok) {
-        notify("GS/GA Updated Successfully!", "var(--blue)");
-        // Clear inputs
-        document.getElementById('manualGS').value = "";
-        document.getElementById('manualGA').value = "";
+    if (res.ok) {
+        notify("Dual Stats Synchronized!", "var(--blue)");
+        // Reset inputs
+        document.getElementById('p1gs').value = "";
+        document.getElementById('p1ga').value = "";
     } else {
-        alert("Failed to update database.");
+        const err = await res.json();
+        alert(err.error || "Failed to update.");
     }
         }
         async function openPrediction(tourId, matchId, p1, p2) {
