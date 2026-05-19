@@ -87,6 +87,24 @@
     <input type="text" id="pSig" placeholder="Signature Player">
     <button onclick="updatePlayerProfile()" class="btn-yellow">Update Card</button>
 </div>
+            <!-- GS & GA MANUAL MANAGER -->
+<div class="card" style="border-left: 4px solid var(--blue);">
+    <h3 style="color:var(--blue)"><i class="fa-solid fa-futbol"></i> Manage GS & GA</h3>
+    <p style="font-size:0.7rem; color:#555;">Manually set total goals for global rankings.</p>
+    <select id="gsgaPlayerSelect"><option>Select Player</option></select>
+    
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div>
+            <label style="font-size:0.6rem; color:#888;">GOALS SCORED (GS)</label>
+            <input type="number" id="manualGS" placeholder="Total GS">
+        </div>
+        <div>
+            <label style="font-size:0.6rem; color:#888;">GOALS AGAINST (GA)</label>
+            <input type="number" id="manualGA" placeholder="Total GA">
+        </div>
+    </div>
+    <button onclick="updateGSGA()" class="btn-blue">Overwrite Stats</button>
+</div>
 
             <!-- TOURNAMENT CONTROLLER -->
             <div class="card" style="border-left: 4px solid var(--accent);">
@@ -243,7 +261,8 @@
                 ]);
                 const pOpts = pRes.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
                 document.getElementById('playerSelect').innerHTML = pOpts;
-                document.getElementById('profilePlayerSelect').innerHTML = pOpts; // This line fix the profile manager
+                document.getElementById('profilePlayerSelect').innerHTML = pOpts;// This line fix the profile manager
+                document.getElementById('gsgaPlayerSelect').innerHTML = pOpts;
                 toursData = tRes;
                 const opts = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
                 document.getElementById('tourSelect').innerHTML = '<option value="">+ CREATE NEW</option>' + opts;
@@ -485,6 +504,32 @@
     };
     await fetch(`${API}/update-profile`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, data }) });
     notify("Profile Card Updated!");
+        }
+        async function updateGSGA() {
+    const name = document.getElementById('gsgaPlayerSelect').value;
+    const gs = document.getElementById('manualGS').value;
+    const ga = document.getElementById('manualGA').value;
+
+    if(!name || name === "Select Player") return alert("Select a striker first!");
+
+    const res = await fetch(`${API}/update-gs-ga`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ 
+            name, 
+            goalsFor: gs, 
+            goalsAgainst: ga 
+        })
+    });
+
+    if(res.ok) {
+        notify("GS/GA Updated Successfully!", "var(--blue)");
+        // Clear inputs
+        document.getElementById('manualGS').value = "";
+        document.getElementById('manualGA').value = "";
+    } else {
+        alert("Failed to update database.");
+    }
         }
         async function openPrediction(tourId, matchId, p1, p2) {
     const res = await fetch(`${API}/predictions/open`, {
