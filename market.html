@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Hub | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --nexus-blue: #0041FF; --nexus-yellow: #E4FF00; --nexus-red: #ff4444; }
+        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding-top: 100px; }
+
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(0,0,0,0.9); border-bottom: 1px solid #1a1a1a; position: fixed; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px); }
+
+        /* --- MARKET STATUS BAR --- */
+        .status-bar { position: fixed; top: 65px; width: 100%; z-index: 999; background: #000; padding: 10px 5%; display: flex; justify-content: space-between; border-bottom: 1px solid #222; box-sizing: border-box;}
+        .market-indicator { font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; gap: 10px; }
+        .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--nexus-red); }
+        .open .pulse { background: #00ff88; box-shadow: 0 0 10px #00ff88; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        /* --- SEARCH & LOGS --- */
+        .market-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .listing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .deal-card { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 15px; padding: 20px; position: relative; transition: 0.3s; }
+        .deal-card:hover { border-color: var(--nexus-blue); transform: translateY(-3px); }
+        
+        .player-info h3 { margin: 0; font-size: 1.2rem; text-transform: uppercase; }
+        .player-info p { color: #555; font-size: 0.75rem; margin: 5px 0 15px; }
+
+        .price-tag { background: rgba(0, 65, 255, 0.1); color: var(--nexus-blue); padding: 5px 12px; border-radius: 5px; font-weight: 800; font-size: 1rem; border: 1px solid var(--nexus-blue); }
+
+        .live-feed { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 15px; padding: 20px; height: fit-content; }
+        .feed-title { color: var(--nexus-yellow); font-size: 0.9rem; font-weight: 800; margin-bottom: 20px; display: block; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        
+        .feed-item { font-size: 0.8rem; border-bottom: 1px solid #111; padding: 10px 0; display: flex; gap: 10px; }
+        .feed-item i { color: #00ff88; margin-top: 3px; }
+
+        @media (max-width: 800px) { .market-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">NEXUS <span>MARKET</span></div>
+        <a href="nfa.html" style="color:#888; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-arrow-left"></i> NFA HUB</a>
+    </header>
+
+    <div id="statusBar" class="status-bar">
+        <div class="market-indicator" id="marketLabel">
+            <div class="pulse"></div> <span>WINDOW CLOSED</span>
+        </div>
+        <div id="countdown" style="font-weight:bold; color:var(--nexus-yellow)">-- : -- : --</div>
+    </div>
+
+    <div class="market-grid">
+        <!-- PLAYER LISTINGS -->
+        <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0; letter-spacing:2px;">ON THE <span style="color:var(--nexus-blue)">BLOCK</span></h2>
+            </div>
+            <div id="listings" class="listing-grid">
+                <!-- Cards load here -->
+            </div>
+        </div>
+
+        <!-- LIVE DEAL FEED -->
+        <div class="live-feed">
+            <span class="feed-title"><i class="fa-solid fa-bolt"></i> LIVE DEAL HISTORY</span>
+            <div id="feed-list">
+                <!-- Logs load here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = "https://nl-server-k7i9.onrender.com/api";
+
+        async function loadMarket() {
+            try {
+                const res = await fetch(`${API}/nfa/market`);
+                const { status, listings, logs } = await res.json();
+
+                // 1. Update Status Bar
+                const label = document.getElementById('marketLabel');
+                if(status && status.isOpen) {
+                    label.classList.add('open');
+                    label.querySelector('span').innerText = "MARKET OPEN";
+                    startCountdown(status.closingDate);
+                }
+
+                // 2. Render Listings
+                const listDiv = document.getElementById('listings');
+                if(listings.length === 0) {
+                    listDiv.innerHTML = `<p style="color:#444">No players currently listed for sale.</p>`;
+                } else {
+                    listDiv.innerHTML = listings.map(l => `
+                        <div class="deal-card">
+                            <div class="player-info">
+                                <h3>${l.playerName}</h3>
+                                <p>${l.currentClub} • ${l.type}</p>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div class="price-tag">${l.price.toLocaleString()} ₦</div>
+                                    <button onclick="checkBuyout('${l.playerName}')" style="background:none; border:none; color:#555; cursor:pointer; font-size:0.7rem;">VIEW DETAILS</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // 3. Render Feed
+                document.getElementById('feed-list').innerHTML = logs.map(log => `
+                    <div class="feed-item">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>${log.description} <br><small style="color:#444">${new Date(log.date).toLocaleTimeString()}</small></div>
+                    </div>
+                `).join('');
+
+            } catch (e) { console.error("Market error"); }
+        }
+
+        function startCountdown(date) {
+            const end = new Date(date).getTime();
+            setInterval(() => {
+                const now = new Date().getTime();
+                const diff = end - now;
+                if(diff < 0) return;
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                document.getElementById('countdown').innerText = `${d}D ${h}H ${m}M`;
+            }, 60000);
+        }
+
+        window.onload = loadMarket;
+    </script>
+</body>
+</html>
