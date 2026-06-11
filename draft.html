@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draft Center | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --nfa-blue: #0041FF; --nfa-gold: #E4FF00; --glass: rgba(255, 255, 255, 0.03); }
+        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding-top: 100px; }
+        
+        .draft-layout { display: grid; grid-template-columns: 1fr 350px; gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+
+        /* --- CURRENT PICK BANNER --- */
+        .live-banner { 
+            grid-column: 1 / -1; background: var(--nfa-blue); padding: 15px; 
+            border-radius: 12px; display: flex; justify-content: space-between; 
+            align-items: center; margin-bottom: 20px; box-shadow: 0 0 20px rgba(0, 65, 255, 0.3);
+        }
+        .live-tag { background: #fff; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 0.7rem; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+
+        /* --- PROSPECT CARDS --- */
+        .prospect-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .prospect-card { 
+            background: var(--glass); border: 1px solid #222; border-radius: 15px; 
+            padding: 20px; text-align: center; transition: 0.3s;
+        }
+        .prospect-card:hover { border-color: var(--nfa-gold); background: rgba(228, 255, 0, 0.05); }
+        .prospect-avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; margin-bottom: 10px; }
+
+        /* --- DRAFT LOG --- */
+        .draft-board { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; height: fit-content; position: sticky; top: 120px; }
+        .pick-item { 
+            display: flex; gap: 15px; padding: 12px 0; border-bottom: 1px solid #111; 
+            align-items: center; font-size: 0.85rem; 
+        }
+        .round-num { background: #222; min-width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-weight: bold; color: var(--nfa-gold); }
+
+        @media (max-width: 900px) { .draft-layout { grid-template-columns: 1fr; } .draft-board { position: static; } }
+    </style>
+</head>
+<body>
+
+    <header style="display:flex; justify-content:space-between; align-items:center; padding: 15px 5%; background:rgba(0,0,0,0.9); position:fixed; top:0; width:100%; z-index:1000; border-bottom:1px solid #1a1a1a;">
+        <div class="logo">NEXUS <span>DRAFT</span></div>
+        <a href="nfa.html" style="color:#555; text-decoration:none; font-weight:bold;"><i class="fa-solid fa-arrow-left"></i> EXIT</a>
+    </header>
+
+    <div class="draft-layout">
+        <!-- TOP BANNER -->
+        <div class="live-banner">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="live-tag">LIVE</span>
+                <span style="text-transform:uppercase; font-weight:bold; letter-spacing:1px;">Inaugural Player Draft</span>
+            </div>
+            <div style="font-weight:bold; color:var(--nfa-gold);" id="timer">MARKET ACTIVE</div>
+        </div>
+
+        <!-- MAIN POOL -->
+        <div>
+            <h3 style="margin-bottom:20px; text-transform:uppercase; letter-spacing:2px;">Available <span style="color:var(--nfa-blue)">Prospects</span></h3>
+            <div id="prospect-list" class="prospect-grid">
+                <!-- Prospects load here -->
+            </div>
+        </div>
+
+        <!-- SELECTION HISTORY -->
+        <div class="draft-board">
+            <h3 style="margin:0 0 20px; font-size:1rem; border-bottom:1px solid #222; padding-bottom:10px;">DRAFT BOARD</h3>
+            <div id="pick-history">
+                <!-- Picks load here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = "https://nl-server-k7i9.onrender.com/api";
+
+        async function loadDraftData() {
+            try {
+                const [pRes, hRes] = await Promise.all([
+                    fetch(`${API}/nfa/draft/prospects`).then(r => r.json()),
+                    fetch(`${API}/nfa/draft/history`).then(r => r.json())
+                ]);
+
+                // Render Prospects
+                const pList = document.getElementById('prospect-list');
+                pList.innerHTML = pRes.map(p => `
+                    <div class="prospect-card">
+                        <img src="${p.avatar || 'https://i.postimg.cc/85zXY7mB/default-avatar.png'}" class="prospect-avatar">
+                        <h4 style="margin:0;">${p.name}</h4>
+                        <p style="color:#555; font-size:0.7rem; margin:5px 0;">${p.playstyle || 'All-Rounder'}</p>
+                        <div style="color:var(--nfa-gold); font-weight:bold; font-size:0.9rem;">${p.points} <small>PTS</small></div>
+                    </div>
+                `).join('') || "<p>No unsigned prospects available.</p>";
+
+                // Render History
+                const hList = document.getElementById('pick-history');
+                hList.innerHTML = hRes.map((h, index) => `
+                    <div class="pick-item">
+                        <div class="round-num">${hRes.length - index}</div>
+                        <div>
+                            <b style="color:var(--nfa-blue)">${h.clubName}</b><br>
+                            <span style="color:#888">selected</span> <b>${h.playerName}</b>
+                        </div>
+                    </div>
+                `).join('') || "<p style='color:#333; text-align:center;'>Waiting for first pick...</p>";
+
+            } catch (e) { console.error("Draft offline"); }
+        }
+
+        // Auto-refresh every 30 seconds to show live picks
+        setInterval(loadDraftData, 30000);
+        window.onload = loadDraftData;
+    </script>
+</body>
+</html>
