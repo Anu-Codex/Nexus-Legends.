@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Profile | Nexus Legends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --accent: #E4FF00; --blue: #0041FF; }
+        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding-top: 80px; }
+        
+        .profile-header {
+            text-align: center; padding: 40px 20px;
+            background: linear-gradient(to bottom, rgba(0,65,255,0.1), transparent);
+        }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 15px; margin: 30px auto; max-width: 800px;
+        }
+        .stat-box { background: rgba(255,255,255,0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; text-align: center; }
+        .stat-box b { display: block; font-size: 1.5rem; color: var(--accent); }
+        .stat-box small { font-size: 0.7rem; color: #555; text-transform: uppercase; }
+
+        /* Squad Table */
+        .squad-card { background: rgba(15,15,15,0.9); border: 1px solid #222; border-radius: 20px; padding: 25px; max-width: 900px; margin: 0 auto 50px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; color: #555; font-size: 0.8rem; padding: 10px; border-bottom: 1px solid #222; }
+        td { padding: 15px 10px; border-bottom: 1px solid #111; font-weight: bold; }
+        
+        .p-img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 10px; border: 1px solid var(--blue); }
+        
+        .finance-badge { 
+            padding: 2px 10px; border-radius: 4px; font-size: 0.8rem; 
+            background: #00ff88; color: black; font-weight: 900; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="profile-header">
+        <img id="cLogo" src="" style="width:120px; height:120px; object-fit:contain; margin-bottom:20px;">
+        <h1 id="cName" style="font-size:3rem; margin:0; text-transform:uppercase;">Loading...</h1>
+        <p id="cStadium" style="color:#888; letter-spacing:3px;"></p>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-box"><small>CRP REPUTATION</small><b id="cCRP">0</b></div>
+            <div class="stat-box"><small>BUDGET STATUS</small><b><span class="finance-badge">SECURE</span></b></div>
+            <div class="stat-box"><small>MANAGER</small><b id="cManager">---</b></div>
+        </div>
+
+        <div class="squad-card">
+            <h3 style="margin:0; letter-spacing:2px; display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-users-rectangle" style="color:var(--blue)"></i> CURRENT SQUAD
+            </h3>
+            <table>
+                <thead>
+                    <tr><th>STRIKER</th><th>GOALS</th><th>POINTS</th><th>PROFILE</th></tr>
+                </thead>
+                <tbody id="squad-list">
+                    <!-- Squad rows -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function loadProfile() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const res = await fetch(`https://nl-server-k7i9.onrender.com/api/nfa/club/${id}`);
+            const { club, squad } = await res.json();
+
+            document.getElementById('cName').innerText = club.name;
+            document.getElementById('cLogo').src = club.logo || 'https://via.placeholder.com/120';
+            document.getElementById('cStadium').innerText = `🏟️ ${club.stadium.toUpperCase()}`;
+            document.getElementById('cCRP').innerText = club.crp;
+            document.getElementById('cManager').innerText = club.manager || 'PENDING';
+
+            document.getElementById('squad-list').innerHTML = squad.map(p => `
+                <tr>
+                    <td>
+                        <img src="${p.avatar || 'https://i.postimg.cc/85zXY7mB/default-avatar.png'}" class="p-img">
+                        ${p.name}
+                    </td>
+                    <td style="color:#00ff88">${p.goalsFor}</td>
+                    <td>${p.points}</td>
+                    <td><a href="rankings.html" style="color:var(--accent); text-decoration:none; font-size:0.7rem;">VIEW CARD</a></td>
+                </tr>
+            `).join('');
+        }
+        window.onload = loadProfile;
+    </script>
+</body>
+</html>
