@@ -309,6 +309,16 @@
         <button onclick="addMarketListing()" class="btn-outline" style="color:var(--accent); border-color:var(--accent);">LIST ON HUB</button>
     </div>
 </div>
+            <div class="card" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-top: 15px;">
+    <p style="font-size:0.7rem; color:var(--accent);">SQUAD CONTRACT DESK</p>
+    <select id="squadPlayerSelect"><option>Select Player from Squad</option></select>
+    
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
+        <input type="number" id="newReleaseClause" placeholder="Release Clause (₦)">
+        <input type="number" id="newWage" placeholder="Weekly Wage (₦)">
+    </div>
+    <button onclick="updateContract()" class="btn-outline" style="font-size:0.7rem; padding:5px; width:100%;">APPLY CONTRACT TERMS</button>
+            </div>
         </div>
     </div>
 
