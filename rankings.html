@@ -83,6 +83,12 @@
         .stat-item b { font-size: 0.9rem; color: white; }
 
         .status-msg { text-align: center; padding: 40px; font-weight: bold; color: #555; }
+        .value-cell {
+    color: #00ff88; /* Neon Green for money */
+    font-family: 'monospace';
+    font-weight: 800;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -112,6 +118,7 @@
                         <th class="col-name">Player Name</th>
                         <th class="col-stat">GS</th>
                         <th class="col-stat">GA</th>
+                        <th style="text-align:center;">Value</th>
                         <th class="col-perf">Performance</th>
                         <th class="col-pts">Total Pts</th>
                     </tr>
@@ -143,6 +150,25 @@ async function loadRankings() {
     }
 }
 
+function calculateMarketValue(p) {
+    // STARTING BASE: 10 Million ₦
+    let baseValue = 10000000;
+    
+    // CALCULATION LOGIC
+    let pointsBonus = (p.points || 0) * 1000000;       // +1M per Point
+    let goalsBonus = (p.goalsFor || 0) * 500000;      // +500k per Goal Scored
+    let winBonus = (p.wins || 0) * 2000000;           // +2M per Win
+    let defensePenalty = (p.goalsAgainst || 0) * 200000; // -200k per Goal Conceded
+
+    let finalValue = baseValue + pointsBonus + goalsBonus + winBonus - defensePenalty;
+
+    // MINIMUM VALUE: 5 Million ₦
+    if (finalValue < 5000000) finalValue = 5000000;
+
+    // FORMATTING (e.g., 25,500,000 -> 25.5M)
+    return (finalValue / 1000000).toFixed(1) + "M";
+}
+
 function renderTable(data) {
     const tbody = document.getElementById('ranking-body');
     tbody.innerHTML = data.map((player, index) => {
@@ -150,17 +176,24 @@ function renderTable(data) {
         const oldRank = player.previousRank || 0;
         let trendIcon = '';
         if (oldRank !== 0) {
-            if (oldRank > currentRank) trendIcon = '<i class="fa-solid fa-caret-up" style="color:var(--green); margin-left:5px;"></i>';
-            else if (oldRank < currentRank) trendIcon = '<i class="fa-solid fa-caret-down" style="color:var(--red); margin-left:5px;"></i>';
+            if (oldRank > currentRank) trendIcon = '<i class="fa-solid fa-caret-up" style="color:var(--green); margin-left:8px;"></i>';
+            else if (oldRank < currentRank) trendIcon = '<i class="fa-solid fa-caret-down" style="color:var(--red); margin-left:8px;"></i>';
         }
+
+        // Calculate the dynamic market value
+        const marketValue = calculateMarketValue(player);
+
         return `
         <tr class="player-row" onclick="viewPlayerCard('${player.name}')">
-            <td class="col-rank">#${currentRank}</td>
-            <td class="col-name">${player.name} ${trendIcon} <i class="fa-solid fa-id-badge" style="font-size:0.7rem; color:#222; margin-left:5px;"></i></td>
-            <td class="col-stat" style="color:var(--green);">${player.goalsFor || 0}</td>
-            <td class="col-stat" style="color:var(--red);">${player.goalsAgainst || 0}</td>
-            <td class="col-perf">${player.trophies || '-'}</td>
-            <td class="col-pts">${player.points || 0}</td>
+            <td class="rank-num">#${currentRank}</td>
+            <td style="font-weight:700;">
+                ${player.name} ${trendIcon} 
+                <i class="fa-solid fa-circle-info" style="font-size:0.7rem; color:#444; margin-left:5px;"></i>
+            </td>
+            <td style="text-align:center;">${player.goalsFor || 0}</td>
+            <td style="text-align:center;">${player.goalsAgainst || 0}</td>
+            <td class="value-cell" style="text-align:center;">${marketValue} ₦</td>
+            <td class="pts-cell" style="text-align:right;">${player.points || 0}</td>
         </tr>`;
     }).join('');
 }
@@ -173,22 +206,27 @@ function filterRankings() {
 
 function viewPlayerCard(name) {
     const p = allPlayers.find(x => x.name === name);
-    const container = document.getElementById('cardContent');
-    const avatarUrl = p.avatar ? `${p.avatar}?t=${Date.now()}` : 'https://i.postimg.cc/85zXY7mB/default-avatar.png';
+    const content = document.getElementById('cardContent');
+    const marketValue = calculateMarketValue(p); // Get the same calculated value
 
-    container.innerHTML = `
+    content.innerHTML = `
         <div class="efootball-card">
             <img src="card.jpg" class="card-frame" onerror="this.src='https://i.ibb.co/3ykSDRN/F5k-IL2UWUAAw-C8g.jpg'">
-            <img src="${avatarUrl}" class="card-avatar" onerror="this.src='https://i.postimg.cc/85zXY7mB/default-avatar.png'">
+            <img src="${p.avatar || 'https://i.postimg.cc/85zXY7mB/default-avatar.png'}" class="card-avatar">
+            
             <div class="card-data">
                 <h2 class="card-name">${p.name}</h2>
                 <div class="card-stats">
                     <div class="stat-item"><small>STYLE</small><b>${p.playstyle || 'BAL'}</b></div>
-                    <div class="stat-item"><small>FORM</small><b>${p.formation || '4-3-3'}</b></div>
+                    <div class="stat-item"><small>VALUE</small><b style="color:var(--accent-yellow)">${marketValue} ₦</b></div>
                     <div class="stat-item"><small>POINTS</small><b>${p.points}</b></div>
                 </div>
+                <div style="color:rgba(255,255,255,0.4); font-size:0.5rem; margin-top:10px; letter-spacing:2px;">
+                    NEXUS NFA CERTIFIED ASSET
+                </div>
             </div>
-        </div>`;
+        </div>
+    `;
     document.getElementById('playerCardOverlay').style.display = 'flex';
 }
 
