@@ -246,6 +246,69 @@
                 <button onclick="loadSubscribers()" class="btn-outline">Refresh Emails</button>
                 <div id="subList" style="margin-top:10px; max-height:150px; overflow-y:auto; font-size:0.8rem;"></div>
             </div>
+            
+            <!-- NFA CLUB & FINANCE MANAGER -->
+<div class="card" style="border-left: 4px solid var(--blue);">
+    <h3 style="color:var(--blue)"><i class="fa-solid fa-building-columns"></i> CLUB & FINANCE</h3>
+    <select id="nfaClubSelect" onchange="fillClubForm()">
+        <option value="">-- Select Club to Manage --</option>
+    </select>
+    <div id="clubManagerForm">
+        <input type="text" id="cOwner" placeholder="Owner Name">
+        <input type="text" id="cManager" placeholder="Manager Name">
+        <input type="text" id="cLogo" placeholder="Club Logo URL (ImgBB)">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <input type="number" id="cCRP" placeholder="Reputation (CRP)">
+            <input type="text" id="cStadium" placeholder="Stadium Name">
+        </div>
+        <button onclick="updateClubDetails()" class="btn-blue">Update Club Identity</button>
+        
+        <div style="margin-top:20px; padding-top:15px; border-top:1px solid #222;">
+            <p style="font-size:0.7rem; color:#555;">FINANCIAL FAIR PLAY (FFP) CONSOLE</p>
+            <input type="number" id="nfaAmount" placeholder="Amount (₦)">
+            <input type="text" id="nfaReason" placeholder="Reason (e.g. Prize, Fine, Signing)">
+            <div style="display:flex; gap:5px;">
+                <button onclick="nfaTransfer('Credit')" class="btn-yellow" style="background:var(--green); flex:1;">GRANT</button>
+                <button onclick="nfaTransfer('Debit')" class="btn-red" style="flex:1;">FINE/DEDUCT</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NFA BULLETIN & MARKET CONTROL -->
+<div class="card" style="border-left: 4px solid var(--accent);">
+    <h3 style="color:var(--accent)"><i class="fa-solid fa-gavel"></i> NFA COMMAND</h3>
+    
+    <p style="font-size:0.7rem; color:#555;">OFFICIAL BULLETIN</p>
+    <input type="text" id="bulTitle" placeholder="Bulletin Title">
+    <textarea id="bulContent" placeholder="Official statement..." style="height:60px;"></textarea>
+    <button onclick="postBulletin()" class="btn-yellow">Post Official Decision</button>
+
+    <div style="margin-top:20px; padding-top:15px; border-top:1px solid #222;">
+        <p style="font-size:0.7rem; color:#555;">TRANSFER MARKET MASTER SWITCH</p>
+        <input type="date" id="marketCloseDate">
+        <div style="display:flex; gap:5px;">
+            <button onclick="setMarketStatus(true)" class="btn-blue" style="background:#00ff88; color:black; flex:1;">OPEN WINDOW</button>
+            <button onclick="setMarketStatus(false)" class="btn-red" style="flex:1;">CLOSE WINDOW</button>
+        </div>
+    </div>
+</div>
+
+<!-- SQUAD & LISTING MANAGER -->
+<div class="card" style="border-left: 4px solid var(--green);">
+    <h3 style="color:var(--green)"><i class="fa-solid fa-people-group"></i> SQUAD & MARKET LIST</h3>
+    
+    <p style="font-size:0.7rem; color:#555;">ASSIGN PLAYER TO CLUB (CROSS-DB)</p>
+    <select id="nfaPlayerSelect"><option>Select Player</option></select>
+    <select id="targetClubSelect"><option>Select Club</option></select>
+    <button onclick="assignToSquad()" class="btn-blue" style="background:var(--green); color:black;">ADD TO SQUAD</button>
+
+    <div style="margin-top:20px; padding-top:15px; border-top:1px solid #222;">
+        <p style="font-size:0.7rem; color:#555;">ADD TO TRANSFER HUB</p>
+        <input type="number" id="listPrice" placeholder="Market Price / Buyout">
+        <button onclick="addMarketListing()" class="btn-outline" style="color:var(--accent); border-color:var(--accent);">LIST ON HUB</button>
+    </div>
+</div>
         </div>
     </div>
 
@@ -279,6 +342,13 @@
                 document.getElementById('appTourSelect').innerHTML = '<option value="">-- Select --</option>' + opts;
                 document.getElementById('betTourSelect').innerHTML = '<option value="">-- Select Tour --</option>' + opts;
                 loadAdminStore();
+                const clubOpts = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join(''); // Wait, fetch Clubs from NFA DB
+const nfaClubs = await fetch(`${API}/nfa/clubs`).then(r => r.json());
+const nfaClubOpts = nfaClubs.map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+
+document.getElementById('nfaClubSelect').innerHTML = '<option value="">-- Select Club --</option>' + nfaClubOpts;
+document.getElementById('targetClubSelect').innerHTML = nfaClubOpts;
+document.getElementById('nfaPlayerSelect').innerHTML = document.getElementById('playerSelect').innerHTML;
             } catch (e) { notify("Sync Failed", "#ff4444"); console.error(e); }
         }
 
@@ -705,6 +775,75 @@ async function loadAdConfig() {
     const data = await res.json();
     document.getElementById('adRewardVal').value = data.reward;
     document.getElementById('adLinkVal').value = data.link;
+}
+
+// --- NFA FUNCTIONS ---
+
+async function fillClubForm() {
+    const id = document.getElementById('nfaClubSelect').value;
+    if(!id) return;
+    const res = await fetch(`${API}/nfa/clubs`);
+    const clubs = await res.json();
+    const c = clubs.find(x => x._id === id);
+    
+    document.getElementById('cOwner').value = c.owner || "";
+    document.getElementById('cManager').value = c.manager || "";
+    document.getElementById('cLogo').value = c.logo || "";
+    document.getElementById('cCRP').value = c.crp || 0;
+    document.getElementById('cStadium').value = c.stadium || "";
+}
+
+async function updateClubDetails() {
+    const id = document.getElementById('nfaClubSelect').value;
+    const data = {
+        owner: document.getElementById('cOwner').value,
+        manager: document.getElementById('cManager').value,
+        logo: document.getElementById('cLogo').value,
+        crp: document.getElementById('cCRP').value,
+        stadium: document.getElementById('cStadium').value
+    };
+    await fetch(`${API}/admin/nfa/update-club`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id, data })
+    });
+    notify("Club Identity Updated!");
+}
+
+async function nfaTransfer(type) {
+    const clubId = document.getElementById('nfaClubSelect').value;
+    const amount = document.getElementById('nfaAmount').value;
+    const description = document.getElementById('nfaReason').value;
+    
+    const res = await fetch(`${API}/nfa/transaction`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ clubId, amount: parseInt(amount), type, description })
+    });
+    const data = await res.json();
+    if(res.ok) notify(`FFP Transaction: ${type} Success!`);
+    else alert(data.error);
+}
+
+async function postBulletin() {
+    const data = {
+        title: document.getElementById('bulTitle').value,
+        content: document.getElementById('bulContent').value
+    };
+    await fetch(`${API}/admin/nfa/bulletin`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    notify("Bulletin Published!");
+}
+
+async function assignToSquad() {
+    const playerId = document.getElementById('nfaPlayerSelect').value; // ID from Arena DB
+    const clubId = document.getElementById('targetClubSelect').value; // ID from NFA DB
+    
+    await fetch(`${API}/admin/nfa/assign-squad`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ playerId, clubId })
+    });
+    notify("Squad Cross-Link Successful!");
 }
         
         
