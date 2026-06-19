@@ -51,22 +51,28 @@
     </style>
 </head>
 <body>
-
+    <!-- 1XBET STYLE TOP NAVIGATION -->
     <header>
         <div class="logo">NEXUS <span>1BET</span></div>
-        <a href="index.html" style="color:white; text-decoration:none; font-size:0.8rem;"><i class="fa-solid fa-chevron-left"></i> BACK</a>
+        <a href="index.html" class="back-link"><i class="fa-solid fa-chevron-left"></i> EXIT</a>
     </header>
 
     <div class="user-dashboard">
         <div class="user-meta">
-            <span id="userInfo" style="font-size:0.6rem; color:#4e6376; display:block;">GUEST STRIKER</span>
             <div id="balanceDisplay" class="nexus-currency">🪙 0</div>
+            <span id="userInfo" style="font-size:0.6rem; color:#4e6376; display:block;">GUEST STRIKER</span>
         </div>
         <div class="action-tray" style="display:flex; gap:8px;">
-            <button id="dailyBtn" onclick="claimDaily()" class="sec-btn" style="display:none; border-color:var(--xb-yellow); color:var(--xb-yellow);">DAILY</button>
-            <button onclick="toggleAuthModal()" id="loginBtn" class="sec-btn">SIGN IN</button>
+            <!-- DAILY REWARD (Only shows if logged in) -->
+            <button id="dailyBtn" onclick="claimDaily()" class="auth-trigger" style="display:none; background:var(--xb-light-blue); padding:5px 10px;">BONUS</button>
+            <!-- AD REWARD (Only shows if logged in) -->
+            <button id="adBtn" onclick="openAdArea()" class="auth-trigger" style="display:none; background:var(--xb-green); padding:5px 10px;">FREE 🪙</button>
+            <!-- AUTH BUTTON -->
+            <button onclick="toggleAuthModal()" id="loginBtn" class="auth-trigger">SIGN IN</button>
         </div>
     </div>
+
+    <!-- KEEP THE REST OF YOUR MODALS AS THEY ARE -->
 
     <!-- AUTH MODAL -->
     <div id="authOverlay" class="roster-overlay">
