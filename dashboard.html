@@ -351,6 +351,7 @@
                 document.getElementById('fixTourSelect').innerHTML = '<option value="">-- Select Tournament --</option>' + opts;
                 document.getElementById('appTourSelect').innerHTML = '<option value="">-- Select --</option>' + opts;
                 document.getElementById('betTourSelect').innerHTML = '<option value="">-- Select Tour --</option>' + opts;
+                document.getElementById('nfaClubSelect').innerHTML = '<option value="">-- Select Club --</option>' + opts;
                 loadAdminStore();
                 const clubOpts = tRes.map(t => `<option value="${t._id}">${t.title}</option>`).join(''); // Wait, fetch Clubs from NFA DB
 const nfaClubs = await fetch(`${API}/nfa/clubs`).then(r => r.json());
