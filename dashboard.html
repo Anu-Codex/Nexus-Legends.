@@ -717,48 +717,61 @@ async function loadBookmaker() {
     
     const t = toursData.find(x => x._id === id);
     list.innerHTML = (t.fixtures || []).flatMap(s => s.matches).map(m => `
-    <div style="background:#000; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #222;">
-        <div style="display:flex; justify-content:space-between;">
-            <b style="font-size:0.8rem;">${m.p1} vs ${m.p2}</b>
-            <button onclick="toggleBetStatus('${m._id}', 'Closed')" style="background:red; color:white; padding:2px 5px; font-size:0.6rem; border-radius:3px;">LOCK BETS</button>
+        <div style="background:#000; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #222;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <b style="font-size:0.8rem; color:white;">${m.p1} vs ${m.p2}</b>
+                <button onclick="toggleBetStatus('${m._id}', 'Closed')" style="background:red; color:white; padding:3px 8px; font-size:0.6rem; border:none; border-radius:3px; cursor:pointer;">LOCK BETS</button>
+            </div>
+
+            <!-- ODDS INPUTS (Critical for new matches) -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-bottom:10px;">
+                <div><small style="color:#555; font-size:0.6rem;">P1 ODDS</small><input type="number" id="o1_${m._id}" value="2.0" step="0.1" style="margin:0; padding:5px; font-size:0.7rem;"></div>
+                <div><small style="color:#555; font-size:0.6rem;">DRAW</small><input type="number" id="od_${m._id}" value="3.0" step="0.1" style="margin:0; padding:5px; font-size:0.7rem;"></div>
+                <div><small style="color:#555; font-size:0.6rem;">P2 ODDS</small><input type="number" id="o2_${m._id}" value="2.0" step="0.1" style="margin:0; padding:5px; font-size:0.7rem;"></div>
+            </div>
+
+            <!-- THE PUSH BUTTON (This makes it show in predictions.html) -->
+            <button onclick="openBetting('${t._id}', '${m._id}', '${m.p1.replace(/'/g, "")}', '${m.p2.replace(/'/g, "")}')" 
+                    style="width:100%; background:#ff8800; color:black; padding:8px; font-weight:800; font-size:0.7rem; border-radius:5px; margin-bottom:8px; border:none; cursor:pointer;">
+                <i class="fa-solid fa-fire"></i> OPEN BETS / PUSH DATA
+            </button>
+
+            <div style="display:flex; gap:5px;">
+                <button onclick="toggleBetStatus('${m._id}', 'Available')" class="btn-outline" style="flex:1; font-size:0.6rem; border-color:#0f8; color:#0f8; padding:5px;">OPEN/UNSYNC</button>
+                <button onclick="settleBets('${m._id}', 'p1')" class="btn-blue" style="flex:1; font-size:0.6rem; padding:5px;">P1 WIN</button>
+                <button onclick="settleBets('${m._id}', 'draw')" class="btn-outline" style="flex:1; font-size:0.6rem; padding:5px;">DRAW</button>
+                <button onclick="settleBets('${m._id}', 'p2')" class="btn-red" style="flex:1; font-size:0.6rem; padding:5px;">P2 WIN</button>
+            </div>
         </div>
-        <!-- ... (keep your existing odds inputs) ... -->
-        <div style="display:flex; gap:5px; margin-top:5px;">
-            <button onclick="toggleBetStatus('${m._id}', 'Available')" class="btn-outline" style="flex:1; font-size:0.6rem; border-color:#0f8; color:#0f8;">OPEN/UNSYNC</button>
-            <button onclick="settleBets('${m._id}', 'p1')" class="btn-blue" style="flex:1; font-size:0.6rem;">P1 WIN</button>
-            <button onclick="settleBets('${m._id}', 'draw')" class="btn-outline" style="flex:1; font-size:0.6rem;">DRAW</button>
-            <button onclick="settleBets('${m._id}', 'p2')" class="btn-red" style="flex:1; font-size:0.6rem;">P2 WIN</button>
-        </div>
-    </div>
-`).join('');
+    `).join('');
 }
 
 async function openBetting(tourId, matchId, p1, p2) {
-    // 1. Get the odds from the input boxes next to the match
-    const oddsP1 = document.getElementById(`o1_${matchId}`).value;
-    const oddsDraw = document.getElementById(`od_${matchId}`).value;
-    const oddsP2 = document.getElementById(`o2_${matchId}`).value;
+    const o1 = document.getElementById(`o1_${matchId}`).value;
+    const od = document.getElementById(`od_${matchId}`).value;
+    const o2 = document.getElementById(`o2_${matchId}`).value;
 
-    // 2. Push to the Prediction Board
+    if(!o1 || !od || !o2) return alert("Fill all odds!");
+
     const res = await fetch(`${API}/predictions/open`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ 
             tourId, 
-            matchId, 
+            matchId, // This must be the unique _id from the fixture
             p1, 
             p2, 
-            oddsP1, 
-            oddsDraw, 
-            oddsP2,
-            status: "Available" // This ensures it is visible
+            oddsP1: o1, 
+            oddsDraw: od, 
+            oddsP2: o2 
         })
     });
 
     if(res.ok) {
-        notify("Match Pushed to Prediction Center!", "#ff8800");
+        notify("BETS ARE NOW LIVE!", "#ff8800");
     } else {
-        alert("Failed to open bets.");
+        const err = await res.json();
+        alert("Error: " + err.error);
     }
 }
 
