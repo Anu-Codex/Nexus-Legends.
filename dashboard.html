@@ -733,16 +733,32 @@ async function loadBookmaker() {
 }
 
 async function openBetting(tourId, matchId, p1, p2) {
-    const odds = {
-        p1: document.getElementById(`o1_${matchId}`).value,
-        draw: document.getElementById(`od_${matchId}`).value,
-        p2: document.getElementById(`o2_${matchId}`).value
-    };
-    await fetch(`${API}/predictions/open`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ tourId, matchId, p1, p2, oddsP1: odds.p1, oddsDraw: odds.draw, oddsP2: odds.p2 })
+    // 1. Get the odds from the input boxes next to the match
+    const oddsP1 = document.getElementById(`o1_${matchId}`).value;
+    const oddsDraw = document.getElementById(`od_${matchId}`).value;
+    const oddsP2 = document.getElementById(`o2_${matchId}`).value;
+
+    // 2. Push to the Prediction Board
+    const res = await fetch(`${API}/predictions/open`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ 
+            tourId, 
+            matchId, 
+            p1, 
+            p2, 
+            oddsP1, 
+            oddsDraw, 
+            oddsP2,
+            status: "Available" // This ensures it is visible
+        })
     });
-    notify("Bets Opened with Multipliers!");
+
+    if(res.ok) {
+        notify("Match Pushed to Prediction Center!", "#ff8800");
+    } else {
+        alert("Failed to open bets.");
+    }
 }
 
 async function settleBets(matchId, result) {
